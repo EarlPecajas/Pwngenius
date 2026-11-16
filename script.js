@@ -28,18 +28,33 @@ async function loadChallenges(session) {
   const { challenges } = await response.json();
   challengeList.innerHTML = challenges.map((challenge) => `
     <article class="challenge-panel">
-      <div class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</div>
-      <h3>${escapeHtml(challenge.name)}</h3>
-      <p>${escapeHtml(challenge.description)}</p>
-      <p class="challenge-hint"><strong>HINT:</strong> ${escapeHtml(challenge.hint)}</p>
-      <form class="submission-form" data-challenge-id="${escapeHtml(challenge.id)}">
-        <label>FLAG STRING</label>
-        <div class="input-wrap"><span class="input-prefix">$</span><input name="flag" required autocomplete="off" /></div>
-        <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
-        <p class="form-status" role="status"></p>
-      </form>
+      <button class="challenge-card-toggle" type="button" aria-expanded="false">
+        <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
+        <strong>${escapeHtml(challenge.name)}</strong>
+        <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
+      </button>
+      <div class="challenge-details" hidden>
+        <p>${escapeHtml(challenge.description)}</p>
+        <p class="challenge-hint"><strong>HINT:</strong> ${escapeHtml(challenge.hint)}</p>
+        <form class="submission-form" data-challenge-id="${escapeHtml(challenge.id)}">
+          <label>FLAG STRING</label>
+          <div class="input-wrap"><span class="input-prefix">$</span><input name="flag" required autocomplete="off" /></div>
+          <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
+          <p class="form-status" role="status"></p>
+        </form>
+      </div>
     </article>
   `).join('');
+  challengeList.querySelectorAll('.challenge-card-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const details = toggle.nextElementSibling;
+      const expanded = !details.hidden;
+      details.hidden = expanded;
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      toggle.querySelector('.challenge-open').firstChild.textContent = expanded ? 'VIEW CHALLENGE ' : 'CLOSE CHALLENGE ';
+    });
+  });
   challengeList.querySelectorAll('.submission-form').forEach((form) => {
     form.addEventListener('submit', (event) => submitFlag(event, form, session));
   });
