@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#05070d" />
-  <title>PwnGenius CTF | Flag submission</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PwnGenius | Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,47 +12,68 @@
 <body>
   <div class="site-shell">
     <header class="topbar">
-      <a class="brand" href="#top" aria-label="PwnGenius CTF home">
+      <a class="brand" href="/" aria-label="PwnGenius home">
         <span class="brand-mark"><span></span><span></span><span></span></span>
         <span>PWNGENIUS<span class="brand-slash">//</span>CTF</span>
       </a>
-      <div class="event-status"><span class="status-dot"></span> LIVE EVENT <span class="status-divider"></span> 08:42:17 REMAINING</div>
-      <button class="icon-button" type="button" aria-label="Open menu"><span></span><span></span></button>
+      <span class="event-status"><span class="status-dot"></span> SECURE ACCESS</span>
     </header>
 
-    <main id="top">
-      <section class="intro-grid">
-        <div class="intro-copy">
-          <p class="eyebrow"><span class="eyebrow-line"></span> QUALIFIER 01 / 2026</p>
-          <h1>Submit your<br /><em>flag.</em></h1>
-          <p class="intro-text">Crack the challenge. Submit the flag.<br />Keep moving before the clock goes dark.</p>
-          <div class="intro-meta"><span class="mono">INSTANCE: PWN-01</span><span class="meta-dot"></span><span class="mono">PLAYERS: 482</span></div>
-        </div>
-        <div class="signal-art" aria-hidden="true">
-          <div class="orbit orbit-one"></div>
-          <div class="orbit orbit-two"></div>
-          <div class="crosshair"><span></span><span></span></div>
-          <div class="signal-center">◒</div>
-          <div class="art-label label-top">ENCRYPTED<br />TRANSMISSION</div>
-          <div class="art-label label-bottom">LAT 40.7128<br />LON -74.0060</div>
-        </div>
+    <main class="auth-layout">
+      <section class="auth-intro">
+        <p class="eyebrow"><span class="eyebrow-line"></span> QUALIFIER 01 / 2026</p>
+        <h1>Enter the<br /><em>arena.</em></h1>
+        <p class="intro-text">Solve challenges. Climb the scoreboard.<br />Keep your signal secure.</p>
       </section>
 
-      <section class="workspace-grid" aria-label="Flag submission workspace">
-        <div class="submit-column">
-          <div class="section-heading"><span>01</span><h2>Submit your flag</h2><span class="heading-rule"></span></div>
-          <form id="flag-form" class="submission-form">
-            <label for="flag-input">FLAG STRING</label>
-            <div class="input-wrap"><span class="input-prefix">$</span><input id="flag-input" name="flag" type="text" autocomplete="off" placeholder="pwngenius{enter_your_flag_here}" spellcheck="false" required /><span class="input-cursor"></span></div>
-            <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span class="button-arrow">↗</span></button>
-            <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
-          </form>
+      <section class="auth-card" aria-label="Account access">
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-mode="login" type="button">LOGIN</button>
+          <button class="auth-tab" data-mode="register" type="button">REGISTER</button>
         </div>
+
+        <form id="login-form" class="auth-form">
+          <label for="login-identifier">EMAIL OR USERNAME</label>
+          <input id="login-identifier" required autocomplete="username" />
+          <label for="login-password">PASSWORD</label>
+          <input id="login-password" type="password" required autocomplete="current-password" />
+          <button class="submit-button" type="submit"><span>ENTER SYSTEM</span><span>↗</span></button>
+        </form>
+
+        <form id="register-form" class="auth-form hidden">
+          <label for="register-full-name">FULL NAME</label>
+          <input id="register-full-name" required autocomplete="name" />
+          <label for="register-username">USERNAME</label>
+          <input id="register-username" required autocomplete="username" />
+          <label for="register-email">EMAIL</label>
+          <input id="register-email" type="email" required autocomplete="email" />
+          <label for="register-password">PASSWORD</label>
+          <input id="register-password" type="password" minlength="8" required autocomplete="new-password" />
+          <label for="register-confirm">CONFIRM PASSWORD</label>
+          <input id="register-confirm" type="password" minlength="8" required autocomplete="new-password" />
+          <button class="submit-button" type="submit"><span>CREATE ACCOUNT</span><span>↗</span></button>
+        </form>
+        <p id="auth-status" class="form-status" role="status" aria-live="polite"></p>
       </section>
     </main>
 
-    <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">BUILT FOR THE CURIOUS</span><span>TERMS / RULES / CONTACT</span></footer>
+    <section id="dashboard" class="dashboard hidden">
+      <div class="dashboard-header">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> AUTHENTICATED PLAYER</p>
+          <h2>Challenge board</h2>
+        </div>
+        <div class="dashboard-actions">
+          <a id="admin-link" class="text-button hidden" href="/admin.html">ADMIN CONTROL</a>
+          <button id="logout-button" class="text-button" type="button">LOG OUT</button>
+        </div>
+      </div>
+      <div id="challenge-list" class="challenge-grid"></div>
+    </section>
+
+    <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">BUILT FOR THE CURIOUS</span></footer>
   </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
 </body>
 </html>

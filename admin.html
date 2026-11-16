@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PwnGenius | Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar">
+      <a class="brand" href="/">PWNGENIUS<span class="brand-slash">//</span>ADMIN</a>
+      <button id="logout-button" class="text-button" type="button">LOG OUT</button>
+    </header>
+    <main class="admin-layout">
+      <section>
+        <p class="eyebrow"><span class="eyebrow-line"></span> CONTROL ROOM</p>
+        <h1>Build the<br /><em>arena.</em></h1>
+        <form id="challenge-form" class="admin-form">
+          <label>CHALLENGE TITLE</label><input name="title" required />
+          <label>CATEGORY</label><input name="category" placeholder="Web, Crypto, Forensics..." required />
+          <label>DIFFICULTY</label><input name="difficulty" placeholder="Beginner, Intermediate..." required />
+          <label>DESCRIPTION</label><textarea name="description" required></textarea>
+          <label>HINT</label><textarea name="hint" required></textarea>
+          <label>FLAG (PRIVATE)</label><input name="flag" required />
+          <label>POINTS</label><input name="points" type="number" min="1" value="100" required />
+          <button class="submit-button" type="submit"><span>PUBLISH CHALLENGE</span><span>↗</span></button>
+          <p id="challenge-status" class="form-status" role="status"></p>
+        </form>
+      </section>
+      <section>
+        <div class="section-heading"><span>01</span><h2>REGISTERED PLAYERS</h2><span class="heading-rule"></span></div>
+        <div id="user-list" class="user-list"></div>
+      </section>
+    </main>
+    <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">PRIVATE ADMIN AREA</span></footer>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
