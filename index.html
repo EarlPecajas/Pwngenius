@@ -16,7 +16,10 @@
         <span class="brand-mark"><span></span><span></span><span></span></span>
         <span>PWNGENIUS<span class="brand-slash">//</span>CTF</span>
       </a>
-      <span class="event-status"><span class="status-dot"></span> SECURE ACCESS</span>
+      <div id="account-actions" class="account-actions hidden">
+        <button id="profile-button" class="text-button" type="button">PROFILE</button>
+        <button id="logout-button" class="text-button" type="button">LOG OUT</button>
+      </div>
     </header>
 
     <main class="auth-layout">
@@ -60,15 +63,35 @@
     <section id="dashboard" class="dashboard hidden">
       <div class="dashboard-header">
         <div>
-          <p class="eyebrow"><span class="eyebrow-line"></span> AUTHENTICATED PLAYER</p>
           <h2>Challenge board</h2>
         </div>
         <div class="dashboard-actions">
           <a id="admin-link" class="text-button hidden" href="/admin.html">ADMIN CONTROL</a>
-          <button id="logout-button" class="text-button" type="button">LOG OUT</button>
         </div>
       </div>
       <div id="challenge-list" class="challenge-grid"></div>
+    </section>
+
+    <section id="profile-panel" class="profile-panel hidden" aria-label="Player profile">
+      <div class="profile-panel-header">
+        <div>
+          <p class="eyebrow"><span class="eyebrow-line"></span> PLAYER PROFILE</p>
+          <h2>Account details</h2>
+        </div>
+        <button id="close-profile-button" class="text-button" type="button">CLOSE</button>
+      </div>
+      <div class="profile-stats">
+        <div><strong id="profile-score">0</strong><span>TOTAL SCORE</span></div>
+        <div><strong id="profile-solved">0</strong><span>CHALLENGES SOLVED</span></div>
+      </div>
+      <form id="profile-form" class="profile-form">
+        <label for="profile-full-name">FULL NAME</label>
+        <input id="profile-full-name" name="full_name" required />
+        <label for="profile-username">USERNAME</label>
+        <input id="profile-username" name="username" required />
+        <button class="submit-button" type="submit"><span>SAVE PROFILE</span><span>↗</span></button>
+        <p id="profile-status" class="form-status" role="status"></p>
+      </form>
     </section>
 
     <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">BUILT FOR THE CURIOUS</span></footer>

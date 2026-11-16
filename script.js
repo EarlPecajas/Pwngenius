@@ -4,6 +4,8 @@ const authStatus = document.querySelector('#auth-status');
 const dashboard = document.querySelector('#dashboard');
 const challengeList = document.querySelector('#challenge-list');
 const adminLink = document.querySelector('#admin-link');
+const profilePanel = document.querySelector('#profile-panel');
+let currentSession;
 let supabaseClient;
 
 function showStatus(message, type = 'error') {
@@ -79,6 +81,7 @@ async function submitFlag(event, form, session) {
 }
 
 async function showDashboard(session) {
+  currentSession = session;
   const { data: profile, error } = await supabaseClient
     .from('profiles')
     .select('role')
@@ -87,8 +90,21 @@ async function showDashboard(session) {
   if (error) throw error;
   document.querySelector('.auth-layout').classList.add('hidden');
   dashboard.classList.remove('hidden');
+  document.querySelector('#account-actions').classList.remove('hidden');
   adminLink.classList.toggle('hidden', profile.role !== 'admin');
   await loadChallenges(session);
+}
+
+async function loadProfile() {
+  const response = await fetch('/api/profile', {
+    headers: { Authorization: `Bearer ${currentSession.access_token}` }
+  });
+  const result = await response.json();
+  if (!response.ok) throw new Error(result.error || 'Unable to load profile');
+  document.querySelector('#profile-full-name').value = result.profile.full_name;
+  document.querySelector('#profile-username').value = result.profile.username;
+  document.querySelector('#profile-score').textContent = result.totalScore;
+  document.querySelector('#profile-solved').textContent = result.solvedCount;
 }
 
 loginForm.addEventListener('submit', async (event) => {
@@ -147,6 +163,37 @@ document.querySelectorAll('.auth-tab').forEach((tab) => {
 document.querySelector('#logout-button').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.reload();
+});
+
+document.querySelector('#profile-button').addEventListener('click', async () => {
+  try {
+    await loadProfile();
+    profilePanel.classList.remove('hidden');
+    profilePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (error) {
+    showStatus(error.message);
+  }
+});
+
+document.querySelector('#close-profile-button').addEventListener('click', () => {
+  profilePanel.classList.add('hidden');
+});
+
+document.querySelector('#profile-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const statusElement = document.querySelector('#profile-status');
+  const values = Object.fromEntries(new FormData(event.currentTarget).entries());
+  const response = await fetch('/api/profile', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${currentSession.access_token}`
+    },
+    body: JSON.stringify(values)
+  });
+  const result = await response.json();
+  statusElement.textContent = response.ok ? 'PROFILE SAVED' : result.error;
+  statusElement.className = `form-status ${response.ok ? 'success' : 'error'}`;
 });
 
 function escapeHtml(value) {

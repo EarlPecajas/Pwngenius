@@ -47,11 +47,11 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .dashboard-header h2 { font-size: 34px; margin: 18px 0 0; }
 .dashboard-actions { display: flex; gap: 20px; align-items: center; }
 .text-button { background: none; border: 0; color: var(--lime); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; padding: 8px 0; }
-.challenge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.challenge-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
 .challenge-panel { padding: 0; overflow: hidden; }
-.challenge-card-toggle { width: 100%; min-height: 190px; background: var(--card); color: var(--paper); border: 0; padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; text-align: center; transition: background .2s ease, transform .2s ease; }
+.challenge-card-toggle { width: 100%; min-height: 126px; background: var(--card); color: var(--paper); border: 0; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center; transition: background .2s ease, transform .2s ease; }
 .challenge-card-toggle:hover, .challenge-card-toggle[aria-expanded="true"] { background: #142541; }
-.challenge-card-toggle strong { font-size: clamp(22px, 3vw, 32px); font-weight: 500; letter-spacing: -.03em; }
+.challenge-card-toggle strong { font-size: clamp(17px, 2vw, 22px); font-weight: 500; letter-spacing: -.03em; }
 .challenge-score { color: var(--lime); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .1em; }
 .challenge-open { color: var(--coral); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; }
 .challenge-open span { font-size: 14px; margin-left: 5px; }
@@ -65,6 +65,16 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .user-row { background: var(--card); border: 1px solid var(--line); padding: 17px; display: flex; justify-content: space-between; align-items: center; gap: 15px; }
 .user-row strong, .user-row small { display: block; }
 .user-row small { margin-top: 6px; }
+.account-actions { display: flex; align-items: center; gap: 22px; }
+.profile-panel { margin: 35px auto 70px; max-width: 720px; background: var(--card); border: 1px solid var(--line); padding: 28px; }
+.profile-panel-header { display: flex; justify-content: space-between; align-items: start; border-bottom: 1px solid var(--line); padding-bottom: 18px; }
+.profile-panel-header h2 { margin: 16px 0 0; }
+.profile-stats { display: flex; gap: 50px; padding: 24px 0; }
+.profile-stats strong, .profile-stats span { display: block; }
+.profile-stats strong { color: var(--lime); font-size: 34px; }
+.profile-stats span { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .08em; margin-top: 5px; }
+.profile-form { display: grid; gap: 10px; }
+.profile-form input { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; }
 .admin-challenges { grid-column: 1 / -1; }
 .admin-challenge-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--card); border: 1px solid var(--line); padding: 18px; }
 .admin-challenge-row textarea { min-height: 65px; resize: vertical; }
