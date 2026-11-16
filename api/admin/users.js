@@ -4,21 +4,11 @@ module.exports = async function handler(request, response) {
   try {
     await requireAdmin(request);
     if (request.method === 'GET') {
-      const [usersResponse, profiles] = await Promise.all([
-        fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users?per_page=1000`, {
-          headers: {
-            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-          }
-        }).then((result) => result.json()),
-        supabaseRequest('profiles?select=id,full_name,username,role,created_at&order=created_at.desc')
-      ]);
-      const users = usersResponse.users || [];
+      const profiles = await supabaseRequest(
+        'profiles?select=id,email,full_name,username,role,created_at&order=created_at.desc'
+      );
       return response.status(200).json({
-        users: profiles.map((profile) => ({
-          ...profile,
-          email: users.find((user) => user.id === profile.id)?.email || ''
-        }))
+        users: profiles
       });
     }
 

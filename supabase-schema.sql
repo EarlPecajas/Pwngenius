@@ -11,6 +11,7 @@ create table if not exists public.challenges (
 
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
+  email text not null default '',
   full_name text not null default '',
   username text not null unique,
   role text not null default 'user' check (role in ('user', 'admin')),
@@ -21,6 +22,7 @@ alter table public.challenges add column if not exists category text not null de
 alter table public.challenges add column if not exists difficulty text not null default 'Beginner';
 alter table public.challenges add column if not exists description text not null default '';
 alter table public.challenges add column if not exists hint text not null default '';
+alter table public.profiles add column if not exists email text not null default '';
 alter table public.submissions add column if not exists user_id uuid references auth.users(id) on delete set null;
 
 create table if not exists public.submissions (
@@ -42,9 +44,10 @@ language plpgsql
 security definer set search_path = public
 as $$
 begin
-  insert into public.profiles (id, full_name, username)
+  insert into public.profiles (id, email, full_name, username)
   values (
     new.id,
+    coalesce(new.email, ''),
     coalesce(new.raw_user_meta_data->>'full_name', ''),
     coalesce(new.raw_user_meta_data->>'username', split_part(new.email, '@', 1))
   );

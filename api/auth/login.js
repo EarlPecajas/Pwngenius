@@ -17,20 +17,12 @@ module.exports = async function handler(request, response) {
     let email = identifier;
     if (!identifier.includes('@')) {
       const profiles = await supabaseRequest(
-        `profiles?username=eq.${encodeURIComponent(identifier)}&select=id&limit=1`
+        `profiles?username=eq.${encodeURIComponent(identifier)}&select=email&limit=1`
       );
       if (!profiles.length) {
         return response.status(401).json({ error: 'Invalid credentials' });
       }
-      const users = await fetch(`${process.env.SUPABASE_URL}/auth/v1/admin/users?per_page=1000`, {
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`
-        }
-      });
-      const userData = await users.json();
-      const user = userData.users?.find((item) => item.id === profiles[0].id);
-      email = user?.email || '';
+      email = profiles[0].email;
     }
 
     const authResponse = await fetch(

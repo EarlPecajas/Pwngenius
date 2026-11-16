@@ -7,6 +7,11 @@
 3. Register the first account in the deployed app.
 4. Promote that account to admin in SQL Editor:
    ```sql
+   update public.profiles p
+   set email = u.email
+   from auth.users u
+   where p.id = u.id;
+
    update public.profiles set role = 'admin' where username = 'your-admin-username';
    ```
 5. Copy the project URL, server-only service role key, and public anon key from the API settings.
