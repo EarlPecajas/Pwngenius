@@ -12,7 +12,24 @@
       <a class="brand" href="/">PWNGENIUS<span class="brand-slash">//</span>ADMIN</a>
       <button id="logout-button" class="text-button" type="button">LOG OUT</button>
     </header>
-    <main class="admin-layout">
+    <main id="admin-login" class="auth-layout">
+      <section class="auth-intro">
+        <p class="eyebrow"><span class="eyebrow-line"></span> RESTRICTED ACCESS</p>
+        <h1>Admin<br /><em>control.</em></h1>
+        <p class="intro-text">Manage players and publish challenges<br />from the secure control room.</p>
+      </section>
+      <section class="auth-card">
+        <form id="admin-login-form" class="auth-form">
+          <label for="admin-identifier">EMAIL OR USERNAME</label>
+          <input id="admin-identifier" required autocomplete="username" />
+          <label for="admin-password">PASSWORD</label>
+          <input id="admin-password" type="password" required autocomplete="current-password" />
+          <button class="submit-button" type="submit"><span>ACCESS CONTROL ROOM</span><span>↗</span></button>
+        </form>
+        <p id="admin-login-status" class="form-status" role="status"></p>
+      </section>
+    </main>
+    <main id="admin-dashboard" class="admin-layout hidden">
       <section>
         <p class="eyebrow"><span class="eyebrow-line"></span> CONTROL ROOM</p>
         <h1>Build the<br /><em>arena.</em></h1>

@@ -1,6 +1,12 @@
 let supabaseClient;
 let session;
 
+function loginStatus(message, type = 'error') {
+  const element = document.querySelector('#admin-login-status');
+  element.textContent = message;
+  element.className = `form-status ${type}`;
+}
+
 function status(message, type = 'error') {
   const element = document.querySelector('#challenge-status');
   element.textContent = message;
@@ -86,6 +92,30 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
   window.location.href = '/';
 });
 
+document.querySelector('#admin-login-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  loginStatus('AUTHENTICATING...', 'success');
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        identifier: document.querySelector('#admin-identifier').value,
+        password: document.querySelector('#admin-password').value
+      })
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    await supabaseClient.auth.setSession(result);
+    session = result;
+    await loadUsers();
+    document.querySelector('#admin-login').classList.add('hidden');
+    document.querySelector('#admin-dashboard').classList.remove('hidden');
+  } catch (error) {
+    loginStatus(error.message || 'LOGIN FAILED');
+  }
+});
+
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
     '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
@@ -98,9 +128,12 @@ function escapeHtml(value) {
     supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
     const result = await supabaseClient.auth.getSession();
     session = result.data.session;
-    if (!session) throw new Error('Please log in first');
-    await loadUsers();
+    if (session) {
+      await loadUsers();
+      document.querySelector('#admin-login').classList.add('hidden');
+      document.querySelector('#admin-dashboard').classList.remove('hidden');
+    }
   } catch (error) {
-    document.querySelector('#user-list').textContent = error.message;
+    loginStatus(error.message);
   }
 })();
