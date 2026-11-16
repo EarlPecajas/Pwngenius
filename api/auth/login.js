@@ -46,7 +46,9 @@ module.exports = async function handler(request, response) {
     );
     const authBody = await authResponse.json();
     if (!authResponse.ok) {
-      return response.status(401).json({ error: 'Invalid credentials' });
+      return response.status(401).json({
+        error: authBody.error_description || authBody.msg || 'Invalid credentials'
+      });
     }
     return response.status(200).json(authBody);
   } catch (error) {
