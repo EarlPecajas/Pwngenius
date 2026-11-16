@@ -17,4 +17,4 @@ alter table public.challenges enable row level security;
 alter table public.submissions enable row level security;
 
 insert into public.challenges (id, name, flag_hash, points)
-values ('first', 'First Flag', '98a3afd73ff16d962daf9a826a34f0d297efa9d2a46f2bcd67ca9829642d5060', 100);
+values ('first', 'First Flag', '951a5dd0e9afd6d89e6da0d039a8f93ca695f0acc87bda49ca3d09cc83d8416e', 100);
