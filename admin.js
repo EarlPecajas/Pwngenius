@@ -7,6 +7,59 @@ function loginStatus(message, type = 'error') {
   element.className = `form-status ${type}`;
 }
 
+async function loadChallenges() {
+  const { challenges } = await adminRequest('/api/challenges');
+  document.querySelector('#admin-challenge-list').innerHTML = challenges.map((challenge) => `
+    <form class="admin-challenge-row" data-challenge-id="${escapeHtml(challenge.id)}">
+      <input name="title" value="${escapeHtml(challenge.name)}" required />
+      <input name="category" value="${escapeHtml(challenge.category)}" required />
+      <input name="difficulty" value="${escapeHtml(challenge.difficulty)}" required />
+      <textarea name="description" required>${escapeHtml(challenge.description)}</textarea>
+      <textarea name="hint" required>${escapeHtml(challenge.hint)}</textarea>
+      <input name="flag" type="password" placeholder="Leave blank to keep current flag" />
+      <input name="points" type="number" min="1" value="${challenge.points}" required />
+      <div class="challenge-row-actions">
+        <button class="text-button" type="submit">SAVE CHANGES</button>
+        <button class="text-button delete-challenge" type="button">DELETE</button>
+      </div>
+      <p class="form-status" role="status"></p>
+    </form>
+  `).join('');
+  document.querySelectorAll('.admin-challenge-row').forEach((form) => {
+    form.addEventListener('submit', (event) => updateChallenge(event, form));
+    form.querySelector('.delete-challenge').addEventListener('click', () => deleteChallenge(form));
+  });
+}
+
+async function updateChallenge(event, form) {
+  event.preventDefault();
+  const statusElement = form.querySelector('.form-status');
+  const values = Object.fromEntries(new FormData(form).entries());
+  values.id = form.dataset.challengeId;
+  values.points = Number(values.points);
+  try {
+    await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
+    statusElement.textContent = 'SAVED';
+    statusElement.className = 'form-status success';
+  } catch (error) {
+    statusElement.textContent = error.message;
+    statusElement.className = 'form-status error';
+  }
+}
+
+async function deleteChallenge(form) {
+  if (!window.confirm('Delete this challenge and its submissions permanently?')) return;
+  try {
+    await adminRequest('/api/challenges', {
+      method: 'DELETE',
+      body: JSON.stringify({ id: form.dataset.challengeId })
+    });
+    await loadChallenges();
+  } catch (error) {
+    window.alert(error.message);
+  }
+}
+
 function status(message, type = 'error') {
   const element = document.querySelector('#challenge-status');
   element.textContent = message;
@@ -82,6 +135,7 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });
     form.reset();
     status('CHALLENGE PUBLISHED', 'success');
+    await loadChallenges();
   } catch (error) {
     status(error.message);
   }
@@ -109,6 +163,7 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     await supabaseClient.auth.setSession(result);
     session = result;
     await loadUsers();
+    await loadChallenges();
     document.querySelector('#admin-login').classList.add('hidden');
     document.querySelector('#admin-dashboard').classList.remove('hidden');
   } catch (error) {
@@ -130,6 +185,7 @@ function escapeHtml(value) {
     session = result.data.session;
     if (session) {
       await loadUsers();
+      await loadChallenges();
       document.querySelector('#admin-login').classList.add('hidden');
       document.querySelector('#admin-dashboard').classList.remove('hidden');
     }

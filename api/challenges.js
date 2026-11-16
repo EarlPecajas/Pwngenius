@@ -40,6 +40,48 @@ module.exports = async function handler(request, response) {
       return response.status(201).json({ challenge: created?.[0] || null });
     }
 
+    if (request.method === 'PATCH') {
+      await requireAdmin(request);
+      const body = request.body || {};
+      const id = typeof body.id === 'string' ? body.id.trim() : '';
+      const fields = ['title', 'category', 'difficulty', 'description', 'hint'];
+      if (!id || fields.some((field) => typeof body[field] !== 'string' || !body[field].trim())) {
+        return response.status(400).json({ error: 'Challenge ID and all challenge fields are required' });
+      }
+
+      const update = {
+        name: body.title.trim(),
+        category: body.category.trim(),
+        difficulty: body.difficulty.trim(),
+        description: body.description.trim(),
+        hint: body.hint.trim()
+      };
+      if (typeof body.flag === 'string' && body.flag.trim()) {
+        update.flag_hash = hashFlag(body.flag.trim());
+      }
+      if (Number.isInteger(body.points)) update.points = body.points;
+
+      const updated = await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        headers: { Prefer: 'return=representation' },
+        body: JSON.stringify(update)
+      });
+      return response.status(200).json({ challenge: updated?.[0] || null });
+    }
+
+    if (request.method === 'DELETE') {
+      await requireAdmin(request);
+      const id = typeof request.body?.id === 'string' ? request.body.id.trim() : '';
+      if (!id) return response.status(400).json({ error: 'Challenge ID is required' });
+      await supabaseRequest(`submissions?challenge_id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
+        method: 'DELETE'
+      });
+      return response.status(200).json({ success: true });
+    }
+
     return response.status(405).json({ error: 'Method not allowed' });
   } catch (error) {
     return sendError(response, error);
