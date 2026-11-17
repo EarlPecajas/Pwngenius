@@ -125,7 +125,13 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card #modal-status.error { color: #ff5f6d; }
 .challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
+.admin-challenge-card { background: var(--card); border: 1px solid var(--line); overflow: hidden; }
+.admin-challenge-card-toggle { width: 100%; min-height: 180px; background: var(--card); color: var(--paper); border: 0; padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; transition: background .2s ease; }
+.admin-challenge-card-toggle:hover, .admin-challenge-card-toggle[aria-expanded="true"] { background: #142541; }
+.admin-challenge-card-toggle strong { font-size: clamp(24px, 3vw, 36px); font-weight: 500; letter-spacing: -.04em; }
+.admin-challenge-card-hint { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .1em; margin-top: 6px; }
 .admin-challenge-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--card); border: 1px solid var(--line); padding: 18px; }
+.admin-challenge-row label { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .08em; }
 .admin-challenge-row textarea { min-height: 65px; resize: vertical; }
 .admin-challenge-row input, .admin-challenge-row textarea { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 11px; }
 .admin-challenge-row-actions { display: flex; gap: 18px; align-items: center; }
@@ -142,6 +148,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-layout h1 { font-size: clamp(58px, 6vw, 92px); }
 .admin-challenges { display: grid; gap: 16px; }
 .admin-challenges .section-heading { margin-bottom: 4px; }
+.admin-challenges #admin-challenge-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .admin-form { grid-template-columns: 1fr 2fr; align-items: center; max-width: 1100px; margin: 0 auto; }
 .admin-form textarea { min-height: 110px; }
 .admin-form .submit-button, .admin-form .form-status { grid-column: 1 / -1; }
@@ -163,6 +170,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .user-row { align-items: start; flex-direction: column; }
   .admin-layout > section:first-child { position: static; }
   .admin-challenge-row { grid-template-columns: 1fr; }
+  .admin-challenges #admin-challenge-list { grid-template-columns: 1fr; }
   .admin-form { grid-template-columns: 1fr; }
   .admin-form .submit-button, .admin-form .form-status { grid-column: auto; }
   .challenge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

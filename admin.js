@@ -22,26 +22,47 @@ async function loadLeaderboard() {
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
   document.querySelector('#admin-challenge-list').innerHTML = challenges.map((challenge) => `
-    <form class="admin-challenge-row" data-challenge-id="${escapeHtml(challenge.id)}">
-      <input name="title" value="${escapeHtml(challenge.name)}" required />
-      <input name="category" value="${escapeHtml(challenge.category)}" required />
-      <input name="difficulty" value="${escapeHtml(challenge.difficulty)}" required />
-      <textarea name="description" required>${escapeHtml(challenge.description)}</textarea>
-      <textarea name="hint" required>${escapeHtml(challenge.hint)}</textarea>
-      <input name="flag" type="password" placeholder="Leave blank to keep current flag" />
-      <input name="points" type="number" min="1" value="${challenge.points}" required />
-      <div class="challenge-row-actions">
-        <button class="text-button" type="submit">SAVE CHANGES</button>
-        <button class="text-button delete-challenge" type="button">DELETE</button>
-      </div>
-      <p class="form-status" role="status"></p>
-    </form>
+    <article class="admin-challenge-card">
+      <button class="admin-challenge-card-toggle" type="button" aria-expanded="false">
+        <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
+        <strong>${escapeHtml(challenge.name)}</strong>
+        <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
+      </button>
+      <form class="admin-challenge-row hidden" data-challenge-id="${escapeHtml(challenge.id)}">
+        <label>TITLE<input name="title" value="${escapeHtml(challenge.name)}" required /></label>
+        <label>CATEGORY<input name="category" value="${escapeHtml(challenge.category)}" required /></label>
+        <label>DIFFICULTY<input name="difficulty" value="${escapeHtml(challenge.difficulty)}" required /></label>
+        <label>DESCRIPTION<textarea name="description" required>${escapeHtml(challenge.description)}</textarea></label>
+        <label>HINT<textarea name="hint" required>${escapeHtml(challenge.hint)}</textarea></label>
+        <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
+        <label>POINTS<input name="points" type="number" min="1" value="${challenge.points}" required /></label>
+        <div class="admin-challenge-row-actions">
+          <button class="text-button" type="submit">SAVE CHANGES</button>
+          <button class="text-button admin-edit-cancel" type="button">CANCEL</button>
+          <button class="text-button delete-challenge" type="button">DELETE</button>
+        </div>
+        <p class="form-status" role="status"></p>
+      </form>
+    </article>
   `).join('');
+  document.querySelectorAll('.admin-challenge-card-toggle').forEach((toggle) => {
+    toggle.addEventListener('click', () => {
+      const card = toggle.closest('.admin-challenge-card');
+      const form = card.querySelector('.admin-challenge-row');
+      const expanded = !form.classList.contains('hidden');
+      form.classList.toggle('hidden', expanded);
+      toggle.setAttribute('aria-expanded', String(!expanded));
+    });
+  });
   document.querySelectorAll('.admin-challenge-row').forEach((form) => {
     form.addEventListener('submit', (event) => updateChallenge(event, form));
+    form.querySelector('.admin-edit-cancel').addEventListener('click', () => {
+      form.classList.add('hidden');
+      form.previousElementSibling.setAttribute('aria-expanded', 'false');
+    });
     form.querySelector('.delete-challenge').addEventListener('click', () => deleteChallenge(form));
   });
-
 }
 
 async function loadEventState() {
