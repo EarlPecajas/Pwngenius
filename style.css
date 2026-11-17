@@ -63,6 +63,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .creator-card small { color: var(--muted); font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
 .text-button { background: none; border: 0; color: var(--lime); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; padding: 8px 0; }
 .challenge-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
+.challenge-lock h3 { margin: 14px 0 10px; font-size: clamp(24px, 4vw, 38px); }
+.challenge-lock p { margin: 0 auto; color: var(--muted); line-height: 1.6; }
+.challenge-lock-icon { color: var(--lime); font-size: 30px; }
 .challenge-panel { padding: 0; overflow: hidden; background: var(--card); display: flex; }
 .challenge-card-toggle { width: 100%; min-height: 126px; background: var(--card); color: var(--paper); border: 0; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center; transition: background .2s ease, transform .2s ease; }
 .challenge-card-toggle:hover, .challenge-card-toggle[aria-expanded="true"], .challenge-panel:hover .challenge-card-toggle { background: #142541; }
