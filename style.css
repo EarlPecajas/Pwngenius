@@ -2,6 +2,7 @@
 :root { --ink: #101715; --paper: #f0eee7; --muted: #8b918a; --line: rgba(240, 238, 231, .16); --lime: #d7ed4b; --coral: #ff765e; --card: #19221f; }
 html { scroll-behavior: smooth; }
 body { margin: 0; background: var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif; }
+body.modal-open { overflow: hidden; }
 button, input { font: inherit; }
 button { cursor: pointer; }
 .site-shell { min-height: 100vh; max-width: 1440px; margin: auto; padding: 0 58px; overflow: hidden; }
@@ -88,7 +89,12 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .profile-form { display: grid; gap: 10px; }
 .profile-form input { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; }
 .challenge-modal { position: fixed; inset: 0; z-index: 20; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
+.challenge-modal.hidden { display: none; }
 .challenge-modal-card { position: relative; width: min(620px, 100%); max-height: 90vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); padding: 34px; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
+.challenge-modal-card { scrollbar-width: thin; scrollbar-color: #1b2b46 var(--card); }
+.challenge-modal-card::-webkit-scrollbar { width: 8px; }
+.challenge-modal-card::-webkit-scrollbar-track { background: var(--card); }
+.challenge-modal-card::-webkit-scrollbar-thumb { background: #1b2b46; border: 2px solid var(--card); border-radius: 8px; }
 .modal-close { position: absolute; top: 16px; right: 18px; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; }
 .modal-close:hover { color: var(--paper); }
 .challenge-modal-card h2 { font-size: 34px; margin: 18px 0 8px; }

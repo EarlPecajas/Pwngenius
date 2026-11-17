@@ -57,6 +57,7 @@ function openChallengeModal(challenge, session) {
   document.querySelector('#modal-status').textContent = '';
   modalSubmissionForm.reset();
   challengeModal.classList.remove('hidden');
+  document.body.classList.add('modal-open');
   modalSubmissionForm.dataset.sessionToken = session.access_token;
 }
 
@@ -193,10 +194,15 @@ document.querySelector('#profile-form').addEventListener('submit', async (event)
     body: JSON.stringify(values)
   });
 
+  function closeChallengeModal() {
+    challengeModal.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+
   modalSubmissionForm.addEventListener('submit', submitFlag);
-  document.querySelector('#close-challenge-modal').addEventListener('click', () => challengeModal.classList.add('hidden'));
+  document.querySelector('#close-challenge-modal').addEventListener('click', closeChallengeModal);
   challengeModal.addEventListener('click', (event) => {
-    if (event.target === challengeModal) challengeModal.classList.add('hidden');
+    if (event.target === challengeModal) closeChallengeModal();
   });
   const result = await response.json();
   statusElement.textContent = response.ok ? 'PROFILE SAVED' : result.error;
