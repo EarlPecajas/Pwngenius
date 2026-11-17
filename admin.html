@@ -39,11 +39,11 @@
       </nav>
       <section id="publish-view" class="admin-view">
         <p class="eyebrow"><span class="eyebrow-line"></span> CONTROL ROOM</p>
-        <h1>Build the<br /><em>arena.</em></h1>
+        <h1>Build the <em>arena.</em></h1>
         <form id="challenge-form" class="admin-form">
           <label>CHALLENGE TITLE</label><input name="title" required />
           <label>CATEGORY</label><input name="category" placeholder="Web, Crypto, Forensics..." required />
-          <label>DIFFICULTY</label><input name="difficulty" placeholder="Beginner, Intermediate..." required />
+          <label>DIFFICULTY</label><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select>
           <label>DESCRIPTION</label><textarea name="description" required></textarea>
           <label>HINT</label><textarea name="hint" required></textarea>
           <label>FLAG (PRIVATE)</label><input name="flag" required />
@@ -74,7 +74,7 @@
             <form id="admin-edit-form" class="admin-challenge-row">
               <label>TITLE<input name="title" required /></label>
               <label>CATEGORY<input name="category" required /></label>
-              <label>DIFFICULTY<input name="difficulty" required /></label>
+              <label>DIFFICULTY<select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
               <label>DESCRIPTION<textarea name="description" required></textarea></label>
               <label>HINT<textarea name="hint" required></textarea></label>
               <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>

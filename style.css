@@ -40,7 +40,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .auth-tab.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
 .auth-form, .admin-form { display: grid; gap: 10px; }
 .auth-form label, .admin-form label { margin-top: 7px; }
-.auth-form input, .admin-form input, .admin-form textarea { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; outline: 0; }
+.auth-form input, .admin-form input, .admin-form select, .admin-form textarea, .admin-challenge-row select { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; outline: 0; }
 .admin-form textarea { min-height: 82px; resize: vertical; }
 .hidden { display: none !important; }
 .auth-loading { min-height: calc(100vh - 156px); display: grid; place-items: center; color: var(--lime); font: 11px 'DM Mono', monospace; letter-spacing: .12em; }
@@ -125,15 +125,17 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card #modal-status.error { color: #ff5f6d; }
 .challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
-.admin-challenge-card { width: 100%; min-height: 180px; background: var(--card); color: var(--paper); border: 1px solid var(--line); padding: 28px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; text-align: center; transition: background .2s ease, border-color .2s ease; }
+.admin-challenge-card { width: 100%; min-height: 150px; background: var(--card); color: var(--paper); border: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: background .2s ease, border-color .2s ease; }
 .admin-challenge-card:hover { background: #142541; border-color: var(--lime); }
 .admin-challenge-card strong { font-size: clamp(24px, 3vw, 36px); font-weight: 500; letter-spacing: -.04em; }
 .admin-challenge-card-hint { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .1em; margin-top: 6px; }
 .admin-challenge-modal { position: fixed; inset: 0; z-index: 30; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
 .admin-challenge-modal-card { position: relative; width: min(760px, 100%); max-height: 90vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); padding: 34px; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
-.admin-challenge-modal-card h2 { font-size: 34px; margin: 18px 0 22px; }
+.admin-challenge-modal-card h2 { font-size: 40px; margin: 18px 0 22px; }
 .admin-challenge-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--card); border: 1px solid var(--line); padding: 18px; }
 .admin-challenge-row label { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .08em; }
+.admin-challenge-modal-card .admin-challenge-row label { font-size: 13px; }
+.admin-challenge-modal-card .admin-challenge-row input, .admin-challenge-modal-card .admin-challenge-row select, .admin-challenge-modal-card .admin-challenge-row textarea { font-size: 16px; padding: 14px; }
 .admin-challenge-row textarea { min-height: 65px; resize: vertical; }
 .admin-challenge-row input, .admin-challenge-row textarea { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 11px; }
 .admin-challenge-row-actions { display: flex; gap: 18px; align-items: center; }
@@ -155,7 +157,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenges .section-heading .event-control .submit-button:hover { color: var(--paper); background: var(--coral); }
 .admin-challenges .section-heading .event-control .submit-button:disabled { opacity: .6; cursor: wait; }
 .admin-challenges .section-heading .event-control .form-status { position: absolute; top: calc(100% + 6px); right: 0; margin: 0; white-space: nowrap; }
-.admin-challenges #admin-challenge-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.admin-challenges #admin-challenge-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .admin-form { grid-template-columns: 1fr 2fr; align-items: center; max-width: 1100px; margin: 0 auto; }
 .admin-form textarea { min-height: 110px; }
 .admin-form .submit-button, .admin-form .form-status { grid-column: 1 / -1; }
