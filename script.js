@@ -12,6 +12,15 @@ let supabaseClient;
 let activeChallenge;
 let profileCache;
 let profileRequest;
+let allChallenges = [];
+let activeChallengeCategory = 'All';
+
+const difficultyOrder = {
+  Easy: 1,
+  Medium: 2,
+  Hard: 3,
+  'Super Hard': 4
+};
 
 function showStatus(message, type = 'error') {
   authStatus.textContent = message;
@@ -34,6 +43,7 @@ async function loadChallenges(session) {
   if (!response.ok) throw new Error('Unable to load challenges');
   const { challenges, locked } = await response.json();
   if (locked) {
+    document.querySelector('#challenge-filters').classList.add('hidden');
     challengeList.innerHTML = `
       <div class="challenge-lock">
         <span class="challenge-lock-icon">◈</span>
@@ -43,7 +53,20 @@ async function loadChallenges(session) {
     `;
     return;
   }
-  challengeList.innerHTML = challenges.map((challenge) => `
+  allChallenges = challenges;
+  document.querySelector('#challenge-filters').classList.remove('hidden');
+  renderChallengeCards(session);
+}
+
+function renderChallengeCards(session) {
+  const category = activeChallengeCategory.toLowerCase();
+  const visibleChallenges = allChallenges
+    .filter((challenge) => category === 'all' || normalizeCategory(challenge.category) === category)
+    .sort((a, b) => {
+      const difficultyDifference = (difficultyOrder[a.difficulty] || 99) - (difficultyOrder[b.difficulty] || 99);
+      return difficultyDifference || a.points - b.points;
+    });
+  challengeList.innerHTML = visibleChallenges.map((challenge) => `
     <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
@@ -56,10 +79,27 @@ async function loadChallenges(session) {
   `).join('');
   challengeList.querySelectorAll('.challenge-card-toggle').forEach((toggle) => {
     toggle.addEventListener('click', () => openChallengeModal(
-      challenges.find((challenge) => challenge.id === toggle.dataset.challengeId), session
+      allChallenges.find((challenge) => challenge.id === toggle.dataset.challengeId), session
     ));
   });
 }
+
+function normalizeCategory(category) {
+  const value = String(category).trim().toLowerCase();
+  if (value === 'web' || value === 'web exploit' || value === 'web exploitation') return 'web exploitation';
+  if (value === 'crypto' || value === 'cryptography') return 'cryptography';
+  return value;
+}
+
+document.querySelectorAll('.challenge-filter').forEach((filter) => {
+  filter.addEventListener('click', () => {
+    activeChallengeCategory = filter.dataset.category;
+    document.querySelectorAll('.challenge-filter').forEach((item) => {
+      item.classList.toggle('active', item === filter);
+    });
+    renderChallengeCards(currentSession);
+  });
+});
 
 function openChallengeModal(challenge, session) {
   activeChallenge = challenge;

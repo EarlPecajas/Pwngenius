@@ -67,6 +67,9 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 #logout-button:hover { color: var(--paper); background: rgba(255, 95, 109, .12); border-color: var(--coral); }
 .challenge-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 #challenges-view { min-height: calc(100vh - 260px); padding-bottom: 70px; }
+.challenge-filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 24px; }
+.challenge-filter { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 11px 15px; font: 10px 'DM Mono', monospace; letter-spacing: .08em; transition: .2s ease; }
+.challenge-filter:hover, .challenge-filter.active { color: var(--ink); background: var(--lime); border-color: var(--lime); }
 .challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
 .challenge-lock h3 { margin: 14px 0 10px; font-size: clamp(24px, 4vw, 38px); }
 .challenge-lock p { margin: 0 auto; color: var(--muted); line-height: 1.6; }

@@ -39,7 +39,12 @@ async function loadChallenges() {
 function openChallengeEditor(challenge) {
   const modal = document.querySelector('#admin-challenge-modal');
   const form = document.querySelector('#admin-edit-form');
+  const category = form.elements.category;
   const difficulty = form.elements.difficulty;
+  const knownCategory = Array.from(category.options).some((option) => option.value === challenge.category);
+  if (!knownCategory) {
+    category.add(new Option(challenge.category, challenge.category));
+  }
   const knownDifficulty = Array.from(difficulty.options).some((option) => option.value === challenge.difficulty);
   if (!knownDifficulty) {
     difficulty.add(new Option(challenge.difficulty, challenge.difficulty));
