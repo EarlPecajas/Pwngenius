@@ -45,10 +45,11 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .hidden { display: none !important; }
 .auth-loading { min-height: calc(100vh - 156px); display: grid; place-items: center; color: var(--lime); font: 11px 'DM Mono', monospace; letter-spacing: .12em; }
 .dashboard { padding: 28px 0 70px; }
-.dashboard-header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
-.dashboard-header h2 { font-size: 34px; margin: 18px 0 0; }
+.dashboard-header { position: relative; display: flex; justify-content: center; align-items: end; gap: 24px; margin-bottom: 28px; text-align: center; }
+.dashboard-header h2 { font-size: clamp(44px, 6vw, 72px); letter-spacing: -.06em; text-transform: uppercase; margin: 0; }
 .dashboard-actions { display: flex; gap: 20px; align-items: center; }
-.dashboard-nav { display: flex; gap: 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.dashboard-actions { position: absolute; right: 0; bottom: 0; }
+.dashboard-nav { display: flex; justify-content: center; gap: 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
 .dashboard-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 13px 'DM Mono', monospace; letter-spacing: .1em; }
 .dashboard-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
 .creator-hero { max-width: 670px; padding: 35px 0 45px; }
