@@ -114,13 +114,13 @@
 
     <div id="challenge-modal" class="challenge-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <div class="challenge-modal-card">
-        <button id="close-challenge-modal" class="modal-close" type="button" aria-label="Close challenge">×</button>
+        <button id="close-challenge-modal" class="modal-close" type="button" aria-label="Close challenge" onclick="this.closest('.challenge-modal').classList.add('hidden'); document.body.classList.remove('modal-open');">×</button>
         <p id="modal-meta" class="challenge-meta"></p>
         <h2 id="modal-title"></h2>
         <p id="modal-points" class="challenge-score"></p>
         <p id="modal-description"></p>
         <p id="modal-hint" class="challenge-hint"></p>
-        <form id="modal-submission-form" class="submission-form">
+        <form id="modal-submission-form" class="submission-form" onsubmit="event.preventDefault();">
           <label for="modal-flag">FLAG STRING</label>
           <div class="input-wrap"><span class="input-prefix">$</span><input id="modal-flag" name="flag" required autocomplete="off" /></div>
           <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
