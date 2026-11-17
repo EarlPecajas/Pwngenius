@@ -9,6 +9,7 @@ const modalSubmissionForm = document.querySelector('#modal-submission-form');
 let selectedChallengeId = '';
 let currentSession;
 let supabaseClient;
+let activeChallenge;
 
 function showStatus(message, type = 'error') {
   authStatus.textContent = message;
@@ -49,6 +50,7 @@ async function loadChallenges(session) {
 }
 
 function openChallengeModal(challenge, session) {
+  activeChallenge = challenge;
   selectedChallengeId = challenge.id;
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
@@ -83,6 +85,7 @@ async function submitFlag(event, form) {
     status.className = `form-status ${result.correct ? 'success' : 'error'}`;
     if (result.correct) {
       form.reset();
+      activeChallenge.solved = true;
       const cardButton = document.querySelector(`[data-challenge-id="${CSS.escape(selectedChallengeId)}"]`);
       const card = cardButton?.closest('.challenge-panel');
       card?.classList.add('solved');

@@ -104,6 +104,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card > p:not(.challenge-meta):not(.challenge-score) { color: #b7c1d2; line-height: 1.6; }
 .challenge-modal-card #modal-description { white-space: pre-wrap; text-align: justify; }
 .challenge-modal-card #modal-status { min-height: 28px; text-align: center; font-size: 18px; font-weight: 600; letter-spacing: .08em; }
+.challenge-modal-card #modal-status.success { color: #8cff66; }
+.challenge-modal-card #modal-status.error { color: #ff5f6d; }
 .challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
 .admin-challenge-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--card); border: 1px solid var(--line); padding: 18px; }
