@@ -120,7 +120,7 @@
         <p id="modal-points" class="challenge-score"></p>
         <p id="modal-description"></p>
         <p id="modal-hint" class="challenge-hint"></p>
-        <form id="modal-submission-form" class="submission-form" onsubmit="event.preventDefault();">
+        <form id="modal-submission-form" class="submission-form" onsubmit="return window.submitChallengeFlag(event, this);">
           <label for="modal-flag">FLAG STRING</label>
           <div class="input-wrap"><span class="input-prefix">$</span><input id="modal-flag" name="flag" required autocomplete="off" /></div>
           <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>

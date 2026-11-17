@@ -65,19 +65,29 @@ async function submitFlag(event, form) {
   event.preventDefault();
   const status = document.querySelector('#modal-status');
   const flag = new FormData(form).get('flag').trim();
-  const response = await fetch('/api/submit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${form.dataset.sessionToken}`
-    },
-    body: JSON.stringify({ challengeId: selectedChallengeId, flag })
-  });
-  const result = await response.json();
-  status.textContent = result.correct ? 'CORRECT // FLAG ACCEPTED' : 'INCORRECT // FLAG REJECTED';
-  status.className = `form-status ${result.correct ? 'success' : 'error'}`;
-  if (result.correct) form.reset();
+  status.textContent = 'TRANSMITTING...';
+  status.className = 'form-status success';
+  try {
+    const response = await fetch('/api/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${form.dataset.sessionToken}`
+      },
+      body: JSON.stringify({ challengeId: selectedChallengeId, flag })
+    });
+    const result = await response.json();
+    status.textContent = result.correct ? 'CORRECT // FLAG ACCEPTED' : 'INCORRECT // FLAG REJECTED';
+    status.className = `form-status ${result.correct ? 'success' : 'error'}`;
+    if (result.correct) form.reset();
+  } catch (error) {
+    status.textContent = 'ERROR // SUBMISSION SERVICE UNAVAILABLE';
+    status.className = 'form-status error';
+    console.error(error);
+  }
 }
+
+window.submitChallengeFlag = submitFlag;
 
 async function showDashboard(session) {
   currentSession = session;
@@ -199,7 +209,6 @@ document.querySelector('#profile-form').addEventListener('submit', async (event)
     document.body.classList.remove('modal-open');
   }
 
-  modalSubmissionForm.addEventListener('submit', submitFlag);
   document.addEventListener('click', (event) => {
     if (event.target.closest('#close-challenge-modal')) {
       closeChallengeModal();
