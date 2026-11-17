@@ -42,23 +42,16 @@ async function loadChallenges() {
     form.querySelector('.delete-challenge').addEventListener('click', () => deleteChallenge(form));
   });
 
-  document.querySelectorAll('.admin-nav-button').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const view = button.dataset.adminView;
-      document.querySelectorAll('.admin-nav-button').forEach((item) => {
-        item.classList.toggle('active', item === button);
-      });
-      document.querySelectorAll('.admin-view').forEach((item) => item.classList.add('hidden'));
-      document.querySelector(`#${view}-view`).classList.remove('hidden');
-      if (view === 'leaderboard') {
-        try {
-          await loadLeaderboard();
-        } catch (error) {
-          document.querySelector('#leaderboard-list').textContent = error.message;
-        }
-      }
-    });
-  });
+}
+
+async function loadEventState() {
+  const result = await adminRequest('/api/admin/event');
+  const toggle = document.querySelector('#event-toggle');
+  document.querySelector('#event-state').textContent = result.locked
+    ? 'LOCKED — PARTICIPANTS CANNOT VIEW CHALLENGES'
+    : 'OPEN — PARTICIPANTS CAN VIEW CHALLENGES';
+  toggle.textContent = result.locked ? 'UNLOCK CHALLENGES' : 'LOCK CHALLENGES';
+  toggle.dataset.locked = String(result.locked);
 }
 
 async function updateChallenge(event, form) {
@@ -171,6 +164,37 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   }
 });
 
+document.querySelector('#event-toggle').addEventListener('click', async (event) => {
+  const locked = event.currentTarget.dataset.locked !== 'true';
+  try {
+    await adminRequest('/api/admin/event', {
+      method: 'PATCH',
+      body: JSON.stringify({ locked })
+    });
+
+    document.querySelectorAll('.admin-nav-button').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const view = button.dataset.adminView;
+        document.querySelectorAll('.admin-nav-button').forEach((item) => {
+          item.classList.toggle('active', item === button);
+        });
+        document.querySelectorAll('.admin-view').forEach((item) => item.classList.add('hidden'));
+        document.querySelector(`#${view}-view`).classList.remove('hidden');
+        if (view === 'leaderboard') {
+          try {
+            await loadLeaderboard();
+          } catch (error) {
+            document.querySelector('#leaderboard-list').textContent = error.message;
+          }
+        }
+      });
+    });
+    await loadEventState();
+  } catch (error) {
+    status(error.message);
+  }
+});
+
 document.querySelector('#logout-button').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.href = '/';
@@ -195,6 +219,7 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     await loadUsers();
     await loadChallenges();
     await loadLeaderboard();
+    await loadEventState();
     document.querySelector('#admin-login').classList.add('hidden');
     document.querySelector('#admin-auth-loading').classList.add('hidden');
     document.querySelector('#admin-dashboard').classList.remove('hidden');
@@ -219,6 +244,7 @@ function escapeHtml(value) {
       await loadUsers();
       await loadChallenges();
       await loadLeaderboard();
+      await loadEventState();
       document.querySelector('#admin-login').classList.add('hidden');
       document.querySelector('#admin-auth-loading').classList.add('hidden');
       document.querySelector('#admin-dashboard').classList.remove('hidden');

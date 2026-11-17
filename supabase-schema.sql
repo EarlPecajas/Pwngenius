@@ -36,6 +36,15 @@ create table if not exists public.submissions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.site_settings (
+  key text primary key,
+  value text not null
+);
+
+insert into public.site_settings (key, value)
+values ('challenges_locked', 'true')
+on conflict (key) do nothing;
+
 alter table public.challenges enable row level security;
 alter table public.profiles enable row level security;
 alter table public.submissions enable row level security;

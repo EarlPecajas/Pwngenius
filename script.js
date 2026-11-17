@@ -32,7 +32,17 @@ async function loadChallenges(session) {
     headers: { Authorization: `Bearer ${session.access_token}` }
   });
   if (!response.ok) throw new Error('Unable to load challenges');
-  const { challenges } = await response.json();
+  const { challenges, locked } = await response.json();
+  if (locked) {
+    challengeList.innerHTML = `
+      <div class="challenge-lock">
+        <span class="challenge-lock-icon">◈</span>
+        <h3>CHALLENGES LOCKED</h3>
+        <p>The event has not started yet. Stay ready—access will open when the admin unlocks the arena.</p>
+      </div>
+    `;
+    return;
+  }
   challengeList.innerHTML = challenges.map((challenge) => `
     <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">

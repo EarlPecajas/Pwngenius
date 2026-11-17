@@ -9,6 +9,16 @@ module.exports = async function handler(request, response) {
   try {
     if (request.method === 'GET') {
       const user = await getAuthenticatedUser(request);
+      const profiles = await supabaseRequest(
+        `profiles?id=eq.${encodeURIComponent(user.id)}&select=role&limit=1`
+      );
+      const isAdmin = profiles[0]?.role === 'admin';
+      const settings = await supabaseRequest(
+        'site_settings?key=eq.challenges_locked&select=value&limit=1'
+      );
+      if (!isAdmin && settings[0]?.value !== 'false') {
+        return response.status(200).json({ locked: true, challenges: [] });
+      }
       const [challenges, submissions] = await Promise.all([
         supabaseRequest(
         'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
@@ -19,6 +29,7 @@ module.exports = async function handler(request, response) {
       ]);
       const solvedIds = new Set(submissions.map((submission) => submission.challenge_id));
       return response.status(200).json({
+        locked: !isAdmin && settings[0]?.value !== 'false',
         challenges: challenges.map((challenge) => ({
           ...challenge,
           solved: solvedIds.has(challenge.id)

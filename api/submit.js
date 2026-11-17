@@ -18,6 +18,13 @@ module.exports = async function handler(request, response) {
     const flag = typeof request.body?.flag === 'string' ? request.body.flag.trim() : '';
     if (!challengeId || !flag) return response.status(400).json({ correct: false });
 
+    const settings = await supabaseRequest(
+      'site_settings?key=eq.challenges_locked&select=value&limit=1'
+    );
+    if (settings[0]?.value !== 'false') {
+      return response.status(423).json({ error: 'Challenges are locked' });
+    }
+
     const previousCorrect = await supabaseRequest(
       `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`
     );
