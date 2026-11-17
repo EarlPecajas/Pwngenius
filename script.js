@@ -200,9 +200,18 @@ document.querySelector('#profile-form').addEventListener('submit', async (event)
   }
 
   modalSubmissionForm.addEventListener('submit', submitFlag);
-  document.querySelector('#close-challenge-modal').addEventListener('click', closeChallengeModal);
+  document.addEventListener('click', (event) => {
+    if (event.target.closest('#close-challenge-modal')) {
+      closeChallengeModal();
+    }
+  });
   challengeModal.addEventListener('click', (event) => {
     if (event.target === challengeModal) closeChallengeModal();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && !challengeModal.classList.contains('hidden')) {
+      closeChallengeModal();
+    }
   });
   const result = await response.json();
   statusElement.textContent = response.ok ? 'PROFILE SAVED' : result.error;

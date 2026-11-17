@@ -95,7 +95,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card::-webkit-scrollbar { width: 8px; }
 .challenge-modal-card::-webkit-scrollbar-track { background: var(--card); }
 .challenge-modal-card::-webkit-scrollbar-thumb { background: #1b2b46; border: 2px solid var(--card); border-radius: 8px; }
-.modal-close { position: absolute; top: 16px; right: 18px; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; }
+.modal-close { position: absolute; top: 16px; right: 18px; z-index: 1; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; padding: 4px 8px; pointer-events: auto; }
 .modal-close:hover { color: var(--paper); }
 .challenge-modal-card h2 { font-size: 34px; margin: 18px 0 8px; }
 .challenge-modal-card > p:not(.challenge-meta):not(.challenge-score) { color: #b7c1d2; line-height: 1.6; }
