@@ -48,7 +48,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .dashboard-header h2 { font-size: 34px; margin: 18px 0 0; }
 .dashboard-actions { display: flex; gap: 20px; align-items: center; }
 .dashboard-nav { display: flex; gap: 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
-.dashboard-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
+.dashboard-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 13px 'DM Mono', monospace; letter-spacing: .1em; }
 .dashboard-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
 .creator-hero { max-width: 670px; padding: 35px 0 45px; }
 .creator-hero h3 { font-size: clamp(52px, 7vw, 92px); line-height: .88; letter-spacing: -.08em; margin: 28px 0; }

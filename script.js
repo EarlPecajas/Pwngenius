@@ -32,7 +32,7 @@ async function loadChallenges(session) {
   if (!response.ok) throw new Error('Unable to load challenges');
   const { challenges } = await response.json();
   challengeList.innerHTML = challenges.map((challenge) => `
-    <article class="challenge-panel">
+    <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
@@ -199,10 +199,6 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
       try { await loadProfile(); } catch (error) { document.querySelector('#profile-status').textContent = error.message; }
     }
   });
-});
-
-document.querySelector('#profile-button').addEventListener('click', () => {
-  document.querySelector('[data-view="profile"]').click();
 });
 
 document.querySelector('#profile-form').addEventListener('submit', async (event) => {
