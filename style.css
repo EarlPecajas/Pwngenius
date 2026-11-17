@@ -64,8 +64,11 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-panel { padding: 0; overflow: hidden; }
 .challenge-card-toggle { width: 100%; min-height: 126px; background: var(--card); color: var(--paper); border: 0; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center; transition: background .2s ease, transform .2s ease; }
 .challenge-card-toggle:hover, .challenge-card-toggle[aria-expanded="true"] { background: #142541; }
+.challenge-panel.solved .challenge-card-toggle { border: 1px solid #8cff66; background: rgba(99, 255, 80, .1); box-shadow: 0 0 18px rgba(99, 255, 80, .18); }
 .challenge-card-toggle strong { font-size: clamp(17px, 2vw, 22px); font-weight: 500; letter-spacing: -.03em; }
 .challenge-score { color: var(--lime); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .1em; }
+.challenge-solved { color: #8cff66; font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
+.challenge-modal-card #modal-solved { color: #8cff66; font: 11px 'DM Mono', monospace; letter-spacing: .1em; }
 .challenge-open { color: var(--coral); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; }
 .challenge-open span { font-size: 14px; margin-left: 5px; }
 .challenge-details { padding: 24px 28px 28px; border-top: 1px solid var(--line); }

@@ -36,6 +36,7 @@ async function loadChallenges(session) {
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
     </article>
@@ -52,6 +53,7 @@ function openChallengeModal(challenge, session) {
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
   document.querySelector('#modal-description').textContent = challenge.description;
   document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
   document.querySelector('#modal-status').textContent = '';
@@ -79,7 +81,14 @@ async function submitFlag(event, form) {
     const result = await response.json();
     status.textContent = result.correct ? 'ANGAS' : 'ENGKKKK';
     status.className = `form-status ${result.correct ? 'success' : 'error'}`;
-    if (result.correct) form.reset();
+    if (result.correct) {
+      form.reset();
+      const cardButton = document.querySelector(`[data-challenge-id="${CSS.escape(selectedChallengeId)}"]`);
+      const card = cardButton?.closest('.challenge-panel');
+      card?.classList.add('solved');
+      card?.querySelector('.challenge-solved')?.classList.remove('hidden');
+      document.querySelector('#modal-solved').classList.remove('hidden');
+    }
   } catch (error) {
     status.textContent = 'ERROR // SUBMISSION SERVICE UNAVAILABLE';
     status.className = 'form-status error';

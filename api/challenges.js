@@ -8,11 +8,22 @@ function hashFlag(flag) {
 module.exports = async function handler(request, response) {
   try {
     if (request.method === 'GET') {
-      await getAuthenticatedUser(request);
-      const challenges = await supabaseRequest(
+      const user = await getAuthenticatedUser(request);
+      const [challenges, submissions] = await Promise.all([
+        supabaseRequest(
         'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
-      );
-      return response.status(200).json({ challenges });
+        ),
+        supabaseRequest(
+          `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
+        )
+      ]);
+      const solvedIds = new Set(submissions.map((submission) => submission.challenge_id));
+      return response.status(200).json({
+        challenges: challenges.map((challenge) => ({
+          ...challenge,
+          solved: solvedIds.has(challenge.id)
+        }))
+      });
     }
 
     if (request.method === 'POST') {
