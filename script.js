@@ -77,7 +77,7 @@ async function submitFlag(event, form) {
       body: JSON.stringify({ challengeId: selectedChallengeId, flag })
     });
     const result = await response.json();
-    status.textContent = result.correct ? 'CORRECT // FLAG ACCEPTED' : 'INCORRECT // FLAG REJECTED';
+    status.textContent = result.correct ? 'ANGAS' : 'ENGKKKK';
     status.className = `form-status ${result.correct ? 'success' : 'error'}`;
     if (result.correct) form.reset();
   } catch (error) {
