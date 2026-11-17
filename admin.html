@@ -51,10 +51,6 @@
           <button class="submit-button" type="submit"><span>PUBLISH CHALLENGE</span><span>↗</span></button>
           <p id="challenge-status" class="form-status" role="status"></p>
         </form>
-        <div class="event-control">
-          <div><strong>EVENT ACCESS</strong><small id="event-state">Checking state...</small></div>
-          <button id="event-toggle" class="submit-button" type="button">UNLOCK CHALLENGES</button>
-        </div>
       </section>
       <section id="players-view" class="admin-view hidden">
         <div class="section-heading"><span>01</span><h2>REGISTERED PLAYERS</h2><span class="heading-rule"></span></div>
@@ -62,6 +58,11 @@
       </section>
       <section id="challenges-view" class="admin-view admin-challenges hidden">
         <div class="section-heading"><span>02</span><h2>MANAGE CHALLENGES</h2><span class="heading-rule"></span></div>
+        <div class="event-control">
+          <div><strong>EVENT ACCESS</strong><small id="event-state">Checking state...</small></div>
+          <button id="event-toggle" class="submit-button" type="button">UNLOCK CHALLENGES</button>
+          <p id="event-status" class="form-status" role="status"></p>
+        </div>
         <div id="admin-challenge-list" class="user-list"></div>
       </section>
       <section id="leaderboard-view" class="admin-view hidden">

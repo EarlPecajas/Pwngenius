@@ -166,33 +166,44 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
 
 document.querySelector('#event-toggle').addEventListener('click', async (event) => {
   const locked = event.currentTarget.dataset.locked !== 'true';
+  const toggle = event.currentTarget;
+  const eventStatus = document.querySelector('#event-status');
+  toggle.disabled = true;
+  toggle.textContent = locked ? 'LOCKING...' : 'UNLOCKING...';
+  eventStatus.textContent = locked ? 'LOCKING CHALLENGES...' : 'UNLOCKING CHALLENGES...';
+  eventStatus.className = 'form-status success';
   try {
     await adminRequest('/api/admin/event', {
       method: 'PATCH',
       body: JSON.stringify({ locked })
     });
-
-    document.querySelectorAll('.admin-nav-button').forEach((button) => {
-      button.addEventListener('click', async () => {
-        const view = button.dataset.adminView;
-        document.querySelectorAll('.admin-nav-button').forEach((item) => {
-          item.classList.toggle('active', item === button);
-        });
-        document.querySelectorAll('.admin-view').forEach((item) => item.classList.add('hidden'));
-        document.querySelector(`#${view}-view`).classList.remove('hidden');
-        if (view === 'leaderboard') {
-          try {
-            await loadLeaderboard();
-          } catch (error) {
-            document.querySelector('#leaderboard-list').textContent = error.message;
-          }
-        }
-      });
-    });
     await loadEventState();
+    eventStatus.textContent = locked ? 'CHALLENGES LOCKED' : 'CHALLENGES UNLOCKED';
   } catch (error) {
-    status(error.message);
+    eventStatus.textContent = error.message;
+    eventStatus.className = 'form-status error';
+    await loadEventState();
+  } finally {
+    toggle.disabled = false;
   }
+});
+
+document.querySelectorAll('.admin-nav-button').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const view = button.dataset.adminView;
+    document.querySelectorAll('.admin-nav-button').forEach((item) => {
+      item.classList.toggle('active', item === button);
+    });
+    document.querySelectorAll('.admin-view').forEach((item) => item.classList.add('hidden'));
+    document.querySelector(`#${view}-view`).classList.remove('hidden');
+    if (view === 'leaderboard') {
+      try {
+        await loadLeaderboard();
+      } catch (error) {
+        document.querySelector('#leaderboard-list').textContent = error.message;
+      }
+    }
+  });
 });
 
 document.querySelector('#logout-button').addEventListener('click', async () => {
