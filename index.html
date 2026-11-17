@@ -63,36 +63,71 @@
     <section id="dashboard" class="dashboard hidden">
       <div class="dashboard-header">
         <div>
-          <h2>Challenge board</h2>
+          <h2 id="dashboard-title">Creators</h2>
         </div>
         <div class="dashboard-actions">
           <a id="admin-link" class="text-button hidden" href="/admin.html">ADMIN CONTROL</a>
         </div>
       </div>
-      <div id="challenge-list" class="challenge-grid"></div>
+      <nav class="dashboard-nav" aria-label="Dashboard sections">
+        <button class="dashboard-nav-button active" data-view="creators" type="button">CREATORS</button>
+        <button class="dashboard-nav-button" data-view="challenges" type="button">CHALLENGES</button>
+        <button class="dashboard-nav-button" data-view="profile" type="button">PROFILE</button>
+      </nav>
+      <section id="creators-view" class="dashboard-view">
+        <div class="creator-hero">
+          <p class="eyebrow"><span class="eyebrow-line"></span> THE PEOPLE BEHIND THE SIGNAL</p>
+          <h3>Built by the<br /><em>curious.</em></h3>
+          <p>Explore challenges designed to reward patience, creativity, and a willingness to look closer.</p>
+        </div>
+        <div class="creator-grid">
+          <article class="creator-card"><span class="creator-index">01</span><strong>PWNGENIUS LABS</strong><small>CHALLENGE DESIGN / PLATFORM</small></article>
+          <article class="creator-card"><span class="creator-index">02</span><strong>THE CURIOUS</strong><small>COMMUNITY / SOLVERS</small></article>
+        </div>
+      </section>
+      <section id="challenges-view" class="dashboard-view hidden">
+        <div id="challenge-list" class="challenge-grid"></div>
+      </section>
+      <section id="profile-view" class="dashboard-view hidden">
+        <div id="profile-panel" class="profile-panel">
+          <div class="profile-panel-header">
+            <div>
+              <p class="eyebrow"><span class="eyebrow-line"></span> PLAYER PROFILE</p>
+              <h2>Account details</h2>
+            </div>
+          </div>
+          <div class="profile-stats">
+            <div><strong id="profile-score">0</strong><span>TOTAL SCORE</span></div>
+            <div><strong id="profile-solved">0</strong><span>CHALLENGES SOLVED</span></div>
+          </div>
+          <form id="profile-form" class="profile-form">
+            <label for="profile-full-name">FULL NAME</label>
+            <input id="profile-full-name" name="full_name" required />
+            <label for="profile-username">USERNAME</label>
+            <input id="profile-username" name="username" required />
+            <button class="submit-button" type="submit"><span>SAVE PROFILE</span><span>↗</span></button>
+            <p id="profile-status" class="form-status" role="status"></p>
+          </form>
+        </div>
+      </section>
     </section>
 
-    <section id="profile-panel" class="profile-panel hidden" aria-label="Player profile">
-      <div class="profile-panel-header">
-        <div>
-          <p class="eyebrow"><span class="eyebrow-line"></span> PLAYER PROFILE</p>
-          <h2>Account details</h2>
-        </div>
-        <button id="close-profile-button" class="text-button" type="button">CLOSE</button>
+    <div id="challenge-modal" class="challenge-modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="challenge-modal-card">
+        <button id="close-challenge-modal" class="modal-close" type="button" aria-label="Close challenge">×</button>
+        <p id="modal-meta" class="challenge-meta"></p>
+        <h2 id="modal-title"></h2>
+        <p id="modal-points" class="challenge-score"></p>
+        <p id="modal-description"></p>
+        <p id="modal-hint" class="challenge-hint"></p>
+        <form id="modal-submission-form" class="submission-form">
+          <label for="modal-flag">FLAG STRING</label>
+          <div class="input-wrap"><span class="input-prefix">$</span><input id="modal-flag" name="flag" required autocomplete="off" /></div>
+          <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
+          <p id="modal-status" class="form-status" role="status"></p>
+        </form>
       </div>
-      <div class="profile-stats">
-        <div><strong id="profile-score">0</strong><span>TOTAL SCORE</span></div>
-        <div><strong id="profile-solved">0</strong><span>CHALLENGES SOLVED</span></div>
-      </div>
-      <form id="profile-form" class="profile-form">
-        <label for="profile-full-name">FULL NAME</label>
-        <input id="profile-full-name" name="full_name" required />
-        <label for="profile-username">USERNAME</label>
-        <input id="profile-username" name="username" required />
-        <button class="submit-button" type="submit"><span>SAVE PROFILE</span><span>↗</span></button>
-        <p id="profile-status" class="form-status" role="status"></p>
-      </form>
-    </section>
+    </div>
 
     <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">BUILT FOR THE CURIOUS</span></footer>
   </div>

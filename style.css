@@ -46,6 +46,18 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .dashboard-header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
 .dashboard-header h2 { font-size: 34px; margin: 18px 0 0; }
 .dashboard-actions { display: flex; gap: 20px; align-items: center; }
+.dashboard-nav { display: flex; gap: 28px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.dashboard-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
+.dashboard-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
+.creator-hero { max-width: 670px; padding: 35px 0 45px; }
+.creator-hero h3 { font-size: clamp(52px, 7vw, 92px); line-height: .88; letter-spacing: -.08em; margin: 28px 0; }
+.creator-hero h3 em { color: var(--lime); font-style: normal; }
+.creator-hero p:last-child { color: #b7c1d2; max-width: 430px; line-height: 1.6; }
+.creator-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 720px; }
+.creator-card { min-height: 130px; background: var(--card); border: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; justify-content: space-between; }
+.creator-index { color: var(--coral); font: 10px 'DM Mono', monospace; }
+.creator-card strong { font-size: 18px; font-weight: 500; }
+.creator-card small { color: var(--muted); font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
 .text-button { background: none; border: 0; color: var(--lime); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; padding: 8px 0; }
 .challenge-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .challenge-panel { padding: 0; overflow: hidden; }
@@ -75,6 +87,13 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .profile-stats span { color: var(--muted); font: 9px 'DM Mono', monospace; letter-spacing: .08em; margin-top: 5px; }
 .profile-form { display: grid; gap: 10px; }
 .profile-form input { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; }
+.challenge-modal { position: fixed; inset: 0; z-index: 20; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
+.challenge-modal-card { position: relative; width: min(620px, 100%); max-height: 90vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); padding: 34px; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
+.modal-close { position: absolute; top: 16px; right: 18px; background: none; border: 0; color: var(--muted); font-size: 24px; line-height: 1; }
+.modal-close:hover { color: var(--paper); }
+.challenge-modal-card h2 { font-size: 34px; margin: 18px 0 8px; }
+.challenge-modal-card > p:not(.challenge-meta):not(.challenge-score) { color: #b7c1d2; line-height: 1.6; }
+.challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
 .admin-challenge-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; background: var(--card); border: 1px solid var(--line); padding: 18px; }
 .admin-challenge-row textarea { min-height: 65px; resize: vertical; }
@@ -101,4 +120,5 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 }
 @media (max-width: 460px) {
   .challenge-grid { grid-template-columns: 1fr; }
+  .creator-grid { grid-template-columns: 1fr; }
 }

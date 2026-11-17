@@ -4,7 +4,9 @@ const authStatus = document.querySelector('#auth-status');
 const dashboard = document.querySelector('#dashboard');
 const challengeList = document.querySelector('#challenge-list');
 const adminLink = document.querySelector('#admin-link');
-const profilePanel = document.querySelector('#profile-panel');
+const challengeModal = document.querySelector('#challenge-modal');
+const modalSubmissionForm = document.querySelector('#modal-submission-form');
+let selectedChallengeId = '';
 let currentSession;
 let supabaseClient;
 
@@ -30,49 +32,45 @@ async function loadChallenges(session) {
   const { challenges } = await response.json();
   challengeList.innerHTML = challenges.map((challenge) => `
     <article class="challenge-panel">
-      <button class="challenge-card-toggle" type="button" aria-expanded="false">
+      <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
-      <div class="challenge-details" hidden>
-        <p>${escapeHtml(challenge.description)}</p>
-        <p class="challenge-hint"><strong>HINT:</strong> ${escapeHtml(challenge.hint)}</p>
-        <form class="submission-form" data-challenge-id="${escapeHtml(challenge.id)}">
-          <label>FLAG STRING</label>
-          <div class="input-wrap"><span class="input-prefix">$</span><input name="flag" required autocomplete="off" /></div>
-          <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
-          <p class="form-status" role="status"></p>
-        </form>
-      </div>
     </article>
   `).join('');
   challengeList.querySelectorAll('.challenge-card-toggle').forEach((toggle) => {
-    toggle.addEventListener('click', () => {
-      const details = toggle.nextElementSibling;
-      const expanded = !details.hidden;
-      details.hidden = expanded;
-      toggle.setAttribute('aria-expanded', String(!expanded));
-      toggle.querySelector('.challenge-open').firstChild.textContent = expanded ? 'VIEW CHALLENGE ' : 'CLOSE CHALLENGE ';
-    });
-  });
-  challengeList.querySelectorAll('.submission-form').forEach((form) => {
-    form.addEventListener('submit', (event) => submitFlag(event, form, session));
+    toggle.addEventListener('click', () => openChallengeModal(
+      challenges.find((challenge) => challenge.id === toggle.dataset.challengeId), session
+    ));
   });
 }
 
-async function submitFlag(event, form, session) {
+function openChallengeModal(challenge, session) {
+  selectedChallengeId = challenge.id;
+  document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
+  document.querySelector('#modal-title').textContent = challenge.name;
+  document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-description').textContent = challenge.description;
+  document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
+  document.querySelector('#modal-status').textContent = '';
+  modalSubmissionForm.reset();
+  challengeModal.classList.remove('hidden');
+  modalSubmissionForm.dataset.sessionToken = session.access_token;
+}
+
+async function submitFlag(event, form) {
   event.preventDefault();
-  const status = form.querySelector('.form-status');
+  const status = document.querySelector('#modal-status');
   const flag = new FormData(form).get('flag').trim();
   const response = await fetch('/api/submit', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${session.access_token}`
+      Authorization: `Bearer ${form.dataset.sessionToken}`
     },
-    body: JSON.stringify({ challengeId: form.dataset.challengeId, flag })
+    body: JSON.stringify({ challengeId: selectedChallengeId, flag })
   });
   const result = await response.json();
   status.textContent = result.correct ? 'CORRECT // FLAG ACCEPTED' : 'INCORRECT // FLAG REJECTED';
@@ -165,18 +163,21 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
   window.location.reload();
 });
 
-document.querySelector('#profile-button').addEventListener('click', async () => {
-  try {
-    await loadProfile();
-    profilePanel.classList.remove('hidden');
-    profilePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  } catch (error) {
-    showStatus(error.message);
-  }
+document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const view = button.dataset.view;
+    document.querySelectorAll('.dashboard-nav-button').forEach((item) => item.classList.toggle('active', item === button));
+    document.querySelectorAll('.dashboard-view').forEach((item) => item.classList.add('hidden'));
+    document.querySelector(`#${view}-view`).classList.remove('hidden');
+    document.querySelector('#dashboard-title').textContent = view[0].toUpperCase() + view.slice(1);
+    if (view === 'profile') {
+      try { await loadProfile(); } catch (error) { document.querySelector('#profile-status').textContent = error.message; }
+    }
+  });
 });
 
-document.querySelector('#close-profile-button').addEventListener('click', () => {
-  profilePanel.classList.add('hidden');
+document.querySelector('#profile-button').addEventListener('click', () => {
+  document.querySelector('[data-view="profile"]').click();
 });
 
 document.querySelector('#profile-form').addEventListener('submit', async (event) => {
@@ -190,6 +191,12 @@ document.querySelector('#profile-form').addEventListener('submit', async (event)
       Authorization: `Bearer ${currentSession.access_token}`
     },
     body: JSON.stringify(values)
+  });
+
+  modalSubmissionForm.addEventListener('submit', submitFlag);
+  document.querySelector('#close-challenge-modal').addEventListener('click', () => challengeModal.classList.add('hidden'));
+  challengeModal.addEventListener('click', (event) => {
+    if (event.target === challengeModal) challengeModal.classList.add('hidden');
   });
   const result = await response.json();
   statusElement.textContent = response.ok ? 'PROFILE SAVED' : result.error;
