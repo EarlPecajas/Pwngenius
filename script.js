@@ -56,6 +56,7 @@ function openChallengeModal(challenge, session) {
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
   document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
+  modalSubmissionForm.classList.toggle('hidden', challenge.solved);
   document.querySelector('#modal-description').textContent = challenge.description;
   document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
   document.querySelector('#modal-status').textContent = '';
@@ -86,6 +87,7 @@ async function submitFlag(event, form) {
     if (result.correct) {
       form.reset();
       activeChallenge.solved = true;
+      modalSubmissionForm.classList.add('hidden');
       const cardButton = document.querySelector(`[data-challenge-id="${CSS.escape(selectedChallengeId)}"]`);
       const card = cardButton?.closest('.challenge-panel');
       card?.classList.add('solved');

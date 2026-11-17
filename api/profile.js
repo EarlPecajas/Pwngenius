@@ -12,13 +12,14 @@ module.exports = async function handler(request, response) {
       );
       const challenges = await supabaseRequest('challenges?select=id,points');
       const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
-      const totalScore = submissions.reduce((total, submission) => (
-        total + (points.get(submission.challenge_id) || 0)
+      const solvedIds = new Set(submissions.map((submission) => submission.challenge_id));
+      const totalScore = [...solvedIds].reduce((total, challengeId) => (
+        total + (points.get(challengeId) || 0)
       ), 0);
       return response.status(200).json({
         profile: profiles[0],
         totalScore,
-        solvedCount: submissions.length
+        solvedCount: solvedIds.size
       });
     }
 

@@ -18,6 +18,13 @@ module.exports = async function handler(request, response) {
     const flag = typeof request.body?.flag === 'string' ? request.body.flag.trim() : '';
     if (!challengeId || !flag) return response.status(400).json({ correct: false });
 
+    const previousCorrect = await supabaseRequest(
+      `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`
+    );
+    if (previousCorrect.length) {
+      return response.status(200).json({ correct: true, alreadySolved: true });
+    }
+
     const submittedHash = hashFlag(flag);
     const challenges = await supabaseRequest(
       `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`
