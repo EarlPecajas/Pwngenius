@@ -72,6 +72,25 @@ async function loadEventState() {
   toggle.dataset.locked = String(result.locked);
 }
 
+function showAdminDashboard() {
+  document.querySelector('#admin-login').classList.add('hidden');
+  document.querySelector('#admin-auth-loading').classList.add('hidden');
+  document.querySelector('#admin-dashboard').classList.remove('hidden');
+}
+
+async function loadAdminData() {
+  const statusElement = document.querySelector('#admin-dashboard-status');
+  statusElement.textContent = 'LOADING CONTROL ROOM DATA...';
+  statusElement.className = 'form-status success';
+  try {
+    await Promise.all([loadUsers(), loadChallenges(), loadLeaderboard(), loadEventState()]);
+    statusElement.textContent = '';
+  } catch (error) {
+    statusElement.textContent = error.message || 'Unable to load control room data.';
+    statusElement.className = 'form-status error';
+  }
+}
+
 async function updateChallenge(event, form) {
   event.preventDefault();
   const statusElement = form.querySelector('.form-status');
@@ -259,13 +278,8 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     if (!response.ok) throw new Error(result.error);
     await supabaseClient.auth.setSession(result);
     session = result;
-    await loadUsers();
-    await loadChallenges();
-    await loadLeaderboard();
-    await loadEventState();
-    document.querySelector('#admin-login').classList.add('hidden');
-    document.querySelector('#admin-auth-loading').classList.add('hidden');
-    document.querySelector('#admin-dashboard').classList.remove('hidden');
+    showAdminDashboard();
+    await loadAdminData();
   } catch (error) {
     loginStatus(error.message || 'LOGIN FAILED');
   }
@@ -284,13 +298,8 @@ function escapeHtml(value) {
     const result = await supabaseClient.auth.getSession();
     session = result.data.session;
     if (session) {
-      await loadUsers();
-      await loadChallenges();
-      await loadLeaderboard();
-      await loadEventState();
-      document.querySelector('#admin-login').classList.add('hidden');
-      document.querySelector('#admin-auth-loading').classList.add('hidden');
-      document.querySelector('#admin-dashboard').classList.remove('hidden');
+      showAdminDashboard();
+      await loadAdminData();
     } else {
       document.querySelector('#admin-auth-loading').classList.add('hidden');
       document.querySelector('#admin-login').classList.remove('hidden');
