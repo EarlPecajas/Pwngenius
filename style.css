@@ -63,6 +63,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .creator-card strong { font-size: 18px; font-weight: 500; }
 .creator-card small { color: var(--muted); font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
 .text-button { background: none; border: 0; color: var(--lime); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; padding: 8px 0; }
+#logout-button { border: 1px solid var(--lime); padding: 12px 18px; font-size: 13px; letter-spacing: .12em; }
+#logout-button:hover { color: var(--ink); background: var(--lime); }
 .challenge-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
 .challenge-lock h3 { margin: 14px 0 10px; font-size: clamp(24px, 4vw, 38px); }
