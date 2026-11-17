@@ -10,6 +10,8 @@ let selectedChallengeId = '';
 let currentSession;
 let supabaseClient;
 let activeChallenge;
+let profileCache;
+let profileRequest;
 
 function showStatus(message, type = 'error') {
   authStatus.textContent = message;
@@ -116,15 +118,28 @@ async function showDashboard(session) {
   dashboard.classList.remove('hidden');
   document.querySelector('#account-actions').classList.remove('hidden');
   adminLink.classList.toggle('hidden', profile.role !== 'admin');
+  profileRequest = getProfile().catch(() => null);
   await loadChallenges(session);
 }
 
+async function getProfile() {
+  if (profileCache) return profileCache;
+  if (!profileRequest) {
+    profileRequest = fetch('/api/profile', {
+      headers: { Authorization: `Bearer ${currentSession.access_token}` }
+    }).then(async (response) => {
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Unable to load profile');
+      profileCache = result;
+      return result;
+    });
+  }
+  return profileRequest;
+}
+
 async function loadProfile() {
-  const response = await fetch('/api/profile', {
-    headers: { Authorization: `Bearer ${currentSession.access_token}` }
-  });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.error || 'Unable to load profile');
+  const result = await getProfile();
+  if (!result) throw new Error('Unable to load profile');
   document.querySelector('#profile-full-name').value = result.profile.full_name;
   document.querySelector('#profile-username').value = result.profile.username;
   document.querySelector('#profile-score').textContent = result.totalScore;
@@ -144,6 +159,9 @@ loginForm.addEventListener('submit', async (event) => {
       })
     });
     const result = await response.json();
+    if (response.ok) {
+      profileCache = { ...profileCache, profile: result.profile };
+    }
     if (!response.ok) throw new Error(result.error);
     await supabaseClient.auth.setSession(result);
     await showDashboard(result);
