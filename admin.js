@@ -7,6 +7,18 @@ function loginStatus(message, type = 'error') {
   element.className = `form-status ${type}`;
 }
 
+async function loadLeaderboard() {
+  const { leaderboard } = await adminRequest('/api/admin/leaderboard');
+  document.querySelector('#leaderboard-list').innerHTML = leaderboard.map((player, index) => `
+    <article class="leaderboard-row">
+      <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
+      <div><strong>${escapeHtml(player.fullName)}</strong><small>@${escapeHtml(player.username)}</small></div>
+      <span class="leaderboard-solved">${player.solvedCount} SOLVED</span>
+      <strong class="leaderboard-score">${player.score} PTS</strong>
+    </article>
+  `).join('');
+}
+
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
   document.querySelector('#admin-challenge-list').innerHTML = challenges.map((challenge) => `
@@ -28,6 +40,24 @@ async function loadChallenges() {
   document.querySelectorAll('.admin-challenge-row').forEach((form) => {
     form.addEventListener('submit', (event) => updateChallenge(event, form));
     form.querySelector('.delete-challenge').addEventListener('click', () => deleteChallenge(form));
+  });
+
+  document.querySelectorAll('.admin-nav-button').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const view = button.dataset.adminView;
+      document.querySelectorAll('.admin-nav-button').forEach((item) => {
+        item.classList.toggle('active', item === button);
+      });
+      document.querySelectorAll('.admin-view').forEach((item) => item.classList.add('hidden'));
+      document.querySelector(`#${view}-view`).classList.remove('hidden');
+      if (view === 'leaderboard') {
+        try {
+          await loadLeaderboard();
+        } catch (error) {
+          document.querySelector('#leaderboard-list').textContent = error.message;
+        }
+      }
+    });
   });
 }
 
@@ -164,6 +194,7 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     session = result;
     await loadUsers();
     await loadChallenges();
+    await loadLeaderboard();
     document.querySelector('#admin-login').classList.add('hidden');
     document.querySelector('#admin-dashboard').classList.remove('hidden');
   } catch (error) {
@@ -186,6 +217,7 @@ function escapeHtml(value) {
     if (session) {
       await loadUsers();
       await loadChallenges();
+      await loadLeaderboard();
       document.querySelector('#admin-login').classList.add('hidden');
       document.querySelector('#admin-dashboard').classList.remove('hidden');
     }

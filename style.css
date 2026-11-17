@@ -114,6 +114,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenge-row-actions { display: flex; gap: 18px; align-items: center; }
 .admin-challenge-row .form-status { grid-column: 1 / -1; }
 .admin-layout { align-items: start; padding: 72px 0; }
+.admin-nav { grid-column: 1 / -1; display: flex; gap: 28px; border-bottom: 1px solid var(--line); }
+.admin-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
+.admin-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
+.admin-view { min-width: 0; }
 .admin-layout > section { background: rgba(13, 21, 36, .58); border: 1px solid var(--line); padding: 28px; }
 .admin-layout > section:first-child { position: sticky; top: 24px; }
 .admin-layout .section-heading { margin-top: 0; }
@@ -122,7 +126,16 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenges .section-heading { margin-bottom: 4px; }
 .admin-challenge-row { border-color: rgba(61, 139, 255, .25); }
 .admin-challenge-row-actions { grid-column: 1 / -1; border-top: 1px solid var(--line); padding-top: 12px; }
+.leaderboard-list { display: grid; gap: 8px; }
+.leaderboard-row { display: grid; grid-template-columns: 45px 1fr auto auto; gap: 18px; align-items: center; background: var(--card); border: 1px solid var(--line); padding: 18px; }
+.leaderboard-rank { color: var(--coral); font: 12px 'DM Mono', monospace; }
+.leaderboard-row strong, .leaderboard-row small { display: block; }
+.leaderboard-row small, .leaderboard-solved { color: var(--muted); font: 9px 'DM Mono', monospace; margin-top: 5px; }
+.leaderboard-score { color: var(--lime); font: 12px 'DM Mono', monospace; }
 @media (max-width: 760px) {
+  .auth-layout, .admin-layout { grid-template-columns: 1fr; gap: 25px; padding: 45px 0;     .admin-nav { gap: 16px; overflow-x: auto; }
+    .leaderboard-row { grid-template-columns: 35px 1fr auto; }
+    .leaderboard-score { grid-column: 2 / -1; }
   .auth-layout, .admin-layout { grid-template-columns: 1fr; gap: 25px; padding: 45px 0; }
   .auth-intro h1, .admin-layout h1 { font-size: 64px; }
   .dashboard-header { align-items: start; flex-direction: column; }

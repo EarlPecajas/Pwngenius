@@ -30,7 +30,13 @@
       </section>
     </main>
     <main id="admin-dashboard" class="admin-layout hidden">
-      <section>
+      <nav class="admin-nav" aria-label="Admin sections">
+        <button class="admin-nav-button active" data-admin-view="publish" type="button">PUBLISH</button>
+        <button class="admin-nav-button" data-admin-view="challenges" type="button">CHALLENGES</button>
+        <button class="admin-nav-button" data-admin-view="players" type="button">PLAYERS</button>
+        <button class="admin-nav-button" data-admin-view="leaderboard" type="button">LEADERBOARD</button>
+      </nav>
+      <section id="publish-view" class="admin-view">
         <p class="eyebrow"><span class="eyebrow-line"></span> CONTROL ROOM</p>
         <h1>Build the<br /><em>arena.</em></h1>
         <form id="challenge-form" class="admin-form">
@@ -45,13 +51,17 @@
           <p id="challenge-status" class="form-status" role="status"></p>
         </form>
       </section>
-      <section>
+      <section id="players-view" class="admin-view hidden">
         <div class="section-heading"><span>01</span><h2>REGISTERED PLAYERS</h2><span class="heading-rule"></span></div>
         <div id="user-list" class="user-list"></div>
       </section>
-      <section class="admin-challenges">
+      <section id="challenges-view" class="admin-view admin-challenges hidden">
         <div class="section-heading"><span>02</span><h2>MANAGE CHALLENGES</h2><span class="heading-rule"></span></div>
         <div id="admin-challenge-list" class="user-list"></div>
+      </section>
+      <section id="leaderboard-view" class="admin-view hidden">
+        <div class="section-heading"><span>03</span><h2>LEADERBOARD</h2><span class="heading-rule"></span></div>
+        <div id="leaderboard-list" class="leaderboard-list"></div>
       </section>
     </main>
     <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">PRIVATE ADMIN AREA</span></footer>
