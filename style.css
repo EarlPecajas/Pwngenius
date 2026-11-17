@@ -43,6 +43,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .auth-form input, .admin-form input, .admin-form textarea { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; outline: 0; }
 .admin-form textarea { min-height: 82px; resize: vertical; }
 .hidden { display: none !important; }
+.auth-loading { min-height: calc(100vh - 156px); display: grid; place-items: center; color: var(--lime); font: 11px 'DM Mono', monospace; letter-spacing: .12em; }
 .dashboard { padding: 70px 0; }
 .dashboard-header { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 28px; }
 .dashboard-header h2 { font-size: 34px; margin: 18px 0 0; }

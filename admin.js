@@ -196,6 +196,7 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     await loadChallenges();
     await loadLeaderboard();
     document.querySelector('#admin-login').classList.add('hidden');
+    document.querySelector('#admin-auth-loading').classList.add('hidden');
     document.querySelector('#admin-dashboard').classList.remove('hidden');
   } catch (error) {
     loginStatus(error.message || 'LOGIN FAILED');
@@ -219,9 +220,15 @@ function escapeHtml(value) {
       await loadChallenges();
       await loadLeaderboard();
       document.querySelector('#admin-login').classList.add('hidden');
+      document.querySelector('#admin-auth-loading').classList.add('hidden');
       document.querySelector('#admin-dashboard').classList.remove('hidden');
+    } else {
+      document.querySelector('#admin-auth-loading').classList.add('hidden');
+      document.querySelector('#admin-login').classList.remove('hidden');
     }
   } catch (error) {
+    document.querySelector('#admin-auth-loading').classList.add('hidden');
+    document.querySelector('#admin-login').classList.remove('hidden');
     loginStatus(error.message);
   }
 })();

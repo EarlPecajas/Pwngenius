@@ -112,6 +112,7 @@ async function showDashboard(session) {
     .single();
   if (error) throw error;
   document.querySelector('.auth-layout').classList.add('hidden');
+  document.querySelector('#auth-loading').classList.add('hidden');
   dashboard.classList.remove('hidden');
   document.querySelector('#account-actions').classList.remove('hidden');
   adminLink.classList.toggle('hidden', profile.role !== 'admin');
@@ -248,8 +249,15 @@ function escapeHtml(value) {
     const config = await fetch('/api/config').then((response) => response.json());
     supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
     const { data } = await supabaseClient.auth.getSession();
-    if (data.session) await showDashboard(data.session);
+    if (data.session) {
+      await showDashboard(data.session);
+    } else {
+      document.querySelector('#auth-loading').classList.add('hidden');
+      document.querySelector('.auth-layout').classList.remove('hidden');
+    }
   } catch (error) {
+    document.querySelector('#auth-loading').classList.add('hidden');
+    document.querySelector('.auth-layout').classList.remove('hidden');
     showStatus('AUTHENTICATION CONFIGURATION UNAVAILABLE');
     console.error(error);
   }
