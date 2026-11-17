@@ -69,13 +69,13 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 #challenges-view { min-height: calc(100vh - 260px); padding-bottom: 70px; }
 .challenge-filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 24px; }
 .challenge-filter { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 11px 15px; font: 10px 'DM Mono', monospace; letter-spacing: .08em; transition: .2s ease; }
-.challenge-filter:hover, .challenge-filter.active { color: var(--ink); background: var(--lime); border-color: var(--lime); }
+.challenge-filter:hover, .challenge-filter.active { color: var(--lime); background: rgba(61, 139, 255, .08); border-color: var(--lime); }
 .challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
 .challenge-lock h3 { margin: 14px 0 10px; font-size: clamp(24px, 4vw, 38px); }
 .challenge-lock p { margin: 0 auto; color: var(--muted); line-height: 1.6; }
 .challenge-lock-icon { color: var(--lime); font-size: 30px; }
 .challenge-panel { padding: 0; overflow: hidden; background: var(--card); display: flex; }
-.challenge-card-toggle { width: 100%; min-height: 126px; background: var(--card); color: var(--paper); border: 0; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center; transition: background .2s ease, transform .2s ease; }
+.challenge-card-toggle { width: 100%; min-height: 155px; background: var(--card); color: var(--paper); border: 0; padding: 18px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; text-align: center; transition: background .2s ease, transform .2s ease; }
 .challenge-card-toggle:hover, .challenge-card-toggle[aria-expanded="true"], .challenge-panel:hover .challenge-card-toggle { background: #142541; }
 .challenge-panel.solved .challenge-card-toggle { border: 1px solid #8cff66; background: rgba(99, 255, 80, .1); box-shadow: 0 0 18px rgba(99, 255, 80, .18); }
 .challenge-card-toggle strong { font-size: clamp(17px, 2vw, 22px); font-weight: 500; letter-spacing: -.03em; }
