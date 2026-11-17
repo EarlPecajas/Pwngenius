@@ -152,7 +152,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenge-row-actions { display: flex; gap: 18px; align-items: center; }
 .admin-challenge-row .form-status { grid-column: 1 / -1; }
 .admin-layout { align-items: start; padding: 28px 0 72px; }
-.admin-nav { grid-column: 1 / -1; display: flex; gap: 28px; border-bottom: 1px solid var(--line); }
+.admin-nav { grid-column: 1 / -1; display: flex; justify-content: center; gap: 28px; border-bottom: 1px solid var(--line); }
 #admin-dashboard-status { grid-column: 1 / -1; margin: 0; }
 .admin-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 14px 'DM Mono', monospace; letter-spacing: .1em; }
 .admin-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
