@@ -22,47 +22,39 @@ async function loadLeaderboard() {
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
   document.querySelector('#admin-challenge-list').innerHTML = challenges.map((challenge) => `
-    <article class="admin-challenge-card">
-      <button class="admin-challenge-card-toggle" type="button" aria-expanded="false">
+    <button class="admin-challenge-card" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
         <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
-      </button>
-      <form class="admin-challenge-row hidden" data-challenge-id="${escapeHtml(challenge.id)}">
-        <label>TITLE<input name="title" value="${escapeHtml(challenge.name)}" required /></label>
-        <label>CATEGORY<input name="category" value="${escapeHtml(challenge.category)}" required /></label>
-        <label>DIFFICULTY<input name="difficulty" value="${escapeHtml(challenge.difficulty)}" required /></label>
-        <label>DESCRIPTION<textarea name="description" required>${escapeHtml(challenge.description)}</textarea></label>
-        <label>HINT<textarea name="hint" required>${escapeHtml(challenge.hint)}</textarea></label>
-        <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
-        <label>POINTS<input name="points" type="number" min="1" value="${challenge.points}" required /></label>
-        <div class="admin-challenge-row-actions">
-          <button class="text-button" type="submit">SAVE CHANGES</button>
-          <button class="text-button admin-edit-cancel" type="button">CANCEL</button>
-          <button class="text-button delete-challenge" type="button">DELETE</button>
-        </div>
-        <p class="form-status" role="status"></p>
-      </form>
-    </article>
+    </button>
   `).join('');
-  document.querySelectorAll('.admin-challenge-card-toggle').forEach((toggle) => {
-    toggle.addEventListener('click', () => {
-      const card = toggle.closest('.admin-challenge-card');
-      const form = card.querySelector('.admin-challenge-row');
-      const expanded = !form.classList.contains('hidden');
-      form.classList.toggle('hidden', expanded);
-      toggle.setAttribute('aria-expanded', String(!expanded));
-    });
+  document.querySelectorAll('.admin-challenge-card').forEach((card) => {
+    card.addEventListener('click', () => openChallengeEditor(
+      challenges.find((challenge) => challenge.id === card.dataset.challengeId)
+    ));
   });
-  document.querySelectorAll('.admin-challenge-row').forEach((form) => {
-    form.addEventListener('submit', (event) => updateChallenge(event, form));
-    form.querySelector('.admin-edit-cancel').addEventListener('click', () => {
-      form.classList.add('hidden');
-      form.previousElementSibling.setAttribute('aria-expanded', 'false');
-    });
-    form.querySelector('.delete-challenge').addEventListener('click', () => deleteChallenge(form));
-  });
+}
+
+function openChallengeEditor(challenge) {
+  const modal = document.querySelector('#admin-challenge-modal');
+  const form = document.querySelector('#admin-edit-form');
+  form.dataset.challengeId = challenge.id;
+  form.elements.title.value = challenge.name;
+  form.elements.category.value = challenge.category;
+  form.elements.difficulty.value = challenge.difficulty;
+  form.elements.description.value = challenge.description;
+  form.elements.hint.value = challenge.hint;
+  form.elements.flag.value = '';
+  form.elements.points.value = challenge.points;
+  form.querySelector('.form-status').textContent = '';
+  document.querySelector('#admin-edit-meta').textContent = `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
+  document.querySelector('#admin-edit-title').textContent = challenge.name;
+  modal.classList.remove('hidden');
+}
+
+function closeChallengeEditor() {
+  document.querySelector('#admin-challenge-modal').classList.add('hidden');
 }
 
 async function loadEventState() {
@@ -85,6 +77,7 @@ async function updateChallenge(event, form) {
     await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
     statusElement.textContent = 'SAVED';
     statusElement.className = 'form-status success';
+    await loadChallenges();
   } catch (error) {
     statusElement.textContent = error.message;
     statusElement.className = 'form-status error';
@@ -98,11 +91,24 @@ async function deleteChallenge(form) {
       method: 'DELETE',
       body: JSON.stringify({ id: form.dataset.challengeId })
     });
+    closeChallengeEditor();
     await loadChallenges();
   } catch (error) {
     window.alert(error.message);
   }
 }
+
+document.querySelector('#admin-edit-form').addEventListener('submit', (event) => {
+  updateChallenge(event, event.currentTarget);
+});
+document.querySelector('#admin-edit-form .delete-challenge').addEventListener('click', () => {
+  deleteChallenge(document.querySelector('#admin-edit-form'));
+});
+document.querySelector('#admin-edit-close').addEventListener('click', closeChallengeEditor);
+document.querySelector('#admin-edit-cancel').addEventListener('click', closeChallengeEditor);
+document.querySelector('#admin-challenge-modal').addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) closeChallengeEditor();
+});
 
 function status(message, type = 'error') {
   const element = document.querySelector('#challenge-status');
