@@ -174,7 +174,6 @@ document.querySelector('#close-challenge-modal').addEventListener('click', () =>
 
 document.querySelectorAll('.creator-about-button').forEach((button) => {
   button.addEventListener('click', () => {
-    document.querySelector('#creator-modal-title').textContent = button.dataset.creator;
     document.querySelector('#creator-modal').classList.remove('hidden');
     document.body.classList.add('modal-open');
   });
