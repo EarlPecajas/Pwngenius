@@ -7,7 +7,10 @@ const expectedFlag = process.env.FLAG_01;
 const mimeTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8'
+  '.js': 'text/javascript; charset=utf-8',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png'
 };
 
 function sendJson(response, statusCode, body) {
@@ -30,7 +33,7 @@ const server = http.createServer((request, response) => {
     return;
   }
 
-  const requestedPath = request.url === '/' ? '/index.html' : request.url;
+  const requestedPath = request.url === '/' ? '/index.html' : decodeURIComponent(request.url.split('?')[0]);
   const filePath = path.join(__dirname, requestedPath);
   const extension = path.extname(filePath);
   fs.readFile(filePath, (error, file) => {

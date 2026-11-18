@@ -142,7 +142,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .creator-modal-card h2 { font-size: 34px; margin: 22px 0 0; }
 .creator-modal-content { min-height: 100px; }
 .creator-bio { margin-top: 18px; }
-.creator-bio p { color: #b7c1d2; line-height: 1.75; text-align: justify; }
+.creator-bio p { color: #cbd5e5; font-size: clamp(16px, 1.45vw, 19px); line-height: 1.75; text-align: justify; }
 .creator-bio strong { color: var(--lime); }
 .creator-bio blockquote { margin: 28px auto 30px; color: #8bc7ff; font-family: 'Space Grotesk', sans-serif; font-size: clamp(18px, 2.2vw, 24px); font-weight: 600; text-align: center; text-shadow: 0 0 14px rgba(61, 139, 255, .48); }
 .creator-certifications { border-top: 1px solid var(--line); padding-top: 24px; }
