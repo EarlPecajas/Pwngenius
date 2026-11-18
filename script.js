@@ -188,13 +188,54 @@ async function getProfile() {
 }
 
 async function loadProfile() {
+  profileCache = null;
+  profileRequest = null;
   const result = await getProfile();
   if (!result) throw new Error('Unable to load profile');
   const profile = result.profile || {};
   document.querySelector('#profile-full-name').value = profile.full_name || '';
   document.querySelector('#profile-username').value = profile.username || '';
-  document.querySelector('#profile-score').textContent = result.totalScore;
-  document.querySelector('#profile-solved').textContent = result.solvedCount;
+  document.querySelector('#profile-score').textContent = result.totalScore || 0;
+  document.querySelector('#profile-solved').textContent = result.solvedCount || 0;
+  renderCategoryChart(result.categoryBreakdown || {});
+}
+
+function renderCategoryChart(categoryBreakdown) {
+  const chart = document.querySelector('#profile-category-chart');
+  const legend = document.querySelector('#profile-category-legend');
+  const categories = Object.entries(categoryBreakdown).filter(([, count]) => count > 0);
+  const total = categories.reduce((sum, [, count]) => sum + count, 0);
+
+  if (!total) {
+    chart.style.background = 'conic-gradient(rgba(120, 134, 157, .12) 0 100%)';
+    chart.dataset.label = '0%';
+    legend.innerHTML = '<p class="category-empty">NO SOLVED CATEGORIES</p>';
+    return;
+  }
+
+  const colors = ['#3d8bff', '#70c8ff', '#d7ed4b', '#ff765e', '#a78bfa', '#8cff66'];
+  let offset = 0;
+  const segments = [];
+  const legendItems = [];
+
+  categories.forEach(([category, count], index) => {
+    const percentage = (count / total) * 100;
+    const end = offset + percentage;
+    const color = colors[index % colors.length];
+    segments.push(`${color} ${offset}% ${end}%`);
+    legendItems.push(`
+      <li>
+        <span class="category-dot" style="background:${color}"></span>
+        <span>${escapeHtml(category)}</span>
+        <strong>${count} · ${Math.round(percentage)}%</strong>
+      </li>
+    `);
+    offset = end;
+  });
+
+  chart.style.background = `conic-gradient(${segments.join(', ')})`;
+  chart.dataset.label = `${total} SOLVED`;
+  legend.innerHTML = `<ul>${legendItems.join('')}</ul>`;
 }
 
 loginForm.addEventListener('submit', async (event) => {
@@ -210,9 +251,6 @@ loginForm.addEventListener('submit', async (event) => {
       })
     });
     const result = await response.json();
-    if (response.ok) {
-      profileCache = { ...profileCache, profile: result.profile };
-    }
     if (!response.ok) throw new Error(result.error);
     await supabaseClient.auth.setSession(result);
     await showDashboard(result);
@@ -303,6 +341,10 @@ document.querySelector('#profile-form').addEventListener('submit', async (event)
     }
   });
   const result = await response.json();
+  if (response.ok) {
+    profileCache = null;
+    profileRequest = null;
+  }
   statusElement.textContent = response.ok ? 'PROFILE SAVED' : result.error;
   statusElement.className = `form-status ${response.ok ? 'success' : 'error'}`;
 });

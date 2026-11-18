@@ -28,12 +28,20 @@ module.exports = async function handler(request, response) {
       const submissions = await supabaseRequest(
         `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
       );
-      const challenges = await supabaseRequest('challenges?select=id,points');
-      const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
+      const challenges = await supabaseRequest('challenges?select=id,points,category');
+      const challengeDetails = new Map(challenges.map((challenge) => [
+        challenge.id,
+        { points: challenge.points, category: challenge.category || 'General' }
+      ]));
       const solvedIds = new Set(submissions.map((submission) => submission.challenge_id));
       const totalScore = [...solvedIds].reduce((total, challengeId) => (
-        total + (points.get(challengeId) || 0)
+        total + (challengeDetails.get(challengeId)?.points || 0)
       ), 0);
+      const categoryBreakdown = {};
+      [...solvedIds].forEach((challengeId) => {
+        const category = challengeDetails.get(challengeId)?.category || 'General';
+        categoryBreakdown[category] = (categoryBreakdown[category] || 0) + 1;
+      });
       return response.status(200).json({
         profile: profile || {
           full_name: user.user_metadata?.full_name || '',
@@ -42,7 +50,8 @@ module.exports = async function handler(request, response) {
           role: 'user'
         },
         totalScore,
-        solvedCount: solvedIds.size
+        solvedCount: solvedIds.size,
+        categoryBreakdown
       });
     }
 
