@@ -178,8 +178,8 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
     if (button.dataset.profile === 'earl') {
       modalContent.innerHTML = `
         <div class="creator-bio">
-          <p>I'm Earl Warren Pecajas, a cybersecurity enthusiast, CTF player, and developer with a passion for exploring how things work, solving problems, and building things that challenge people to think differently.</p>
-          <p>My main interests are <strong>Digital Forensics</strong> and <strong>Web Exploitation</strong>. I enjoy investigating clues, uncovering hidden information, analyzing digital evidence, and finding vulnerabilities through hands-on challenges.</p>
+          <p>I'm <strong>Earl Warren Pecajas</strong>, a cybersecurity enthusiast, CTF player, and developer with a passion for exploring how things work, solving problems, and building things that challenge people to think differently.</p>
+          <p>My main interests are Digital Forensics and Web Exploitation. I enjoy investigating clues, uncovering hidden information, analyzing digital evidence, and finding vulnerabilities through hands-on challenges.</p>
           <p>For me, cybersecurity isn't just about solving challenges. It's about continuously learning, experimenting, and discovering new ways to approach problems.</p>
           <blockquote>“Curiosity leads the way. Persistence finds the flag.”</blockquote>
         </div>
