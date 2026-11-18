@@ -23,27 +23,20 @@ module.exports = async function handler(request, response) {
     const flag = typeof request.body?.flag === 'string' ? request.body.flag.trim() : '';
     if (!challengeId || !flag) return response.status(400).json({ correct: false });
 
-    const settings = await supabaseRequest(
-      'site_settings?key=eq.challenges_locked&select=value&limit=1'
-    );
+    const [settings, challengeRows, previousCorrect, limitSettings] = await Promise.all([
+      supabaseRequest('site_settings?key=eq.challenges_locked&select=value&limit=1'),
+      supabaseRequest(`challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`),
+      supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`),
+      supabaseRequest(`site_settings?key=eq.${encodeURIComponent(`challenge_submission_limit:${challengeId}`)}&select=value&limit=1`)
+    ]);
     if (settings[0]?.value !== 'false') {
       return response.status(423).json({ error: 'Challenges are locked' });
     }
-
-    const previousCorrect = await supabaseRequest(
-      `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`
-    );
     if (previousCorrect.length) {
       return response.status(200).json({ correct: true, alreadySolved: true });
     }
 
     const submittedHash = hashFlag(flag);
-    const challenges = await supabaseRequest(
-      `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`
-    );
-    const limitSettings = await supabaseRequest(
-      `site_settings?key=eq.${encodeURIComponent(`challenge_submission_limit:${challengeId}`)}&select=value&limit=1`
-    );
     const submissionLimitValue = Number(limitSettings[0]?.value);
     const submissionLimit = Number.isInteger(submissionLimitValue) && submissionLimitValue >= 1
       ? submissionLimitValue
@@ -56,7 +49,7 @@ module.exports = async function handler(request, response) {
         return response.status(429).json({ error: 'Submission limit reached', correct: false });
       }
     }
-    const correct = challenges.length === 1 && submittedHash === challenges[0].flag_hash;
+    const correct = challengeRows.length === 1 && submittedHash === challengeRows[0].flag_hash;
 
     await supabaseRequest('submissions', {
       method: 'POST',

@@ -75,7 +75,7 @@ function openChallenge(challenge) {
   const filesContainer = document.querySelector('#modal-files');
   filesContainer.innerHTML = challenge.files?.length
     ? `<h3>Challenge Files</h3>${challenge.files.map((file) =>
-      `<a href="${escapeHtml(file.url)}" download="${escapeHtml(file.name)}" target="_blank" rel="noopener">${escapeHtml(file.name)} <span>↓</span></a>`
+      `<a href="${escapeHtml(file.url)}?download=${encodeURIComponent(file.name)}" download="${escapeHtml(file.name)}">${escapeHtml(file.name)} <span>↓</span></a>`
     ).join('')}`
     : '';
   document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
@@ -95,6 +95,30 @@ function openChallenge(challenge) {
   document.querySelector('#challenge-modal').classList.remove('hidden');
   document.body.classList.add('modal-open');
 }
+
+document.querySelector('#modal-files').addEventListener('click', (event) => {
+  const link = event.target.closest('a[download]');
+  if (!link) return;
+  event.preventDefault();
+  fetch(link.href)
+    .then((response) => {
+      if (!response.ok) throw new Error('Unable to download file');
+      return response.blob();
+    })
+    .then((blob) => {
+      const url = URL.createObjectURL(blob);
+      const download = document.createElement('a');
+      download.href = url;
+      download.download = link.download;
+      document.body.appendChild(download);
+      download.click();
+      download.remove();
+      URL.revokeObjectURL(url);
+    })
+    .catch(() => {
+      window.location.href = link.href;
+    });
+});
 
 async function loadProfile() {
   profileCache = null;
@@ -292,11 +316,18 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
       status.textContent = result.correct ? 'ANGASSS' : 'ENGKKK';
       status.className = `form-status ${result.correct ? 'success' : 'error'}`;
     }
-    await loadChallenges();
-    const updatedChallenge = allChallenges.find((challenge) =>
-      challenge.id === form.dataset.challengeId
-    );
-    if (updatedChallenge) openChallenge(updatedChallenge);
+    const challenge = allChallenges.find((item) => item.id === form.dataset.challengeId);
+    if (challenge) {
+      challenge.submissionCount = (challenge.submissionCount || 0) + 1;
+      if (result.correct) challenge.solved = true;
+      renderChallenges();
+    }
+    if (result.correct) {
+      document.querySelector('#challenge-modal').classList.add('hidden');
+      document.body.classList.remove('modal-open');
+    } else if (challenge) {
+      openChallenge(challenge);
+    }
   } catch (error) {
     status.textContent = 'SUBMISSION SERVICE UNAVAILABLE';
   }

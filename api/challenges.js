@@ -148,9 +148,11 @@ module.exports = async function handler(request, response) {
       const challenges = await supabaseRequest(
         'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
       );
-      const submissions = await supabaseRequest(
-        `submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`
-      );
+      const [submissions, limitSettings, fileSettings] = await Promise.all([
+        supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`),
+        supabaseRequest('site_settings?key=like.challenge_submission_limit:*&select=key,value'),
+        supabaseRequest('site_settings?key=like.challenge_files:*&select=key,value')
+      ]);
       const solvedIds = new Set(
         submissions.filter((submission) => submission.correct).map((submission) => submission.challenge_id)
       );
@@ -161,15 +163,26 @@ module.exports = async function handler(request, response) {
           (attemptCounts.get(submission.challenge_id) || 0) + 1
         );
       });
+      const limitsByChallenge = new Map(limitSettings.map((setting) => [
+        setting.key.slice('challenge_submission_limit:'.length),
+        normalizeSubmissionLimit(Number(setting.value))
+      ]));
+      const filesByChallenge = new Map(fileSettings.map((setting) => {
+        try {
+          return [setting.key.slice('challenge_files:'.length), JSON.parse(setting.value)];
+        } catch {
+          return [setting.key.slice('challenge_files:'.length), []];
+        }
+      }));
       return response.status(200).json({
         locked: !isAdmin && settings[0]?.value !== 'false',
-        challenges: await Promise.all(challenges.map(async (challenge) => ({
+        challenges: challenges.map((challenge) => ({
           ...challenge,
           solved: solvedIds.has(challenge.id),
-          submissionLimit: await getSubmissionLimit(challenge.id),
+          submissionLimit: limitsByChallenge.get(challenge.id) || null,
           submissionCount: attemptCounts.get(challenge.id) || 0,
-          files: await getChallengeFiles(challenge.id)
-        })))
+          files: filesByChallenge.get(challenge.id) || []
+        }))
       });
     }
 
