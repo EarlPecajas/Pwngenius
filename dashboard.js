@@ -126,13 +126,16 @@ function renderCategoryChart(categoryBreakdown) {
 
 async function loadLeaderboard() {
   const container = document.querySelector('#public-leaderboard-list');
+  const chart = document.querySelector('#leaderboard-score-chart');
   container.innerHTML = '<p class="category-empty">LOADING LEADERBOARD...</p>';
+  chart.innerHTML = '<p class="category-empty">LOADING SCORES...</p>';
   try {
     const response = await fetch('/api/leaderboard', {
       headers: { Authorization: `Bearer ${currentSession.access_token}` }
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
+    renderScoreChart(result.leaderboard);
     container.innerHTML = result.leaderboard.length
       ? result.leaderboard.map((player, index) => `
         <article class="public-leaderboard-row">
@@ -145,6 +148,25 @@ async function loadLeaderboard() {
   } catch (error) {
     container.innerHTML = `<p class="form-status error">${escapeHtml(error.message)}</p>`;
   }
+}
+
+function renderScoreChart(players) {
+  const chart = document.querySelector('#leaderboard-score-chart');
+  if (!players.length) {
+    chart.innerHTML = '<p class="category-empty">NO SCORES YET</p>';
+    return;
+  }
+  const topPlayers = players.slice(0, 8);
+  const highestScore = Math.max(...topPlayers.map((player) => player.score), 1);
+  chart.innerHTML = topPlayers.map((player) => `
+    <div class="leaderboard-score-bar">
+      <span class="leaderboard-bar-name">@${escapeHtml(player.username)}</span>
+      <div class="leaderboard-bar-track">
+        <span style="width:${Math.max((player.score / highestScore) * 100, 3)}%"></span>
+      </div>
+      <strong>${player.score}</strong>
+    </div>
+  `).join('');
 }
 
 document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
