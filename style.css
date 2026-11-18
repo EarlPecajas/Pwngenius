@@ -85,9 +85,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-meta, .challenge-hint, .user-row small { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .06em; }
 .challenge-hint { border-left: 2px solid var(--coral); padding-left: 10px; }
 .challenge-panel .submission-form { margin-top: 25px; }
-.challenge-lock { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; background: rgba(13, 21, 36, .72); border: 1px solid var(--line); filter: blur(.2px); padding: 30px; }
+.challenge-lock { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; background: rgba(13, 21, 36, .72); border: 1px solid var(--line); padding: 30px; }
 .challenge-lock-icon { color: var(--coral); font-size: 30px; }
-.challenge-lock h3 { margin: 0; font-size: 22px; letter-spacing: .08em; }
+.challenge-lock h3 { margin: 0; font-size: 28px; letter-spacing: .08em; }
+.challenge-lock p { font-size: 15px; text-align: center; }
 .challenge-lock p { max-width: 430px; color: var(--muted); line-height: 1.6; margin: 0; }
 .event-control { border-top: 1px solid var(--line); margin-top: 28px; padding-top: 20px; display: flex; justify-content: space-between; align-items: center; gap: 20px; }
 .event-control strong, .event-control small { display: block; }

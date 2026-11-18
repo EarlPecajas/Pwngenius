@@ -3,6 +3,7 @@ let currentSession;
 let allChallenges = [];
 let profileCache;
 let profileRequest;
+let challengePollTimer;
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -18,7 +19,8 @@ async function loadChallenges() {
   const result = await response.json();
   const list = document.querySelector('#challenge-list');
   if (result.locked) {
-    list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES LOCKED</h3><p>The event has not started yet.</p></div>';
+    allChallenges = [];
+    list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the admin unlocks the arena.</p></div>';
     return;
   }
   allChallenges = result.challenges;
@@ -200,6 +202,10 @@ function isCurrentPlayer(username, currentUsername) {
 document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
   button.addEventListener('click', async () => {
     const view = button.dataset.view;
+    if (challengePollTimer) {
+      window.clearInterval(challengePollTimer);
+      challengePollTimer = null;
+    }
     document.querySelectorAll('.dashboard-nav-button').forEach((item) =>
       item.classList.toggle('active', item === button)
     );
@@ -207,7 +213,12 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     document.querySelector(`#${view}-view`).classList.remove('hidden');
     document.querySelector('#dashboard-title').textContent =
       view === 'leaderboard' ? 'Leaderboard' : view[0].toUpperCase() + view.slice(1);
-    if (view === 'challenges') await loadChallenges();
+    if (view === 'challenges') {
+      await loadChallenges();
+      challengePollTimer = window.setInterval(() => {
+        loadChallenges().catch((error) => console.error(error));
+      }, 5000);
+    }
     if (view === 'profile') await loadProfile();
     if (view === 'leaderboard') await loadLeaderboard();
   });
