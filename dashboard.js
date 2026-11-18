@@ -326,7 +326,9 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
 
 (async () => {
   try {
-    const config = await fetch('/api/config').then((response) => response.json());
+    const configResponse = await fetch('/api/config');
+    const config = await configResponse.json();
+    if (!configResponse.ok) throw new Error(config.error || 'Authentication configuration unavailable');
     supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
     const { data } = await supabaseClient.auth.getSession();
     if (!data.session) {
@@ -334,16 +336,23 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
       return;
     }
     currentSession = data.session;
-    const { data: profile, error } = await supabaseClient
-      .from('profiles')
-      .select('role')
-      .eq('id', data.session.user.id)
-      .single();
-    if (error) throw error;
-    document.querySelector('#admin-link').classList.toggle('hidden', profile.role !== 'admin');
+    try {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('role')
+        .eq('id', data.session.user.id)
+        .maybeSingle();
+      document.querySelector('#admin-link').classList.toggle('hidden', profile?.role !== 'admin');
+    } catch {
+      document.querySelector('#admin-link').classList.add('hidden');
+    }
     document.querySelector('#dashboard-loading').classList.add('hidden');
     document.querySelector('#dashboard').classList.remove('hidden');
   } catch (error) {
-    window.location.replace('/');
+    document.querySelector('#dashboard-loading').classList.add('hidden');
+    document.querySelector('#dashboard').classList.remove('hidden');
+    document.querySelector('#dashboard-title').textContent = 'Session unavailable';
+    document.querySelectorAll('.dashboard-view').forEach((view) => view.classList.add('hidden'));
+    console.error(error);
   }
 })();

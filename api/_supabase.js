@@ -1,4 +1,9 @@
 async function supabaseRequest(path, options = {}) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const error = new Error('Supabase server configuration is missing');
+    error.statusCode = 500;
+    throw error;
+  }
   const response = await fetch(`${process.env.SUPABASE_URL}/rest/v1/${path}`, {
     ...options,
     headers: {
@@ -38,6 +43,11 @@ function getAccessToken(request) {
 }
 
 async function getAuthenticatedUser(request) {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    const error = new Error('Supabase authentication configuration is missing');
+    error.statusCode = 500;
+    throw error;
+  }
   const token = getAccessToken(request);
   if (!token) {
     const error = new Error('Authentication required');

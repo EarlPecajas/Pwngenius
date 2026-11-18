@@ -72,7 +72,9 @@ document.querySelectorAll('.auth-tab').forEach((tab) => {
 
 (async () => {
   try {
-    const config = await fetch('/api/config').then((response) => response.json());
+    const configResponse = await fetch('/api/config');
+    const config = await configResponse.json();
+    if (!configResponse.ok) throw new Error(config.error || 'Authentication configuration unavailable');
     supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
     const { data } = await supabaseClient.auth.getSession();
     if (data.session) {
