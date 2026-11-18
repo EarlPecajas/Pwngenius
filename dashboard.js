@@ -178,10 +178,11 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
     if (button.dataset.profile === 'earl') {
       modalContent.innerHTML = `
         <div class="creator-bio">
-          <p>I'm <strong>Earl Warren Pecajas</strong>, a cybersecurity enthusiast, CTF player, and developer with a passion for exploring how things work, solving problems, and building things that challenge people to think differently.</p>
-          <p>My main interests are Digital Forensics and Web Exploitation. I enjoy investigating clues, uncovering hidden information, analyzing digital evidence, and finding vulnerabilities through hands-on challenges.</p>
-          <p>For me, cybersecurity isn't just about solving challenges. It's about continuously learning, experimenting, and discovering new ways to approach problems.</p>
-          <blockquote>“Curiosity leads the way. Persistence finds the flag.”</blockquote>
+          <p>I'm <strong>Earl Warren Pecajas</strong>, a cybersecurity enthusiast, CTF player, and developer who enjoys exploring the technical side of things, solving complex problems, and understanding what happens behind the scenes. My interest in cybersecurity comes from the curiosity to discover how systems work, how vulnerabilities can be uncovered, and how seemingly ordinary pieces of information can reveal something much bigger.</p>
+          <p>My primary areas of interest are Digital Forensics and Web Exploitation. I enjoy digging through digital evidence, examining artifacts, uncovering hidden information, and investigating traces left behind. On the web exploitation side, I find it fascinating to understand how web applications function, identify security weaknesses, and explore how they can be exploited.</p>
+          <p>Capture The Flag competitions have become a way for me to put these interests into practice. Every challenge presents a different problem, requiring patience, creativity, critical thinking, and sometimes a completely different perspective. I believe that every challenge, whether solved or not, offers an opportunity to learn something new and improve along the way.</p>
+          <p>Beyond competing, I also enjoy creating and sharing challenges that encourage others to explore cybersecurity, sharpen their skills, and experience the satisfaction of finding a solution.</p>
+          <blockquote>“Curiosity leads the way. Persistence finds the flag."</blockquote>
         </div>
         <section class="creator-certifications">
           <h3>Certifications</h3>
