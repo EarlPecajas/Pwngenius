@@ -4,7 +4,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PwnGenius | Login</title>
+  <title>Pwngenius</title>
+  <link rel="icon" type="image/jpeg" href="images/pwngenius_logo.jpg" />
+  <link rel="shortcut icon" type="image/jpeg" href="images/pwngenius_logo.jpg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -73,6 +75,7 @@
       <nav class="dashboard-nav" aria-label="Dashboard sections">
         <button class="dashboard-nav-button active" data-view="creators" type="button">CREATORS</button>
         <button class="dashboard-nav-button" data-view="challenges" type="button">CHALLENGES</button>
+        <button class="dashboard-nav-button" data-view="leaderboard" type="button">LEADERBOARD</button>
         <button class="dashboard-nav-button" data-view="profile" type="button">PROFILE</button>
       </nav>
       <section id="creators-view" class="dashboard-view">
@@ -95,6 +98,17 @@
           <button class="challenge-filter" type="button" data-category="Web Exploitation">WEB EXPLOITATION</button>
         </div>
         <div id="challenge-list" class="challenge-grid"></div>
+      </section>
+      <section id="leaderboard-view" class="dashboard-view hidden">
+        <div class="profile-card public-leaderboard-card">
+          <div class="profile-card-header">
+            <p class="eyebrow"><span class="eyebrow-line"></span> GLOBAL RANKINGS</p>
+            <h2>Leaderboard</h2>
+          </div>
+          <div id="public-leaderboard-list" class="public-leaderboard-list">
+            <p class="category-empty">LOADING LEADERBOARD...</p>
+          </div>
+        </div>
       </section>
       <section id="profile-view" class="dashboard-view hidden">
         <div class="profile-layout">

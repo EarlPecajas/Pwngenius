@@ -200,6 +200,31 @@ async function loadProfile() {
   renderCategoryChart(result.categoryBreakdown || {});
 }
 
+async function loadPublicLeaderboard() {
+  const container = document.querySelector('#public-leaderboard-list');
+  container.innerHTML = '<p class="category-empty">LOADING LEADERBOARD...</p>';
+  try {
+    const response = await fetch('/api/leaderboard', {
+      headers: { Authorization: `Bearer ${currentSession.access_token}` }
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error || 'Unable to load leaderboard');
+    if (!result.leaderboard.length) {
+      container.innerHTML = '<p class="category-empty">NO SCORES YET</p>';
+      return;
+    }
+    container.innerHTML = result.leaderboard.map((player, index) => `
+      <article class="public-leaderboard-row">
+        <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
+        <strong>@${escapeHtml(player.username)}</strong>
+        <strong class="leaderboard-score">${player.score} PTS</strong>
+      </article>
+    `).join('');
+  } catch (error) {
+    container.innerHTML = `<p class="form-status error">${escapeHtml(error.message)}</p>`;
+  }
+}
+
 function renderCategoryChart(categoryBreakdown) {
   const chart = document.querySelector('#profile-category-chart');
   const legend = document.querySelector('#profile-category-legend');
@@ -305,6 +330,9 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     document.querySelector('#dashboard-title').textContent = view[0].toUpperCase() + view.slice(1);
     if (view === 'profile') {
       try { await loadProfile(); } catch (error) { document.querySelector('#profile-status').textContent = error.message; }
+    }
+    if (view === 'leaderboard') {
+      await loadPublicLeaderboard();
     }
   });
 });
