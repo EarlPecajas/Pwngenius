@@ -185,6 +185,20 @@ document.querySelector('#close-creator-modal').addEventListener('click', () => {
   document.body.classList.remove('modal-open');
 });
 
+document.querySelector('#creator-modal').addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) {
+    event.currentTarget.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !document.querySelector('#creator-modal').classList.contains('hidden')) {
+    document.querySelector('#creator-modal').classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  }
+});
+
 document.querySelector('#modal-submission-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
