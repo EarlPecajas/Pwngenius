@@ -34,6 +34,29 @@
       </nav>
 
       <section id="creators-view" class="dashboard-view">
+        <div class="creator-grid">
+          <article class="creator-card">
+            <img class="creator-image" src="images/EarlPecajas.jpg" alt="Earl Warren Pecajas" />
+            <div class="creator-card-content">
+              <h2>Earl Warren Pecajas</h2>
+              <button class="creator-about-button" type="button" data-creator="Earl Warren Pecajas">ABOUT ME <span>↗</span></button>
+            </div>
+          </article>
+          <article class="creator-card">
+            <img class="creator-image" src="images/AladdinAbedin.jpg" alt="Aladdin Abedin" />
+            <div class="creator-card-content">
+              <h2>Aladdin Abedin</h2>
+              <button class="creator-about-button" type="button" data-creator="Aladdin Abedin">ABOUT ME <span>↗</span></button>
+            </div>
+          </article>
+          <article class="creator-card">
+            <div class="creator-image creator-image-placeholder" role="img" aria-label="Photo of Jeehan Mikayla Barbero">JM</div>
+            <div class="creator-card-content">
+              <h2>Jeehan Mikayla Barbero</h2>
+              <button class="creator-about-button" type="button" data-creator="Jeehan Mikayla Barbero">ABOUT ME <span>↗</span></button>
+            </div>
+          </article>
+        </div>
       </section>
 
       <section id="challenges-view" class="dashboard-view hidden">
@@ -99,6 +122,14 @@
           <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
           <p id="modal-status" class="form-status" role="status"></p>
         </form>
+      </div>
+    </div>
+    <div id="creator-modal" class="creator-modal hidden" role="dialog" aria-modal="true" aria-labelledby="creator-modal-title">
+      <div class="creator-modal-card">
+        <button id="close-creator-modal" class="modal-close" type="button" aria-label="Close About Me">×</button>
+        <p class="eyebrow"><span class="eyebrow-line"></span> CREATOR PROFILE</p>
+        <h2 id="creator-modal-title"></h2>
+        <div class="creator-modal-content"></div>
       </div>
     </div>
     <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">BUILT FOR THE CURIOUS</span></footer>

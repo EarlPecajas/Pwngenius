@@ -172,6 +172,19 @@ document.querySelector('#close-challenge-modal').addEventListener('click', () =>
   document.body.classList.remove('modal-open');
 });
 
+document.querySelectorAll('.creator-about-button').forEach((button) => {
+  button.addEventListener('click', () => {
+    document.querySelector('#creator-modal-title').textContent = button.dataset.creator;
+    document.querySelector('#creator-modal').classList.remove('hidden');
+    document.body.classList.add('modal-open');
+  });
+});
+
+document.querySelector('#close-creator-modal').addEventListener('click', () => {
+  document.querySelector('#creator-modal').classList.add('hidden');
+  document.body.classList.remove('modal-open');
+});
+
 document.querySelector('#modal-submission-form').addEventListener('submit', async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
