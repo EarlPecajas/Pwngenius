@@ -36,7 +36,6 @@ function renderChallenges() {
   list.innerHTML = [...categories.entries()].map(([category, challenges]) => `
     <section class="challenge-category-section">
       <div class="challenge-category-heading">
-        <p class="eyebrow"><span class="eyebrow-line"></span> CATEGORY</p>
         <h2>${escapeHtml(category)}</h2>
       </div>
       <div class="challenge-category-grid">
