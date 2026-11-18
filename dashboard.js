@@ -1,0 +1,243 @@
+let supabaseClient;
+let currentSession;
+let allChallenges = [];
+let activeCategory = 'All';
+let profileCache;
+let profileRequest;
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
+  }[character]));
+}
+
+async function loadChallenges() {
+  const response = await fetch('/api/challenges', {
+    headers: { Authorization: `Bearer ${currentSession.access_token}` }
+  });
+  if (!response.ok) throw new Error('Unable to load challenges');
+  const result = await response.json();
+  const list = document.querySelector('#challenge-list');
+  if (result.locked) {
+    document.querySelector('#challenge-filters').classList.add('hidden');
+    list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES LOCKED</h3><p>The event has not started yet.</p></div>';
+    return;
+  }
+  allChallenges = result.challenges;
+  document.querySelector('#challenge-filters').classList.remove('hidden');
+  renderChallenges();
+}
+
+function renderChallenges() {
+  const list = document.querySelector('#challenge-list');
+  const visible = allChallenges.filter((challenge) =>
+    activeCategory === 'All'
+      || String(challenge.category).toLowerCase() === activeCategory.toLowerCase()
+  );
+  list.innerHTML = visible.map((challenge) => `
+    <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
+      <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
+        <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
+        <strong>${escapeHtml(challenge.name)}</strong>
+        <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
+        <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
+      </button>
+    </article>
+  `).join('');
+  list.querySelectorAll('.challenge-card-toggle').forEach((button) => {
+    button.addEventListener('click', () => openChallenge(
+      allChallenges.find((challenge) => challenge.id === button.dataset.challengeId)
+    ));
+  });
+}
+
+function openChallenge(challenge) {
+  document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
+  document.querySelector('#modal-title').textContent = challenge.name;
+  document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-description').textContent = challenge.description;
+  document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
+  document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
+  document.querySelector('#modal-submission-form').classList.toggle('hidden', challenge.solved);
+  document.querySelector('#modal-status').textContent = '';
+  document.querySelector('#modal-submission-form').dataset.challengeId = challenge.id;
+  document.querySelector('#challenge-modal').classList.remove('hidden');
+  document.body.classList.add('modal-open');
+}
+
+async function loadProfile() {
+  profileCache = null;
+  profileRequest = null;
+  if (!profileRequest) {
+    profileRequest = fetch('/api/profile', {
+      headers: { Authorization: `Bearer ${currentSession.access_token}` }
+    }).then(async (response) => {
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Unable to load profile');
+      profileCache = result;
+      return result;
+    });
+  }
+  const result = await profileRequest;
+  const profile = result.profile || {};
+  document.querySelector('#profile-full-name').value = profile.full_name || '';
+  document.querySelector('#profile-username').value = profile.username || '';
+  document.querySelector('#profile-score').textContent = result.totalScore || 0;
+  document.querySelector('#profile-solved').textContent = result.solvedCount || 0;
+  renderCategoryChart(result.categoryBreakdown || {});
+}
+
+function renderCategoryChart(categoryBreakdown) {
+  const chart = document.querySelector('#profile-category-chart');
+  const legend = document.querySelector('#profile-category-legend');
+  const categories = Object.entries(categoryBreakdown).filter(([, count]) => count > 0);
+  const total = categories.reduce((sum, [, count]) => sum + count, 0);
+  if (!total) {
+    chart.style.background = 'conic-gradient(rgba(120, 134, 157, .12) 0 100%)';
+    chart.dataset.label = '0 SOLVED';
+    legend.innerHTML = '<p class="category-empty">NO SOLVED CATEGORIES</p>';
+    return;
+  }
+  const colors = ['#3d8bff', '#70c8ff', '#d7ed4b', '#ff765e', '#a78bfa', '#8cff66'];
+  let offset = 0;
+  const segments = [];
+  const legendItems = [];
+  categories.forEach(([category, count], index) => {
+    const percentage = count / total * 100;
+    const end = offset + percentage;
+    const color = colors[index % colors.length];
+    segments.push(`${color} ${offset}% ${end}%`);
+    legendItems.push(`<li><span class="category-dot" style="background:${color}"></span><span>${escapeHtml(category)}</span><strong>${count} · ${Math.round(percentage)}%</strong></li>`);
+    offset = end;
+  });
+  chart.style.background = `conic-gradient(${segments.join(', ')})`;
+  chart.dataset.label = `${total} SOLVED`;
+  legend.innerHTML = `<ul>${legendItems.join('')}</ul>`;
+}
+
+async function loadLeaderboard() {
+  const container = document.querySelector('#public-leaderboard-list');
+  container.innerHTML = '<p class="category-empty">LOADING LEADERBOARD...</p>';
+  try {
+    const response = await fetch('/api/leaderboard', {
+      headers: { Authorization: `Bearer ${currentSession.access_token}` }
+    });
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.error);
+    container.innerHTML = result.leaderboard.length
+      ? result.leaderboard.map((player, index) => `
+        <article class="public-leaderboard-row">
+          <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
+          <strong>@${escapeHtml(player.username)}</strong>
+          <strong class="leaderboard-score">${player.score} PTS</strong>
+        </article>
+      `).join('')
+      : '<p class="category-empty">NO SCORES YET</p>';
+  } catch (error) {
+    container.innerHTML = `<p class="form-status error">${escapeHtml(error.message)}</p>`;
+  }
+}
+
+document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
+  button.addEventListener('click', async () => {
+    const view = button.dataset.view;
+    document.querySelectorAll('.dashboard-nav-button').forEach((item) =>
+      item.classList.toggle('active', item === button)
+    );
+    document.querySelectorAll('.dashboard-view').forEach((item) => item.classList.add('hidden'));
+    document.querySelector(`#${view}-view`).classList.remove('hidden');
+    document.querySelector('#dashboard-title').textContent =
+      view === 'leaderboard' ? 'Leaderboard' : view[0].toUpperCase() + view.slice(1);
+    if (view === 'challenges') await loadChallenges();
+    if (view === 'profile') await loadProfile();
+    if (view === 'leaderboard') await loadLeaderboard();
+  });
+});
+
+document.querySelectorAll('.challenge-filter').forEach((button) => {
+  button.addEventListener('click', () => {
+    activeCategory = button.dataset.category;
+    document.querySelectorAll('.challenge-filter').forEach((item) =>
+      item.classList.toggle('active', item === button)
+    );
+    renderChallenges();
+  });
+});
+
+document.querySelector('#close-challenge-modal').addEventListener('click', () => {
+  document.querySelector('#challenge-modal').classList.add('hidden');
+  document.body.classList.remove('modal-open');
+});
+
+document.querySelector('#modal-submission-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.querySelector('#modal-status');
+  status.textContent = 'TRANSMITTING...';
+  try {
+    const response = await fetch('/api/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${currentSession.access_token}`
+      },
+      body: JSON.stringify({
+        challengeId: form.dataset.challengeId,
+        flag: new FormData(form).get('flag').trim()
+      })
+    });
+    const result = await response.json();
+    status.textContent = result.correct ? 'CORRECT FLAG' : 'INCORRECT FLAG';
+    status.className = `form-status ${result.correct ? 'success' : 'error'}`;
+    if (result.correct) await loadChallenges();
+  } catch (error) {
+    status.textContent = 'SUBMISSION SERVICE UNAVAILABLE';
+  }
+});
+
+document.querySelector('#profile-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const status = document.querySelector('#profile-status');
+  const response = await fetch('/api/profile', {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${currentSession.access_token}`
+    },
+    body: JSON.stringify(Object.fromEntries(new FormData(event.currentTarget).entries()))
+  });
+  const result = await response.json();
+  status.textContent = response.ok ? 'PROFILE SAVED' : result.error;
+  status.className = `form-status ${response.ok ? 'success' : 'error'}`;
+  if (response.ok) await loadProfile();
+});
+
+document.querySelector('#logout-button').addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  window.location.replace('/');
+});
+
+(async () => {
+  try {
+    const config = await fetch('/api/config').then((response) => response.json());
+    supabaseClient = window.supabase.createClient(config.supabaseUrl, config.supabaseAnonKey);
+    const { data } = await supabaseClient.auth.getSession();
+    if (!data.session) {
+      window.location.replace('/');
+      return;
+    }
+    currentSession = data.session;
+    const { data: profile, error } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', data.session.user.id)
+      .single();
+    if (error) throw error;
+    document.querySelector('#admin-link').classList.toggle('hidden', profile.role !== 'admin');
+    document.querySelector('#dashboard-loading').classList.add('hidden');
+    document.querySelector('#dashboard').classList.remove('hidden');
+  } catch (error) {
+    window.location.replace('/');
+  }
+})();
