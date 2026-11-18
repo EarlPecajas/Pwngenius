@@ -167,9 +167,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenge-row input, .admin-challenge-row textarea { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 11px; }
 .admin-challenge-row-actions { display: flex; gap: 18px; align-items: center; }
 .admin-challenge-row .form-status { grid-column: 1 / -1; }
-.admin-layout { align-items: start; padding: 28px 0 72px; }
+.admin-layout { align-items: start; gap: 18px 80px; padding: 28px 0 72px; }
 .admin-nav { grid-column: 1 / -1; display: flex; justify-content: center; gap: 28px; border-bottom: 1px solid var(--line); }
-#admin-dashboard-status { grid-column: 1 / -1; margin: 0; }
+#admin-dashboard-status { grid-column: 1 / -1; min-height: 18px; margin: 0; }
+#admin-dashboard-status:empty { display: none; }
 .admin-nav-button { background: none; border: 0; color: var(--muted); padding: 0 0 14px; font: 14px 'DM Mono', monospace; letter-spacing: .1em; }
 .admin-nav-button.active { color: var(--lime); border-bottom: 1px solid var(--lime); }
 .admin-view { min-width: 0; }
