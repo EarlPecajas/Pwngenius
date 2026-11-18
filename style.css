@@ -66,10 +66,12 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 #logout-button { border: 1px solid var(--line); border-radius: 4px; padding: 10px 16px; font-size: 11px; letter-spacing: .14em; transition: .2s ease; }
 #logout-button:hover { color: var(--paper); background: rgba(255, 95, 109, .12); border-color: var(--coral); }
 .challenge-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+#challenge-list.challenge-grid { display: grid; grid-template-columns: 1fr; gap: 34px; }
+.challenge-category-section { display: grid; gap: 12px; }
+.challenge-category-heading { border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.challenge-category-heading h2 { margin: 10px 0 0; font-size: clamp(24px, 3vw, 38px); }
+.challenge-category-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 #challenges-view { min-height: calc(100vh - 260px); padding-bottom: 70px; }
-.challenge-filters { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 24px; }
-.challenge-filter { background: transparent; color: var(--muted); border: 1px solid var(--line); padding: 11px 15px; font: 10px 'DM Mono', monospace; letter-spacing: .08em; transition: .2s ease; }
-.challenge-filter:hover, .challenge-filter.active { color: var(--lime); background: rgba(61, 139, 255, .08); border-color: var(--lime); }
 .challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
 .challenge-lock h3 { margin: 14px 0 10px; font-size: clamp(24px, 4vw, 38px); }
 .challenge-lock p { margin: 0 auto; color: var(--muted); line-height: 1.6; }
@@ -212,12 +214,14 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .admin-form { grid-template-columns: 1fr; }
   .admin-form .submit-button, .admin-form .form-status { grid-column: auto; }
   .challenge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .challenge-category-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .profile-layout { grid-template-columns: 1fr; }
   .profile-category-section { flex-direction: column; }
   .profile-category-chart { width: 150px; }
 }
 @media (max-width: 460px) {
   .challenge-grid { grid-template-columns: 1fr; }
+  .challenge-category-grid { grid-template-columns: 1fr; }
   .creator-grid { grid-template-columns: 1fr; }
   .profile-card { padding: 20px; }
   .profile-stats { gap: 24px; }

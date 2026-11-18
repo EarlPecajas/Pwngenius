@@ -1,7 +1,6 @@
 let supabaseClient;
 let currentSession;
 let allChallenges = [];
-let activeCategory = 'All';
 let profileCache;
 let profileRequest;
 
@@ -19,22 +18,29 @@ async function loadChallenges() {
   const result = await response.json();
   const list = document.querySelector('#challenge-list');
   if (result.locked) {
-    document.querySelector('#challenge-filters').classList.add('hidden');
     list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES LOCKED</h3><p>The event has not started yet.</p></div>';
     return;
   }
   allChallenges = result.challenges;
-  document.querySelector('#challenge-filters').classList.remove('hidden');
   renderChallenges();
 }
 
 function renderChallenges() {
   const list = document.querySelector('#challenge-list');
-  const visible = allChallenges.filter((challenge) =>
-    activeCategory === 'All'
-      || String(challenge.category).toLowerCase() === activeCategory.toLowerCase()
-  );
-  list.innerHTML = visible.map((challenge) => `
+  const categories = new Map();
+  allChallenges.forEach((challenge) => {
+    const category = challenge.category || 'General';
+    if (!categories.has(category)) categories.set(category, []);
+    categories.get(category).push(challenge);
+  });
+  list.innerHTML = [...categories.entries()].map(([category, challenges]) => `
+    <section class="challenge-category-section">
+      <div class="challenge-category-heading">
+        <p class="eyebrow"><span class="eyebrow-line"></span> CATEGORY</p>
+        <h2>${escapeHtml(category)}</h2>
+      </div>
+      <div class="challenge-category-grid">
+        ${challenges.map((challenge) => `
     <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
@@ -44,6 +50,9 @@ function renderChallenges() {
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
     </article>
+        `).join('')}
+      </div>
+    </section>
   `).join('');
   list.querySelectorAll('.challenge-card-toggle').forEach((button) => {
     button.addEventListener('click', () => openChallenge(
@@ -152,16 +161,6 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     if (view === 'challenges') await loadChallenges();
     if (view === 'profile') await loadProfile();
     if (view === 'leaderboard') await loadLeaderboard();
-  });
-});
-
-document.querySelectorAll('.challenge-filter').forEach((button) => {
-  button.addEventListener('click', () => {
-    activeCategory = button.dataset.category;
-    document.querySelectorAll('.challenge-filter').forEach((item) =>
-      item.classList.toggle('active', item === button)
-    );
-    renderChallenges();
   });
 });
 
