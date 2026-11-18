@@ -50,84 +50,84 @@ async function setSubmissionLimit(challengeId, limit) {
     );
     return;
   }
-
-  function challengeFilesKey(challengeId) {
-    return `challenge_files:${challengeId}`;
-  }
-
-  async function getChallengeFiles(challengeId) {
-    const settings = await supabaseRequest(
-      `site_settings?key=eq.${encodeURIComponent(challengeFilesKey(challengeId))}&select=value&limit=1`
-    );
-    try {
-      return settings[0]?.value ? JSON.parse(settings[0].value) : [];
-    } catch {
-      return [];
-    }
-  }
-
-  function safeFileName(fileName) {
-    return fileName.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'challenge-file';
-  }
-
-  async function uploadChallengeFiles(challengeId, files) {
-    if (!Array.isArray(files) || !files.length) return [];
-    try {
-      await supabaseStorageRequest('bucket', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id: 'challenge-files', name: 'challenge-files', public: true })
-      });
-    } catch (error) {
-      if (!String(error.message).includes('409') && !String(error.message).includes('already')) throw error;
-    }
-
-    const uploadedFiles = [];
-    for (const file of files) {
-      if (!file?.name || typeof file.data !== 'string') {
-        throw new Error('Invalid challenge file');
-      }
-      const match = file.data.match(/^data:([^;]+);base64,(.+)$/);
-      if (!match) throw new Error(`Invalid file data for ${file.name}`);
-      const buffer = Buffer.from(match[2], 'base64');
-      if (!buffer.length) throw new Error(`Empty file: ${file.name}`);
-      if (buffer.length > 4 * 1024 * 1024) {
-        throw new Error(`File exceeds 4 MB: ${file.name}`);
-      }
-      const fileName = `${Date.now()}-${safeFileName(file.name)}`;
-      await supabaseStorageRequest(
-        `object/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': match[1] || file.type || 'application/octet-stream',
-            'x-upsert': 'true'
-          },
-          body: buffer
-        }
-      );
-      uploadedFiles.push({
-        name: file.name,
-        url: `${process.env.SUPABASE_URL}/storage/v1/object/public/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`
-      });
-    }
-    return uploadedFiles;
-  }
-
-  async function setChallengeFiles(challengeId, files) {
-    await supabaseRequest('site_settings?on_conflict=key', {
-      method: 'POST',
-      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
-      body: JSON.stringify({
-        key: challengeFilesKey(challengeId),
-        value: JSON.stringify(files)
-      })
-    });
-  }
   await supabaseRequest('site_settings?on_conflict=key', {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
     body: JSON.stringify({ key: submissionLimitKey(challengeId), value: String(limit) })
+  });
+}
+
+function challengeFilesKey(challengeId) {
+  return `challenge_files:${challengeId}`;
+}
+
+async function getChallengeFiles(challengeId) {
+  const settings = await supabaseRequest(
+    `site_settings?key=eq.${encodeURIComponent(challengeFilesKey(challengeId))}&select=value&limit=1`
+  );
+  try {
+    return settings[0]?.value ? JSON.parse(settings[0].value) : [];
+  } catch {
+    return [];
+  }
+}
+
+function safeFileName(fileName) {
+  return fileName.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'challenge-file';
+}
+
+async function uploadChallengeFiles(challengeId, files) {
+  if (!Array.isArray(files) || !files.length) return [];
+  try {
+    await supabaseStorageRequest('bucket', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id: 'challenge-files', name: 'challenge-files', public: true })
+    });
+  } catch (error) {
+    if (!String(error.message).includes('409') && !String(error.message).includes('already')) throw error;
+  }
+
+  const uploadedFiles = [];
+  for (const file of files) {
+    if (!file?.name || typeof file.data !== 'string') {
+      throw new Error('Invalid challenge file');
+    }
+    const match = file.data.match(/^data:([^;]+);base64,(.+)$/);
+    if (!match) throw new Error(`Invalid file data for ${file.name}`);
+    const buffer = Buffer.from(match[2], 'base64');
+    if (!buffer.length) throw new Error(`Empty file: ${file.name}`);
+    if (buffer.length > 4 * 1024 * 1024) {
+      throw new Error(`File exceeds 4 MB: ${file.name}`);
+    }
+    const fileName = `${Date.now()}-${safeFileName(file.name)}`;
+    await supabaseStorageRequest(
+      `object/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': match[1] || file.type || 'application/octet-stream',
+          'x-upsert': 'true'
+        },
+        body: buffer
+      }
+    );
+    uploadedFiles.push({
+      name: file.name,
+      url: `${process.env.SUPABASE_URL}/storage/v1/object/public/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`
+    });
+  }
+  return uploadedFiles;
+}
+
+async function setChallengeFiles(challengeId, files) {
+  await supabaseRequest('site_settings?on_conflict=key', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({
+      key: challengeFilesKey(challengeId),
+      value: JSON.stringify(files)
+    })
   });
 }
 
