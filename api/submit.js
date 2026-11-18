@@ -39,8 +39,17 @@ module.exports = async function handler(request, response) {
 
     const submittedHash = hashFlag(flag);
     const challenges = await supabaseRequest(
-      `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`
+      `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash,submission_limit&limit=1`
     );
+    const submissionLimit = challenges[0]?.submission_limit;
+    if (Number.isInteger(submissionLimit) && submissionLimit >= 1) {
+      const attempts = await supabaseRequest(
+        `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&select=id`
+      );
+      if (attempts.length >= submissionLimit) {
+        return response.status(429).json({ error: 'Submission limit reached', correct: false });
+      }
+    }
     const correct = challenges.length === 1 && submittedHash === challenges[0].flag_hash;
 
     await supabaseRequest('submissions', {

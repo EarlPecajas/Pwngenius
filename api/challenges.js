@@ -10,6 +10,22 @@ function hashFlag(flag) {
     .digest('hex');
 }
 
+const DIFFICULTY_POINTS = {
+  Easy: [20, 30],
+  Medium: [50, 70],
+  Hard: [100],
+  'Super Hard': [200]
+};
+
+function validateDifficultyPoints(difficulty, points) {
+  if (!DIFFICULTY_POINTS[difficulty]) {
+    throw new Error('Invalid difficulty');
+  }
+  if (!DIFFICULTY_POINTS[difficulty].includes(points)) {
+    throw new Error(`Invalid points for ${difficulty}`);
+  }
+}
+
 module.exports = async function handler(request, response) {
   try {
     if (request.method === 'GET') {
@@ -26,7 +42,7 @@ module.exports = async function handler(request, response) {
       }
       const [challenges, submissions] = await Promise.all([
         supabaseRequest(
-        'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
+        'challenges?select=id,name,category,difficulty,description,hint,points,submission_limit,created_at&order=created_at.desc'
         ),
         supabaseRequest(
           `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
@@ -50,6 +66,8 @@ module.exports = async function handler(request, response) {
         return response.status(400).json({ error: 'All challenge fields are required' });
       }
       const id = body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const points = Number.isInteger(body.points) ? body.points : 100;
+      validateDifficultyPoints(body.difficulty.trim(), points);
       const created = await supabaseRequest('challenges', {
         method: 'POST',
         headers: { Prefer: 'return=representation' },
@@ -61,7 +79,10 @@ module.exports = async function handler(request, response) {
           description: body.description.trim(),
           hint: body.hint.trim(),
           flag_hash: hashFlag(body.flag.trim()),
-          points: Number.isInteger(body.points) ? body.points : 100
+          points,
+          submission_limit: body.submission_limit === null
+            ? null
+            : (Number.isInteger(body.submission_limit) && body.submission_limit >= 1 ? body.submission_limit : null)
         })
       });
       return response.status(201).json({ challenge: created?.[0] || null });
@@ -83,10 +104,17 @@ module.exports = async function handler(request, response) {
         description: body.description.trim(),
         hint: body.hint.trim()
       };
+      const points = Number.isInteger(body.points) ? body.points : null;
+      if (points !== null) validateDifficultyPoints(body.difficulty.trim(), points);
       if (typeof body.flag === 'string' && body.flag.trim()) {
         update.flag_hash = hashFlag(body.flag.trim());
       }
       if (Number.isInteger(body.points)) update.points = body.points;
+      if (body.submission_limit === null) {
+        update.submission_limit = null;
+      } else if (Number.isInteger(body.submission_limit) && body.submission_limit >= 1) {
+        update.submission_limit = body.submission_limit;
+      }
 
       const updated = await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
         method: 'PATCH',

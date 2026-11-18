@@ -23,6 +23,7 @@ alter table public.challenges add column if not exists category text not null de
 alter table public.challenges add column if not exists difficulty text not null default 'Beginner';
 alter table public.challenges add column if not exists description text not null default '';
 alter table public.challenges add column if not exists hint text not null default '';
+alter table public.challenges add column if not exists submission_limit integer;
 alter table public.challenges add column if not exists created_at timestamptz not null default now();
 alter table public.profiles add column if not exists email text not null default '';
 alter table public.submissions add column if not exists user_id uuid references auth.users(id) on delete set null;

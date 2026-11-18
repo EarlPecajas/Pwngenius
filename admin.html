@@ -52,7 +52,8 @@
           <label>DESCRIPTION</label><textarea name="description" required></textarea>
           <label>HINT</label><textarea name="hint" required></textarea>
           <label>FLAG (PRIVATE)</label><input name="flag" required />
-          <label>POINTS</label><input name="points" type="number" min="1" value="100" required />
+          <label>POINTS</label><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select>
+          <label>SUBMISSION LIMIT</label><input name="submission_limit" type="number" min="1" placeholder="Unlimited" />
           <button class="submit-button" type="submit"><span>PUBLISH CHALLENGE</span><span>↗</span></button>
           <p id="challenge-status" class="form-status" role="status"></p>
         </form>
@@ -83,7 +84,8 @@
               <label>DESCRIPTION<textarea name="description" required></textarea></label>
               <label>HINT<textarea name="hint" required></textarea></label>
               <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
-              <label>POINTS<input name="points" type="number" min="1" required /></label>
+              <label>POINTS<select name="points" required></select></label>
+              <label>SUBMISSION LIMIT<input name="submission_limit" type="number" min="1" placeholder="Unlimited" /></label>
               <div class="admin-challenge-row-actions">
                 <button class="text-button" type="submit">SAVE CHANGES</button>
                 <button id="admin-edit-cancel" class="text-button" type="button">CANCEL</button>

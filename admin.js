@@ -1,6 +1,24 @@
 let supabaseClient;
 let session;
 
+const DIFFICULTY_POINTS = {
+  Easy: [20, 30],
+  Medium: [50, 70],
+  Hard: [100],
+  'Super Hard': [200]
+};
+
+function syncDifficultyPoints(form, difficulty, preferredPoints) {
+  const pointsSelect = form.elements.points;
+  if (!pointsSelect) return;
+  const options = DIFFICULTY_POINTS[difficulty] || [];
+  pointsSelect.innerHTML = options.map((points) =>
+    `<option value="${points}">${points} POINTS</option>`
+  ).join('');
+  const preferred = Number(preferredPoints);
+  pointsSelect.value = options.includes(preferred) ? String(preferred) : String(options[0] || '');
+}
+
 function loginStatus(message, type = 'error') {
   const element = document.querySelector('#admin-login-status');
   element.textContent = message;
@@ -26,6 +44,7 @@ async function loadChallenges() {
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-meta">${challenge.submission_limit ? `${challenge.submission_limit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
     </button>
   `).join('');
@@ -56,7 +75,8 @@ function openChallengeEditor(challenge) {
   form.elements.description.value = challenge.description;
   form.elements.hint.value = challenge.hint;
   form.elements.flag.value = '';
-  form.elements.points.value = challenge.points;
+  syncDifficultyPoints(form, challenge.difficulty, challenge.points);
+  form.elements.submission_limit.value = challenge.submission_limit || '';
   form.querySelector('.form-status').textContent = '';
   document.querySelector('#admin-edit-meta').textContent = `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
   document.querySelector('#admin-edit-title').textContent = challenge.name;
@@ -113,6 +133,7 @@ async function updateChallenge(event, form) {
   const values = Object.fromEntries(new FormData(form).entries());
   values.id = form.dataset.challengeId;
   values.points = Number(values.points);
+  values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   try {
     await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
     statusElement.textContent = 'SAVED';
@@ -221,14 +242,26 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   const form = event.currentTarget;
   const values = Object.fromEntries(new FormData(form).entries());
   values.points = Number(values.points);
+  values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   try {
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });
     form.reset();
+    syncDifficultyPoints(form, 'Easy', 20);
+    form.elements.difficulty.value = '';
+    form.elements.submission_limit.value = '';
     status('CHALLENGE PUBLISHED', 'success');
     await loadChallenges();
   } catch (error) {
     status(error.message);
   }
+});
+
+document.querySelector('#challenge-form').elements.difficulty.addEventListener('change', (event) => {
+  syncDifficultyPoints(event.currentTarget.form, event.target.value);
+});
+
+document.querySelector('#admin-edit-form').elements.difficulty.addEventListener('change', (event) => {
+  syncDifficultyPoints(event.currentTarget.form, event.target.value);
 });
 
 document.querySelector('#event-toggle').addEventListener('click', async (event) => {
