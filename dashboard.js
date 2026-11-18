@@ -49,6 +49,7 @@ function renderChallenges() {
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
@@ -71,7 +72,17 @@ function openChallenge(challenge) {
   document.querySelector('#modal-description').textContent = challenge.description;
   document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
   document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
-  document.querySelector('#modal-submission-form').classList.toggle('hidden', challenge.solved);
+  const submissionLimit = Number.isInteger(challenge.submissionLimit) ? challenge.submissionLimit : null;
+  const submissionCount = Number.isInteger(challenge.submissionCount) ? challenge.submissionCount : 0;
+  const limitReached = submissionLimit !== null && submissionCount >= submissionLimit;
+  const limitStatus = document.querySelector('#modal-submission-limit');
+  limitStatus.textContent = submissionLimit === null
+    ? 'SUBMISSION LIMIT: UNLIMITED'
+    : limitReached
+      ? `SUBMISSION LIMIT REACHED — ${submissionCount}/${submissionLimit}`
+      : `SUBMISSIONS — ${submissionCount}/${submissionLimit}`;
+  limitStatus.className = `submission-limit-status${limitReached ? ' reached' : ''}`;
+  document.querySelector('#modal-submission-form').classList.toggle('hidden', challenge.solved || limitReached);
   document.querySelector('#modal-status').textContent = '';
   document.querySelector('#modal-submission-form').dataset.challengeId = challenge.id;
   document.querySelector('#challenge-modal').classList.remove('hidden');
@@ -267,9 +278,18 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
       })
     });
     const result = await response.json();
-    status.textContent = result.correct ? 'ANGASSS' : 'ENGKKK';
-    status.className = `form-status ${result.correct ? 'success' : 'error'}`;
-    if (result.correct) await loadChallenges();
+    if (!response.ok) {
+      status.textContent = result.error || 'SUBMISSION FAILED';
+      status.className = 'form-status error';
+    } else {
+      status.textContent = result.correct ? 'ANGASSS' : 'ENGKKK';
+      status.className = `form-status ${result.correct ? 'success' : 'error'}`;
+    }
+    await loadChallenges();
+    const updatedChallenge = allChallenges.find((challenge) =>
+      challenge.id === form.dataset.challengeId
+    );
+    if (updatedChallenge) openChallenge(updatedChallenge);
   } catch (error) {
     status.textContent = 'SUBMISSION SERVICE UNAVAILABLE';
   }

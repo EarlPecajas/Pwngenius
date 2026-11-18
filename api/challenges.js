@@ -40,20 +40,38 @@ module.exports = async function handler(request, response) {
       if (!isAdmin && settings[0]?.value !== 'false') {
         return response.status(200).json({ locked: true, challenges: [] });
       }
-      const [challenges, submissions] = await Promise.all([
-        supabaseRequest(
-        'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
-        ),
-        supabaseRequest(
-          `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
-        )
-      ]);
-      const solvedIds = new Set(submissions.map((submission) => submission.challenge_id));
+      let challenges;
+      try {
+        challenges = await supabaseRequest(
+          'challenges?select=id,name,category,difficulty,description,hint,points,submission_limit,created_at&order=created_at.desc'
+        );
+      } catch {
+        challenges = await supabaseRequest(
+          'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
+        );
+      }
+      const submissions = await supabaseRequest(
+        `submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`
+      );
+      const solvedIds = new Set(
+        submissions.filter((submission) => submission.correct).map((submission) => submission.challenge_id)
+      );
+      const attemptCounts = new Map();
+      submissions.forEach((submission) => {
+        attemptCounts.set(
+          submission.challenge_id,
+          (attemptCounts.get(submission.challenge_id) || 0) + 1
+        );
+      });
       return response.status(200).json({
         locked: !isAdmin && settings[0]?.value !== 'false',
         challenges: challenges.map((challenge) => ({
           ...challenge,
-          solved: solvedIds.has(challenge.id)
+          solved: solvedIds.has(challenge.id),
+          submissionLimit: Number.isInteger(challenge.submission_limit) && challenge.submission_limit >= 1
+            ? challenge.submission_limit
+            : null,
+          submissionCount: attemptCounts.get(challenge.id) || 0
         }))
       });
     }

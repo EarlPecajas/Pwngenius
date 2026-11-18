@@ -200,6 +200,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card #modal-status { min-height: 28px; text-align: center; font-size: 18px; font-weight: 600; letter-spacing: .08em; }
 .challenge-modal-card #modal-status.success { color: #8cff66; }
 .challenge-modal-card #modal-status.error { color: #ff5f6d; }
+.submission-limit-status { margin: 18px 0 0; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.submission-limit-status.reached { color: var(--coral); }
 .challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
 .admin-challenge-card { width: 100%; min-height: 150px; background: var(--card); color: var(--paper); border: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: background .2s ease, border-color .2s ease; }
