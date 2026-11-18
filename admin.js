@@ -27,19 +27,23 @@ function loginStatus(message, type = 'error') {
 
 async function loadLeaderboard() {
   const { leaderboard } = await adminRequest('/api/admin/leaderboard');
-  document.querySelector('#leaderboard-list').innerHTML = leaderboard.map((player, index) => `
-    <article class="leaderboard-row">
-      <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
-      <div><strong>${escapeHtml(player.fullName)}</strong><small>@${escapeHtml(player.username)}</small></div>
-      <span class="leaderboard-solved">${player.solvedCount} SOLVED</span>
-      <strong class="leaderboard-score">${player.score} PTS</strong>
-    </article>
-  `).join('');
+  const container = document.querySelector('#leaderboard-list');
+  container.innerHTML = leaderboard.length
+    ? `<div class="admin-table leaderboard-table"><div class="admin-table-head"><span>RANK</span><span>PLAYER</span><span>SOLVED</span><span>SCORE</span></div>${leaderboard.map((player, index) => `
+      <div class="admin-table-row leaderboard-row">
+        <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
+        <div><strong>${escapeHtml(player.fullName || 'Unknown player')}</strong><small>@${escapeHtml(player.username || 'unknown')}</small></div>
+        <span class="leaderboard-solved">${player.solvedCount} SOLVED</span>
+        <strong class="leaderboard-score">${player.score} PTS</strong>
+      </div>
+    `).join('')}</div>`
+    : '<p class="category-empty">NO SCORES YET</p>';
 }
 
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
-  document.querySelector('#admin-challenge-list').innerHTML = challenges.map((challenge) => `
+  const container = document.querySelector('#admin-challenge-list');
+  container.innerHTML = challenges.length ? challenges.map((challenge) => `
     <button class="admin-challenge-card" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
@@ -47,7 +51,7 @@ async function loadChallenges() {
         <span class="challenge-meta">${challenge.submission_limit ? `${challenge.submission_limit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
     </button>
-  `).join('');
+  `).join('') : '<p class="category-empty">NO CHALLENGES PUBLISHED</p>';
   document.querySelectorAll('.admin-challenge-card').forEach((card) => {
     card.addEventListener('click', () => openChallengeEditor(
       challenges.find((challenge) => challenge.id === card.dataset.challengeId)
@@ -193,15 +197,18 @@ async function adminRequest(path, options = {}) {
 
 async function loadUsers() {
   const { users } = await adminRequest('/api/admin/users');
-  document.querySelector('#user-list').innerHTML = users.map((user) => `
-    <article class="user-row">
-      <div><strong>${escapeHtml(user.full_name)}</strong><small>@${escapeHtml(user.username)} · ${escapeHtml(user.email)}</small></div>
-      <div>
+  document.querySelector('#user-list').innerHTML = users.length
+    ? `<div class="admin-table users-table"><div class="admin-table-head"><span>PLAYER</span><span>ACCOUNT</span><span>ACTIONS</span></div>${users.map((user) => `
+    <div class="admin-table-row user-row">
+      <div><strong>${escapeHtml(user.full_name || 'Unknown player')}</strong><small>@${escapeHtml(user.username || 'unknown')}</small></div>
+      <small>${escapeHtml(user.email || 'No email')}</small>
+      <div class="user-actions">
         <button class="text-button reset-user" data-user-id="${escapeHtml(user.id)}" type="button">RESET PASSWORD</button>
         <button class="text-button delete-user" data-user-id="${escapeHtml(user.id)}" type="button">DELETE</button>
       </div>
-    </article>
-  `).join('');
+    </div>
+  `).join('')}</div>`
+    : '<p class="category-empty">NO REGISTERED PLAYERS</p>';
   document.querySelectorAll('.reset-user').forEach((button) => {
     button.addEventListener('click', () => resetPassword(button.dataset.userId));
   });

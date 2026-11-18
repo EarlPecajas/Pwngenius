@@ -57,7 +57,7 @@ async function requireAdmin(request) {
 function sendError(response, error) {
   console.error(error);
   return response.status(error.statusCode || 500).json({
-    error: error.statusCode ? error.message : 'Service unavailable'
+    error: error.message || 'Service unavailable'
   });
 }
 

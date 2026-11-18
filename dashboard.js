@@ -27,6 +27,10 @@ async function loadChallenges() {
 
 function renderChallenges() {
   const list = document.querySelector('#challenge-list');
+  if (!allChallenges.length) {
+    list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>NO CHALLENGES PUBLISHED</h3><p>New challenges will appear here when the admin publishes them.</p></div>';
+    return;
+  }
   const categories = new Map();
   allChallenges.forEach((challenge) => {
     const category = challenge.category || 'General';

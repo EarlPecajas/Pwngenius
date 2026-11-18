@@ -42,7 +42,7 @@ module.exports = async function handler(request, response) {
       }
       const [challenges, submissions] = await Promise.all([
         supabaseRequest(
-        'challenges?select=id,name,category,difficulty,description,hint,points,submission_limit,created_at&order=created_at.desc'
+        'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
         ),
         supabaseRequest(
           `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
@@ -68,10 +68,7 @@ module.exports = async function handler(request, response) {
       const id = body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
       const points = Number.isInteger(body.points) ? body.points : 100;
       validateDifficultyPoints(body.difficulty.trim(), points);
-      const created = await supabaseRequest('challenges', {
-        method: 'POST',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify({
+      const challengeData = {
           id,
           name: body.title.trim(),
           category: body.category.trim(),
@@ -83,8 +80,23 @@ module.exports = async function handler(request, response) {
           submission_limit: body.submission_limit === null
             ? null
             : (Number.isInteger(body.submission_limit) && body.submission_limit >= 1 ? body.submission_limit : null)
-        })
-      });
+      };
+      let created;
+      try {
+        created = await supabaseRequest('challenges', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify(challengeData)
+        });
+      } catch (error) {
+        if (!String(error.message).includes('submission_limit')) throw error;
+        const { submission_limit, ...compatibleChallengeData } = challengeData;
+        created = await supabaseRequest('challenges', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify(compatibleChallengeData)
+        });
+      }
       return response.status(201).json({ challenge: created?.[0] || null });
     }
 
@@ -116,11 +128,22 @@ module.exports = async function handler(request, response) {
         update.submission_limit = body.submission_limit;
       }
 
-      const updated = await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
-        method: 'PATCH',
-        headers: { Prefer: 'return=representation' },
-        body: JSON.stringify(update)
-      });
+      let updated;
+      try {
+        updated = await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify(update)
+        });
+      } catch (error) {
+        if (!String(error.message).includes('submission_limit')) throw error;
+        const { submission_limit, ...compatibleUpdate } = update;
+        updated = await supabaseRequest(`challenges?id=eq.${encodeURIComponent(id)}`, {
+          method: 'PATCH',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify(compatibleUpdate)
+        });
+      }
       return response.status(200).json({ challenge: updated?.[0] || null });
     }
 
