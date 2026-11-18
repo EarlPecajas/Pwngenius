@@ -48,7 +48,7 @@ async function loadChallenges() {
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
-        <span class="challenge-meta">${challenge.submission_limit ? `${challenge.submission_limit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
+        <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
     </button>
   `).join('') : '<p class="category-empty">NO CHALLENGES PUBLISHED</p>';
@@ -80,7 +80,7 @@ function openChallengeEditor(challenge) {
   form.elements.hint.value = challenge.hint;
   form.elements.flag.value = '';
   syncDifficultyPoints(form, challenge.difficulty, challenge.points);
-  form.elements.submission_limit.value = challenge.submission_limit || '';
+  form.elements.submission_limit.value = challenge.submissionLimit || '';
   form.querySelector('.form-status').textContent = '';
   document.querySelector('#admin-edit-meta').textContent = `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
   document.querySelector('#admin-edit-title').textContent = challenge.name;

@@ -38,17 +38,16 @@ module.exports = async function handler(request, response) {
     }
 
     const submittedHash = hashFlag(flag);
-    let challenges;
-    try {
-      challenges = await supabaseRequest(
-        `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash,submission_limit&limit=1`
-      );
-    } catch {
-      challenges = await supabaseRequest(
-        `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`
-      );
-    }
-    const submissionLimit = challenges[0]?.submission_limit;
+    const challenges = await supabaseRequest(
+      `challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`
+    );
+    const limitSettings = await supabaseRequest(
+      `site_settings?key=eq.${encodeURIComponent(`challenge_submission_limit:${challengeId}`)}&select=value&limit=1`
+    );
+    const submissionLimitValue = Number(limitSettings[0]?.value);
+    const submissionLimit = Number.isInteger(submissionLimitValue) && submissionLimitValue >= 1
+      ? submissionLimitValue
+      : null;
     if (Number.isInteger(submissionLimit) && submissionLimit >= 1) {
       const attempts = await supabaseRequest(
         `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&select=id`
