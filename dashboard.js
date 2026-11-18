@@ -313,7 +313,7 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
       status.textContent = result.error || 'SUBMISSION FAILED';
       status.className = 'form-status error';
     } else {
-      status.textContent = result.correct ? 'ANGASSS' : 'ENGKKK';
+      status.textContent = result.correct ? 'ANGASS' : 'ENGKKK';
       status.className = `form-status ${result.correct ? 'success' : 'error'}`;
     }
     const challenge = allChallenges.find((item) => item.id === form.dataset.challengeId);
@@ -325,8 +325,14 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
     if (result.correct) {
       document.querySelector('#challenge-modal').classList.add('hidden');
       document.body.classList.remove('modal-open');
-    } else if (challenge) {
-      openChallenge(challenge);
+    } else if (challenge?.submissionLimit) {
+      const limitReached = challenge.submissionCount >= challenge.submissionLimit;
+      const limitStatus = document.querySelector('#modal-submission-limit');
+      limitStatus.textContent = limitReached
+        ? `SUBMISSION LIMIT REACHED — ${challenge.submissionCount}/${challenge.submissionLimit}`
+        : `SUBMISSIONS — ${challenge.submissionCount}/${challenge.submissionLimit}`;
+      limitStatus.className = `submission-limit-status${limitReached ? ' reached' : ''}`;
+      if (limitReached) form.classList.add('hidden');
     }
   } catch (error) {
     status.textContent = 'SUBMISSION SERVICE UNAVAILABLE';
