@@ -6,12 +6,13 @@ module.exports = async function handler(request, response) {
   }
 
   try {
-    await getAuthenticatedUser(request);
+    const user = await getAuthenticatedUser(request);
     const [profiles, submissions, challenges] = await Promise.all([
       supabaseRequest('profiles?select=id,username'),
       supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
       supabaseRequest('challenges?select=id,points')
     ]);
+    const currentProfile = profiles.find((profile) => profile.id === user.id);
 
     const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
     const solved = new Map();
@@ -33,7 +34,10 @@ module.exports = async function handler(request, response) {
     }).sort((left, right) => right.score - left.score
       || left.username.localeCompare(right.username));
 
-    return response.status(200).json({ leaderboard });
+    return response.status(200).json({
+      leaderboard,
+      currentUsername: currentProfile?.username || ''
+    });
   } catch (error) {
     return sendError(response, error);
   }

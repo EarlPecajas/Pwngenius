@@ -126,21 +126,18 @@ function renderCategoryChart(categoryBreakdown) {
 
 async function loadLeaderboard() {
   const container = document.querySelector('#public-leaderboard-list');
-  const chart = document.querySelector('#leaderboard-score-chart');
   container.innerHTML = '<p class="category-empty">LOADING LEADERBOARD...</p>';
-  chart.innerHTML = '<p class="category-empty">LOADING SCORES...</p>';
   try {
     const response = await fetch('/api/leaderboard', {
       headers: { Authorization: `Bearer ${currentSession.access_token}` }
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    renderScoreChart(result.leaderboard);
     container.innerHTML = result.leaderboard.length
       ? result.leaderboard.map((player, index) => `
-        <article class="public-leaderboard-row">
+        <article class="public-leaderboard-row${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
           <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
-          <strong>@${escapeHtml(player.username)}</strong>
+          <strong>@${escapeHtml(player.username)}${isCurrentPlayer(player.username, result.currentUsername) ? '<span class="current-player-badge">YOU</span>' : ''}</strong>
           <strong class="leaderboard-score">${player.score} PTS</strong>
         </article>
       `).join('')
@@ -150,58 +147,8 @@ async function loadLeaderboard() {
   }
 }
 
-function renderScoreChart(players) {
-  const chart = document.querySelector('#leaderboard-score-chart');
-  if (!players.length) {
-    chart.innerHTML = '<p class="category-empty">NO SCORES YET</p>';
-    return;
-  }
-  const colors = ['#3d8bff', '#70c8ff', '#d7ed4b', '#ff765e', '#a78bfa', '#8cff66', '#ffcc66', '#ff8fe5'];
-  const width = 900;
-  const height = 300;
-  const left = 65;
-  const right = 20;
-  const top = 20;
-  const bottom = 48;
-  const plotWidth = width - left - right;
-  const plotHeight = height - top - bottom;
-  const highestScore = Math.max(...players.map((player) => player.score), 1);
-  const xStep = players.length > 1 ? plotWidth / (players.length - 1) : 0;
-
-  const gridLines = [0, .25, .5, .75, 1].map((ratio) => {
-    const y = top + plotHeight - (ratio * plotHeight);
-    const label = Math.round(highestScore * ratio);
-    return `
-      <line x1="${left}" y1="${y}" x2="${width - right}" y2="${y}" class="leaderboard-chart-grid" />
-      <text x="${left - 10}" y="${y + 4}" class="leaderboard-chart-label" text-anchor="end">${label}</text>
-    `;
-  }).join('');
-
-  const lines = players.map((player, index) => {
-    const x = left + (index * xStep);
-    const y = top + plotHeight - ((player.score / highestScore) * plotHeight);
-    const color = colors[index % colors.length];
-    return {
-      line: `<line x1="${left + Math.max(index - 1, 0) * xStep}" y1="${index === 0 ? y : top + plotHeight - ((players[index - 1].score / highestScore) * plotHeight)}" x2="${x}" y2="${y}" stroke="${color}" stroke-width="3" fill="none" />`,
-      point: `<circle cx="${x}" cy="${y}" r="5" fill="${color}" /><title>@${escapeHtml(player.username)}: ${player.score} points</title>`
-    };
-  });
-
-  const xLabels = players.map((player, index) => {
-    const x = left + (index * xStep);
-    return `<text x="${x}" y="${height - 18}" class="leaderboard-chart-x" text-anchor="middle">@${escapeHtml(player.username)}</text>`;
-  }).join('');
-
-  chart.innerHTML = `
-    <div class="leaderboard-line-chart">
-      <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Scores for all players">
-        ${gridLines}
-        ${lines.map((item) => item.line).join('')}
-        ${lines.map((item) => item.point).join('')}
-        ${xLabels}
-      </svg>
-    </div>
-  `;
+function isCurrentPlayer(username, currentUsername) {
+  return String(username).toLowerCase() === String(currentUsername).toLowerCase();
 }
 
 document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
