@@ -128,7 +128,11 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .category-empty { color: var(--muted); font: 9px 'DM Mono', monospace; }
 .profile-category-legend { width: 100%; max-width: 300px; }
 .leaderboard-score-card { width: min(980px, 100%); margin: 35px auto 18px; }
-.leaderboard-score-chart { display: grid; gap: 13px; padding-top: 20px; }
+.leaderboard-score-chart { display: grid; padding-top: 20px; }
+.leaderboard-line-chart { width: 100%; overflow-x: auto; }
+.leaderboard-line-chart svg { width: 100%; min-width: 700px; height: auto; }
+.leaderboard-chart-grid { stroke: rgba(163, 196, 255, .12); stroke-width: 1; }
+.leaderboard-chart-label, .leaderboard-chart-x { fill: var(--muted); font: 10px 'DM Mono', monospace; }
 .leaderboard-score-bar { display: grid; grid-template-columns: minmax(120px, 180px) 1fr 58px; align-items: center; gap: 12px; }
 .leaderboard-bar-name { overflow: hidden; color: #b7c1d2; font: 10px 'DM Mono', monospace; text-overflow: ellipsis; white-space: nowrap; }
 .leaderboard-bar-track { height: 10px; overflow: hidden; background: #162238; }
@@ -136,8 +140,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .leaderboard-score-bar strong { color: var(--lime); font: 10px 'DM Mono', monospace; text-align: right; }
 .public-leaderboard-card { width: min(980px, 100%); margin: 18px auto 70px; }
 .public-leaderboard-list { display: grid; gap: 8px; padding-top: 20px; }
-.public-leaderboard-row { display: grid; grid-template-columns: 45px 1fr auto; align-items: center; gap: 18px; background: #070d18; border: 1px solid var(--line); padding: 16px 18px; }
-.public-leaderboard-row strong { font-size: 13px; }
+.public-leaderboard-row { display: grid; grid-template-columns: 55px 1fr auto; align-items: center; gap: 18px; background: #070d18; border: 1px solid var(--line); padding: 20px 22px; }
+.public-leaderboard-row strong { font-size: 17px; }
+.public-leaderboard-row .leaderboard-rank { font-size: 15px; }
+.public-leaderboard-row .leaderboard-score { font-size: 15px; }
 .challenge-modal { position: fixed; inset: 0; z-index: 20; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
 .challenge-modal.hidden { display: none; }
 .challenge-modal-card { position: relative; width: min(620px, 100%); max-height: 90vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); padding: 34px; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
