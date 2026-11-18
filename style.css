@@ -42,6 +42,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .auth-form, .admin-form { display: grid; gap: 10px; }
 .auth-form label, .admin-form label { margin-top: 7px; }
 .auth-form input, .admin-form input, .admin-form select, .admin-form textarea, .admin-challenge-row select { width: 100%; background: #070d18; color: var(--paper); border: 1px solid var(--line); padding: 13px; outline: 0; }
+.auth-form .submit-button { height: 58px; margin-top: 18px; border: 1px solid rgba(112, 200, 255, .72); border-radius: 6px; background: rgba(61, 139, 255, .10); color: #a9d7ff; justify-content: center; gap: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; box-shadow: 0 10px 28px rgba(61, 139, 255, .10); }
+.auth-form .submit-button:hover { background: rgba(61, 139, 255, .20); border-color: #70c8ff; color: #d7ecff; box-shadow: inset 0 0 18px rgba(61, 139, 255, .12), 0 12px 32px rgba(61, 139, 255, .18); }
 .admin-form textarea { min-height: 82px; resize: vertical; }
 .hidden { display: none !important; }
 .auth-loading { min-height: calc(100vh - 156px); display: grid; place-items: center; color: var(--lime); font: 11px 'DM Mono', monospace; letter-spacing: .12em; }
