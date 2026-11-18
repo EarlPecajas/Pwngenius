@@ -186,15 +186,15 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
         <section class="creator-certifications">
           <h3>Certifications</h3>
           <div class="certification-grid">
-            <img src="CERTS%20LOGOS/CAISP.png" alt="CAISP certification" />
-            <img src="CERTS%20LOGOS/CCP.png" alt="CCP certification" />
-            <img src="CERTS%20LOGOS/CLES.png" alt="CLES certification" />
-            <img src="CERTS%20LOGOS/CNPS.png" alt="CNPS certification" />
-            <img src="CERTS%20LOGOS/COAP.png" alt="COAP certification" />
-            <img src="CERTS%20LOGOS/CWPT.png" alt="CWPT certification" />
-            <img src="CERTS%20LOGOS/IT%20SUPPORT.png" alt="IT Support certification" />
-            <img src="CERTS%20LOGOS/NETOPS.png" alt="NETOPS certification" />
-            <img src="CERTS%20LOGOS/WINOPS.png" alt="WINOPS certification" />
+            <img src="/CERTS%20LOGOS/CAISP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CCP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CLES.png" alt="" />
+            <img src="/CERTS%20LOGOS/CNPS.png" alt="" />
+            <img src="/CERTS%20LOGOS/COAP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CWPT.png" alt="" />
+            <img src="/CERTS%20LOGOS/IT%20SUPPORT.png" alt="" />
+            <img src="/CERTS%20LOGOS/NETOPS.png" alt="" />
+            <img src="/CERTS%20LOGOS/WINOPS.png" alt="" />
           </div>
         </section>
       `;
