@@ -42,6 +42,15 @@ module.exports = async function handler(request, response) {
         error: authBody.error_description || authBody.msg || 'Invalid credentials'
       });
     }
+    if (!authBody.user?.id) {
+      return response.status(401).json({ error: 'Invalid authentication result' });
+    }
+    const profiles = await supabaseRequest(
+      `profiles?id=eq.${encodeURIComponent(authBody.user.id)}&select=role&limit=1`
+    );
+    if (!profiles.length || profiles[0].role !== 'admin') {
+      return response.status(403).json({ error: 'Administrator access required' });
+    }
     return response.status(200).json(authBody);
   } catch (error) {
     return sendError(response, error);

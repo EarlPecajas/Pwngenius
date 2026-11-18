@@ -83,6 +83,17 @@ function showAdminDashboard() {
   document.querySelector('#admin-dashboard').classList.remove('hidden');
 }
 
+async function requireAdminSession(currentSession) {
+  const { data: profile, error } = await supabaseClient
+    .from('profiles')
+    .select('role')
+    .eq('id', currentSession.user.id)
+    .single();
+  if (error || !profile || profile.role !== 'admin') {
+    throw new Error('Administrator access required');
+  }
+}
+
 async function loadAdminData() {
   const statusElement = document.querySelector('#admin-dashboard-status');
   statusElement.textContent = 'LOADING CONTROL ROOM DATA...';
@@ -303,8 +314,17 @@ function escapeHtml(value) {
     const result = await supabaseClient.auth.getSession();
     session = result.data.session;
     if (session) {
-      showAdminDashboard();
-      await loadAdminData();
+      try {
+        await requireAdminSession(session);
+        showAdminDashboard();
+        await loadAdminData();
+      } catch (error) {
+        await supabaseClient.auth.signOut();
+        session = null;
+        document.querySelector('#admin-auth-loading').classList.add('hidden');
+        document.querySelector('#admin-login').classList.remove('hidden');
+        loginStatus(error.message);
+      }
     } else {
       document.querySelector('#admin-auth-loading').classList.add('hidden');
       document.querySelector('#admin-login').classList.remove('hidden');
