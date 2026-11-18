@@ -198,6 +198,25 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
           </div>
         </section>
       `;
+    } else if (button.dataset.profile === 'aladdin') {
+      modalContent.innerHTML = `
+        <div class="creator-bio">
+          <p>Hey! I'm <strong>Aladdin S. Abedin</strong>, an Information Technology student majoring in Database Systems, a cybersecurity enthusiast, and a developer who loves exploring how things work behind the screen.</p>
+          <p>My interests revolve around Cybersecurity, Capture The Flag (CTF), Web Development, and Software Engineering. I enjoy solving complex problems, exploring vulnerabilities, analyzing systems, and turning ideas into functional projects. For me, every challenge is an opportunity to learn something new, think differently, and improve my skills.</p>
+          <p>Beyond cybersecurity, I also enjoy building applications, working with databases, experimenting with new technologies, and collaborating with people who share the same passion for innovation.</p>
+          <p>I believe that cybersecurity isn't just about finding vulnerabilities, it's about understanding how systems work, thinking outside the box, and using knowledge responsibly.</p>
+          <p>Keep learning. Keep exploring. Keep hacking ethically.</p>
+          <blockquote>“Every system has a story. Every vulnerability has a lesson. And every challenge has a solution”</blockquote>
+        </div>
+        <section class="creator-certifications">
+          <h3>Certifications</h3>
+          <div class="certification-grid creator-certification-grid-three">
+            <img src="/CERTS%20LOGOS/CCP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CAISP.png" alt="" />
+            <img src="/CERTS%20LOGOS/WINOPS.png" alt="" />
+          </div>
+        </section>
+      `;
     } else {
       modalContent.innerHTML = '';
     }
