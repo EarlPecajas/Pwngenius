@@ -292,8 +292,21 @@ document.querySelector('#admin-login-form').addEventListener('submit', async (ev
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    await supabaseClient.auth.setSession(result);
-    session = result;
+    const { data: signedIn, error: sessionError } = await supabaseClient.auth.setSession({
+      access_token: result.access_token,
+      refresh_token: result.refresh_token
+    });
+    if (sessionError) throw sessionError;
+    const { data: profile, error: profileError } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', signedIn.session.user.id)
+      .single();
+    if (profileError || !profile || profile.role !== 'admin') {
+      await supabaseClient.auth.signOut();
+      throw new Error('Administrator access required');
+    }
+    session = signedIn.session;
     showAdminDashboard();
     await loadAdminData();
   } catch (error) {
