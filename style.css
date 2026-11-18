@@ -202,6 +202,10 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-modal-card #modal-status.error { color: #ff5f6d; }
 .submission-limit-status { margin: 18px 0 0; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
 .submission-limit-status.reached { color: var(--coral); }
+.challenge-files { display: grid; gap: 8px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.challenge-files h3 { margin: 0 0 4px; font-size: 15px; }
+.challenge-files a { display: flex; justify-content: space-between; align-items: center; min-height: 46px; padding: 0 14px; border: 1px solid rgba(61, 139, 255, .55); background: rgba(61, 139, 255, .08); color: #a9d7ff; text-decoration: none; font: 11px 'DM Mono', monospace; }
+.challenge-files a:hover { border-color: #70c8ff; background: rgba(61, 139, 255, .16); color: #d7ecff; }
 .challenge-modal-card .submission-form { margin-top: 28px; }
 .admin-challenges { grid-column: 1 / -1; }
 .admin-challenge-card { width: 100%; min-height: 150px; background: var(--card); color: var(--paper); border: 1px solid var(--line); padding: 20px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; transition: background .2s ease, border-color .2s ease; }

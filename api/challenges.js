@@ -1,5 +1,5 @@
 const crypto = require('crypto');
-const { requireAdmin, sendError, supabaseRequest, getAuthenticatedUser } = require('./_supabase');
+const { requireAdmin, sendError, supabaseRequest, supabaseStorageRequest, getAuthenticatedUser } = require('./_supabase');
 
 function hashFlag(flag) {
   if (!process.env.FLAG_HMAC_SECRET) {
@@ -50,6 +50,80 @@ async function setSubmissionLimit(challengeId, limit) {
     );
     return;
   }
+
+  function challengeFilesKey(challengeId) {
+    return `challenge_files:${challengeId}`;
+  }
+
+  async function getChallengeFiles(challengeId) {
+    const settings = await supabaseRequest(
+      `site_settings?key=eq.${encodeURIComponent(challengeFilesKey(challengeId))}&select=value&limit=1`
+    );
+    try {
+      return settings[0]?.value ? JSON.parse(settings[0].value) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  function safeFileName(fileName) {
+    return fileName.replace(/[^a-zA-Z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'challenge-file';
+  }
+
+  async function uploadChallengeFiles(challengeId, files) {
+    if (!Array.isArray(files) || !files.length) return [];
+    try {
+      await supabaseStorageRequest('bucket', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 'challenge-files', name: 'challenge-files', public: true })
+      });
+    } catch (error) {
+      if (!String(error.message).includes('409') && !String(error.message).includes('already')) throw error;
+    }
+
+    const uploadedFiles = [];
+    for (const file of files) {
+      if (!file?.name || typeof file.data !== 'string') {
+        throw new Error('Invalid challenge file');
+      }
+      const match = file.data.match(/^data:([^;]+);base64,(.+)$/);
+      if (!match) throw new Error(`Invalid file data for ${file.name}`);
+      const buffer = Buffer.from(match[2], 'base64');
+      if (!buffer.length) throw new Error(`Empty file: ${file.name}`);
+      if (buffer.length > 4 * 1024 * 1024) {
+        throw new Error(`File exceeds 4 MB: ${file.name}`);
+      }
+      const fileName = `${Date.now()}-${safeFileName(file.name)}`;
+      await supabaseStorageRequest(
+        `object/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': match[1] || file.type || 'application/octet-stream',
+            'x-upsert': 'true'
+          },
+          body: buffer
+        }
+      );
+      uploadedFiles.push({
+        name: file.name,
+        url: `${process.env.SUPABASE_URL}/storage/v1/object/public/challenge-files/${encodeURIComponent(challengeId)}/${encodeURIComponent(fileName)}`
+      });
+    }
+    return uploadedFiles;
+  }
+
+  async function setChallengeFiles(challengeId, files) {
+    await supabaseRequest('site_settings?on_conflict=key', {
+      method: 'POST',
+      headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({
+        key: challengeFilesKey(challengeId),
+        value: JSON.stringify(files)
+      })
+    });
+  }
   await supabaseRequest('site_settings?on_conflict=key', {
     method: 'POST',
     headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
@@ -93,7 +167,8 @@ module.exports = async function handler(request, response) {
           ...challenge,
           solved: solvedIds.has(challenge.id),
           submissionLimit: await getSubmissionLimit(challenge.id),
-          submissionCount: attemptCounts.get(challenge.id) || 0
+          submissionCount: attemptCounts.get(challenge.id) || 0,
+          files: await getChallengeFiles(challenge.id)
         })))
       });
     }
@@ -132,6 +207,8 @@ module.exports = async function handler(request, response) {
         id,
         normalizeSubmissionLimit(body.submission_limit)
       );
+      const uploadedFiles = await uploadChallengeFiles(id, body.challenge_files);
+      await setChallengeFiles(id, uploadedFiles);
       return response.status(201).json({ challenge: created?.[0] || null });
     }
 
@@ -173,6 +250,11 @@ module.exports = async function handler(request, response) {
         id,
         normalizeSubmissionLimit(body.submission_limit)
       );
+      if (Array.isArray(body.challenge_files) && body.challenge_files.length) {
+        const uploadedFiles = await uploadChallengeFiles(id, body.challenge_files);
+        const existingFiles = await getChallengeFiles(id);
+        await setChallengeFiles(id, [...existingFiles, ...uploadedFiles]);
+      }
       return response.status(200).json({ challenge: updated?.[0] || null });
     }
 
@@ -180,6 +262,14 @@ module.exports = async function handler(request, response) {
       await requireAdmin(request);
       const id = typeof request.body?.id === 'string' ? request.body.id.trim() : '';
       if (!id) return response.status(400).json({ error: 'Challenge ID is required' });
+      await supabaseRequest(
+        `site_settings?key=eq.${encodeURIComponent(submissionLimitKey(id))}`,
+        { method: 'DELETE' }
+      );
+      await supabaseRequest(
+        `site_settings?key=eq.${encodeURIComponent(challengeFilesKey(id))}`,
+        { method: 'DELETE' }
+      );
       await supabaseRequest(`submissions?challenge_id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE'
       });

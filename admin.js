@@ -19,6 +19,21 @@ function syncDifficultyPoints(form, difficulty, preferredPoints) {
   pointsSelect.value = options.includes(preferred) ? String(preferred) : String(options[0] || '');
 }
 
+async function readChallengeFiles(form) {
+  const input = form.elements.challenge_files;
+  if (!input || !input.files.length) return [];
+  return Promise.all(Array.from(input.files).map((file) => new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      name: file.name,
+      type: file.type || 'application/octet-stream',
+      data: reader.result
+    });
+    reader.onerror = () => reject(new Error(`Unable to read ${file.name}`));
+    reader.readAsDataURL(file);
+  })));
+}
+
 function loginStatus(message, type = 'error') {
   const element = document.querySelector('#admin-login-status');
   element.textContent = message;
@@ -49,6 +64,7 @@ async function loadChallenges() {
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
         <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
+        ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
         <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
     </button>
   `).join('') : '<p class="category-empty">NO CHALLENGES PUBLISHED</p>';
@@ -139,6 +155,7 @@ async function updateChallenge(event, form) {
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   try {
+    values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
     statusElement.textContent = 'SAVED';
     statusElement.className = 'form-status success';
@@ -251,6 +268,7 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   try {
+    values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });
     form.reset();
     syncDifficultyPoints(form, 'Easy', 20);

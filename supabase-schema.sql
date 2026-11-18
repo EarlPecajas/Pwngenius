@@ -46,6 +46,10 @@ insert into public.site_settings (key, value)
 values ('challenges_locked', 'true')
 on conflict (key) do nothing;
 
+insert into storage.buckets (id, name, public)
+values ('challenge-files', 'challenge-files', true)
+on conflict (id) do update set public = true;
+
 alter table public.challenges enable row level security;
 alter table public.profiles enable row level security;
 alter table public.submissions enable row level security;

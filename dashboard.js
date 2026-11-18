@@ -50,6 +50,7 @@ function renderChallenges() {
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
         <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
+        ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} DOWNLOADABLE FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
         <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
@@ -71,6 +72,12 @@ function openChallenge(challenge) {
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
   document.querySelector('#modal-description').textContent = challenge.description;
   document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
+  const filesContainer = document.querySelector('#modal-files');
+  filesContainer.innerHTML = challenge.files?.length
+    ? `<h3>Challenge Files</h3>${challenge.files.map((file) =>
+      `<a href="${escapeHtml(file.url)}" download="${escapeHtml(file.name)}" target="_blank" rel="noopener">${escapeHtml(file.name)} <span>↓</span></a>`
+    ).join('')}`
+    : '';
   document.querySelector('#modal-solved').classList.toggle('hidden', !challenge.solved);
   const submissionLimit = Number.isInteger(challenge.submissionLimit) ? challenge.submissionLimit : null;
   const submissionCount = Number.isInteger(challenge.submissionCount) ? challenge.submissionCount : 0;

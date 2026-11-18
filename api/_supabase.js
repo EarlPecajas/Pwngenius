@@ -16,6 +16,22 @@ async function supabaseRequest(path, options = {}) {
   return body ? JSON.parse(body) : null;
 }
 
+async function supabaseStorageRequest(path, options = {}) {
+  const response = await fetch(`${process.env.SUPABASE_URL}/storage/v1/${path}`, {
+    ...options,
+    headers: {
+      apikey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+      Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+      ...(options.headers || {})
+    }
+  });
+  const body = await response.text();
+  if (!response.ok) {
+    throw new Error(`Supabase Storage request failed: ${response.status} ${body}`);
+  }
+  return body ? JSON.parse(body) : null;
+}
+
 function getAccessToken(request) {
   const value = request.headers.authorization || '';
   return value.startsWith('Bearer ') ? value.slice(7) : '';
@@ -65,5 +81,6 @@ module.exports = {
   getAuthenticatedUser,
   requireAdmin,
   sendError,
-  supabaseRequest
+  supabaseRequest,
+  supabaseStorageRequest
 };
