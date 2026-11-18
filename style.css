@@ -140,6 +140,28 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .public-leaderboard-row .leaderboard-rank { font-size: 15px; }
 .public-leaderboard-row .leaderboard-score { font-size: 15px; }
 .current-player-badge { display: inline-block; border: 1px solid var(--lime); color: var(--lime); padding: 3px 6px; font: 8px 'DM Mono', monospace; letter-spacing: .08em; }
+.profile-form .submit-button,
+#modal-submission-form .submit-button {
+  height: 58px;
+  border: 1px solid var(--lime);
+  border-radius: 6px;
+  background: rgba(61, 139, 255, .10);
+  color: var(--lime);
+  box-shadow: 0 10px 28px rgba(61, 139, 255, .10);
+  justify-content: center;
+  gap: 12px;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: .2s ease;
+}
+.profile-form .submit-button:hover,
+#modal-submission-form .submit-button:hover {
+  background: var(--lime);
+  color: var(--ink);
+  box-shadow: 0 12px 32px rgba(61, 139, 255, .22);
+  transform: translateY(-2px);
+}
 .challenge-modal { position: fixed; inset: 0; z-index: 20; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
 .challenge-modal.hidden { display: none; }
 .challenge-modal-card { position: relative; width: min(620px, 100%); max-height: 90vh; overflow-y: auto; background: var(--card); border: 1px solid var(--line); padding: 34px; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }

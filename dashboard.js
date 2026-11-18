@@ -190,7 +190,7 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
       })
     });
     const result = await response.json();
-    status.textContent = result.correct ? 'CORRECT FLAG' : 'INCORRECT FLAG';
+    status.textContent = result.correct ? 'ANGASSS' : 'ENGKKK';
     status.className = `form-status ${result.correct ? 'success' : 'error'}`;
     if (result.correct) await loadChallenges();
   } catch (error) {
