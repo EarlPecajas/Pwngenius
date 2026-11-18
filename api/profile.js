@@ -7,6 +7,24 @@ module.exports = async function handler(request, response) {
       const profiles = await supabaseRequest(
         `profiles?id=eq.${encodeURIComponent(user.id)}&select=full_name,username,email,role&limit=1`
       );
+      let profile = profiles[0];
+      if (!profile) {
+        const preferredUsername = (user.user_metadata?.username
+          || user.email?.split('@')[0]
+          || 'user').toString();
+        const fallbackUsername = `${preferredUsername}-${user.id.slice(0, 8)}`;
+        const created = await supabaseRequest('profiles', {
+          method: 'POST',
+          headers: { Prefer: 'return=representation' },
+          body: JSON.stringify({
+            id: user.id,
+            email: user.email || '',
+            full_name: user.user_metadata?.full_name || '',
+            username: fallbackUsername
+          })
+        });
+        profile = created?.[0];
+      }
       const submissions = await supabaseRequest(
         `submissions?user_id=eq.${encodeURIComponent(user.id)}&correct=eq.true&select=challenge_id`
       );
@@ -17,7 +35,12 @@ module.exports = async function handler(request, response) {
         total + (points.get(challengeId) || 0)
       ), 0);
       return response.status(200).json({
-        profile: profiles[0],
+        profile: profile || {
+          full_name: user.user_metadata?.full_name || '',
+          username: user.user_metadata?.username || user.email?.split('@')[0] || '',
+          email: user.email || '',
+          role: 'user'
+        },
         totalScore,
         solvedCount: solvedIds.size
       });

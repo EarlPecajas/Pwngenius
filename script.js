@@ -190,8 +190,9 @@ async function getProfile() {
 async function loadProfile() {
   const result = await getProfile();
   if (!result) throw new Error('Unable to load profile');
-  document.querySelector('#profile-full-name').value = result.profile.full_name;
-  document.querySelector('#profile-username').value = result.profile.username;
+  const profile = result.profile || {};
+  document.querySelector('#profile-full-name').value = profile.full_name || '';
+  document.querySelector('#profile-username').value = profile.username || '';
   document.querySelector('#profile-score').textContent = result.totalScore;
   document.querySelector('#profile-solved').textContent = result.solvedCount;
 }

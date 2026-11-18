@@ -2,7 +2,12 @@ const crypto = require('crypto');
 const { getAuthenticatedUser, sendError, supabaseRequest } = require('./_supabase');
 
 function hashFlag(flag) {
-  return crypto.createHash('sha256').update(flag, 'utf8').digest('hex');
+  if (!process.env.FLAG_HMAC_SECRET) {
+    throw new Error('FLAG_HMAC_SECRET is not configured');
+  }
+  return crypto.createHmac('sha256', process.env.FLAG_HMAC_SECRET)
+    .update(flag, 'utf8')
+    .digest('hex');
 }
 
 module.exports = async function handler(request, response) {

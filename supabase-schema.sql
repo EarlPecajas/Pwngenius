@@ -49,6 +49,12 @@ alter table public.challenges enable row level security;
 alter table public.profiles enable row level security;
 alter table public.submissions enable row level security;
 
+-- The API is the only intended reader of flag_hash. Browser roles must not
+-- be able to select this column through Supabase REST.
+revoke select (flag_hash)
+on table public.challenges
+from anon, authenticated;
+
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
@@ -95,12 +101,3 @@ drop policy if exists "Users can insert their submissions" on public.submissions
 create policy "Users can insert their submissions"
   on public.submissions for insert to authenticated
   with check (true);
-
-insert into public.challenges (id, name, flag_hash, points)
-values (
-  'first',
-  'First Flag',
-  '951a5dd0e9afd6d89e6da0d039a8f93ca695f0acc87bda49ca3d09cc83d8416e',
-  100
-)
-on conflict (id) do update set flag_hash = excluded.flag_hash;
