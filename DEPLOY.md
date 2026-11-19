@@ -24,6 +24,7 @@
    - `SUPABASE_SERVICE_ROLE_KEY`
    - `SUPABASE_ANON_KEY`
    - `FLAG_HMAC_SECRET`
+   - `SQLI_FLAG` - set to the standalone SQL injection challenge flag
 3. Deploy.
 
 Generate `FLAG_HMAC_SECRET` with a cryptographically secure random value. It

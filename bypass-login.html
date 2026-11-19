@@ -32,7 +32,7 @@
     <section id="sqli-success" class="sqli-success hidden" aria-live="polite">
       <p class="sqli-kicker success-kicker"><span></span> ACCESS GRANTED</p>
       <h2>SQL Injection Successful</h2>
-      <div class="sqli-flag">pwngenius{1nj3ct10n_pr0m7_sql}</div>
+      <div id="sqli-flag" class="sqli-flag">VERIFYING...</div>
     </section>
   </main>
 
@@ -40,7 +40,7 @@
     const form = document.querySelector('#sqli-form');
     const status = document.querySelector('#sqli-status');
 
-    form.addEventListener('submit', (event) => {
+    form.addEventListener('submit', async (event) => {
       event.preventDefault();
 
       const username = document.querySelector('#sqli-username').value.trim();
@@ -52,13 +52,26 @@
         sqlComment.test(username) || injectedQuery.test(password) ||
         tautology.test(password) || sqlComment.test(password);
 
-      if (isSqlInjection) {
-        document.querySelector('#sqli-login').classList.add('hidden');
-        document.querySelector('#sqli-success').classList.remove('hidden');
+      if (!isSqlInjection) {
+        status.textContent = 'ACCESS DENIED // INVALID CREDENTIALS';
         return;
       }
 
-      status.textContent = 'ACCESS DENIED // INVALID CREDENTIALS';
+      status.textContent = 'VERIFYING SQL INJECTION...';
+      try {
+        const response = await fetch('/api/sqli', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'ACCESS DENIED');
+        document.querySelector('#sqli-login').classList.add('hidden');
+        document.querySelector('#sqli-success').classList.remove('hidden');
+        document.querySelector('#sqli-flag').textContent = result.flag;
+      } catch (error) {
+        status.textContent = error.message || 'ACCESS DENIED';
+      }
     });
   </script>
 </body>
