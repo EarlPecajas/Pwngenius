@@ -85,18 +85,19 @@
             <p id="admin-edit-meta" class="challenge-meta"></p>
             <h2 id="admin-edit-title">EDIT CHALLENGE</h2>
             <form id="admin-edit-form" class="admin-challenge-row">
-              <label>TITLE<input name="title" required /></label>
-              <label>CATEGORY<select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-              <label>DIFFICULTY<select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
-              <label>DESCRIPTION<textarea name="description" required></textarea></label>
-              <label>HINTS
+              <label class="admin-field"><span>TITLE</span><input name="title" required /></label>
+              <label class="admin-field"><span>CATEGORY</span><select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
+              <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+              <label class="admin-field"><span>POINTS</span><select name="points" required></select></label>
+              <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
+              <div class="admin-field admin-field-full">
+                <span class="admin-field-label">HINTS</span>
                 <div id="edit-hint-list" class="hint-editor"></div>
                 <button id="add-edit-hint" class="hint-add-button" type="button">+ ADD ANOTHER HINT</button>
-              </label>
-              <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
-              <label>POINTS<select name="points" required></select></label>
-              <label>SUBMISSION LIMIT<input name="submission_limit" type="number" min="1" placeholder="Unlimited" /></label>
-              <label>CHALLENGE FILES<input name="challenge_files" type="file" multiple /></label>
+              </div>
+              <label class="admin-field"><span>NEW FLAG</span><input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
+              <label class="admin-field"><span>SUBMISSION LIMIT</span><input name="submission_limit" type="number" min="1" placeholder="Unlimited" /></label>
+              <label class="admin-field admin-field-full"><span>CHALLENGE FILES</span><input name="challenge_files" type="file" multiple /></label>
               <div class="admin-challenge-row-actions">
                 <button class="admin-action-button save-action" type="submit">SAVE CHANGES</button>
                 <button id="admin-edit-cancel" class="admin-action-button cancel-action" type="button">CANCEL</button>

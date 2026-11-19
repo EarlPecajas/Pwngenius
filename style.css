@@ -272,11 +272,14 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenges #admin-challenge-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .admin-form { display: block; max-width: 1100px; margin: 0 auto; }
 .admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; }
-.admin-field { display: grid; gap: 8px; margin: 0 !important; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.admin-field { display: grid; gap: 8px; margin: 0 !important; color: var(--muted); font: 11px 'DM Mono', monospace; letter-spacing: .08em; }
 .admin-field-full { grid-column: 1 / -1; }
 .admin-field-label { color: var(--muted); }
 .admin-field textarea { min-height: 110px; }
 .admin-field input, .admin-field select, .admin-field textarea { margin: 0; }
+.admin-form input, .admin-form select, .admin-form textarea,
+.admin-challenge-modal-card input, .admin-challenge-modal-card select,
+.admin-challenge-modal-card textarea { font-size: 16px; }
 .admin-form textarea { min-height: 110px; }
 .admin-form .submit-button, .admin-form .form-status { grid-column: 1 / -1; }
 .admin-form .submit-button { height: 58px; border: 1px solid rgba(112, 200, 255, .72); border-radius: 6px; background: rgba(61, 139, 255, .10); color: #a9d7ff; justify-content: center; gap: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; box-shadow: 0 10px 28px rgba(61, 139, 255, .10); }
