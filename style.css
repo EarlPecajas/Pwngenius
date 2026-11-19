@@ -83,7 +83,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-panel h3 { margin: 12px 0 10px; font-size: 22px; }
 .challenge-panel p { color: #b7c1d2; font-size: 13px; line-height: 1.5; }
 .challenge-meta, .challenge-hint, .user-row small { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .06em; }
-.challenge-hint { border-left: 2px solid var(--coral); padding-left: 12px; font-size: 16px; line-height: 1.65; font-weight: 500; }
+.challenge-hint { border-left: 2px solid var(--coral); padding-left: 12px; font-size: 13px; line-height: 1.55; font-weight: 500; }
 .challenge-panel .submission-form { margin-top: 25px; }
 .challenge-lock { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; background: rgba(13, 21, 36, .72); border: 1px solid var(--line); padding: 30px; }
 .challenge-lock-icon { color: var(--coral); font-size: 30px; }
