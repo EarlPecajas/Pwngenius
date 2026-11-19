@@ -106,7 +106,7 @@ async function loadLeaderboard() {
 }
 
 async function loadLeaderboardVisibility() {
-  const result = await adminRequest('/api/admin/leaderboard-settings');
+  const result = await adminRequest('/api/admin/leaderboard?action=settings');
   const toggle = document.querySelector('#leaderboard-visibility-toggle');
   toggle.textContent = result.hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
   toggle.dataset.hidden = String(result.hidden);
@@ -118,7 +118,8 @@ async function loadSolvesChart() {
   const query = new URLSearchParams();
   if (category) query.set('category', category);
   if (difficulty) query.set('difficulty', difficulty);
-  const { data } = await adminRequest(`/api/admin/solves${query.size ? `?${query}` : ''}`);
+  const queryParams = query.size ? `&${query}` : '';
+  const { data } = await adminRequest(`/api/admin/leaderboard?action=solves${queryParams}`);
   renderSolvesChart(data);
 }
 
@@ -457,7 +458,7 @@ document.querySelector('#leaderboard-visibility-toggle').addEventListener('click
   const hidden = event.currentTarget.dataset.hidden !== 'true';
   event.currentTarget.disabled = true;
   try {
-    await adminRequest('/api/admin/leaderboard-settings', {
+    await adminRequest('/api/admin/leaderboard?action=settings', {
       method: 'PATCH',
       body: JSON.stringify({ hidden })
     });
@@ -476,7 +477,7 @@ document.querySelector('#reset-scores-button').addEventListener('click', async (
   if (!window.confirm('Reset all correct solve scores? This cannot be undone.')) return;
   const status = document.querySelector('#leaderboard-control-status');
   try {
-    await adminRequest('/api/admin/scores', { method: 'DELETE' });
+    await adminRequest('/api/admin/leaderboard?action=reset', { method: 'DELETE' });
     status.textContent = 'ALL SCORES RESET';
     status.className = 'form-status success';
     await loadLeaderboard();
