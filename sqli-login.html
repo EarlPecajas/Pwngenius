@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Secure Gateway</title>
+  <link rel="icon" type="image/jpeg" href="images/pwngenius_logo.jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="sqli-page">
+  <main class="sqli-shell">
+    <section id="sqli-login" class="sqli-login-card" aria-labelledby="sqli-title">
+      <p class="sqli-kicker"><span></span> RESTRICTED TERMINAL</p>
+      <h1 id="sqli-title">Access Gateway</h1>
+      <p class="sqli-subtitle">Authenticated personnel only.</p>
+
+      <form id="sqli-form" class="sqli-form" autocomplete="off">
+        <label for="sqli-username">USERNAME</label>
+        <input id="sqli-username" name="username" required autocomplete="off" />
+
+        <label for="sqli-password">PASSWORD</label>
+        <input id="sqli-password" name="password" type="password" autocomplete="off" />
+
+        <button type="submit">ENTER TERMINAL <span>↗</span></button>
+      </form>
+      <p id="sqli-status" class="sqli-status" role="alert"></p>
+    </section>
+
+    <section id="sqli-success" class="sqli-success hidden" aria-live="polite">
+      <p class="sqli-kicker success-kicker"><span></span> ACCESS GRANTED</p>
+      <h2>SQL Injection Successful</h2>
+      <div class="sqli-flag">pwngenius{1nj3ct10n_pr0m7_sql}</div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.querySelector('#sqli-form');
+    const status = document.querySelector('#sqli-status');
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const username = document.querySelector('#sqli-username').value.trim();
+      const password = document.querySelector('#sqli-password').value.trim();
+      const injectedQuery = /(?:['"]\s*)?(?:or|&&)\s*(?:['"]?1['"]?\s*=\s*['"]?1|['"]?[a-z]*['"]?\s*=\s*['"]?[a-z]*['"])/i;
+      const tautology = /\bor\s+1\s*=\s*1\b/i;
+      const sqlComment = /(?:'|")\s*(?:or\b|--|\#)/i;
+      const isSqlInjection = injectedQuery.test(username) || tautology.test(username) ||
+        sqlComment.test(username) || injectedQuery.test(password) ||
+        tautology.test(password) || sqlComment.test(password);
+
+      if (isSqlInjection) {
+        document.querySelector('#sqli-login').classList.add('hidden');
+        document.querySelector('#sqli-success').classList.remove('hidden');
+        return;
+      }
+
+      status.textContent = 'ACCESS DENIED // INVALID CREDENTIALS';
+    });
+  </script>
+</body>
+</html>
