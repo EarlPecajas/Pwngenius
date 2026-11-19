@@ -7,6 +7,16 @@ module.exports = async function handler(request, response) {
 
   try {
     const user = await getAuthenticatedUser(request);
+    const visibility = await supabaseRequest(
+      'site_settings?key=eq.leaderboard_hidden&select=value&limit=1'
+    );
+    if (visibility[0]?.value === 'true') {
+      return response.status(200).json({
+        leaderboard: [],
+        currentUsername: '',
+        hidden: true
+      });
+    }
     const [profiles, submissions, challenges] = await Promise.all([
       supabaseRequest('profiles?select=id,username'),
       supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
@@ -36,7 +46,8 @@ module.exports = async function handler(request, response) {
 
     return response.status(200).json({
       leaderboard,
-      currentUsername: currentProfile?.username || ''
+      currentUsername: currentProfile?.username || '',
+      hidden: false
     });
   } catch (error) {
     return sendError(response, error);

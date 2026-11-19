@@ -40,6 +40,7 @@
         <button class="admin-nav-button" data-admin-view="challenges" type="button">CHALLENGES</button>
         <button class="admin-nav-button" data-admin-view="players" type="button">PLAYERS</button>
         <button class="admin-nav-button" data-admin-view="leaderboard" type="button">LEADERBOARD</button>
+        <button class="admin-nav-button" data-admin-view="solves" type="button">SOLVES</button>
       </nav>
       <p id="admin-dashboard-status" class="form-status" role="status"></p>
       <section id="publish-view" class="admin-view">
@@ -110,7 +111,23 @@
       </section>
       <section id="leaderboard-view" class="admin-view hidden">
         <div class="section-heading"><span>03</span><h2>LEADERBOARD</h2><span class="heading-rule"></span></div>
+        <div class="admin-leaderboard-controls">
+          <button id="leaderboard-visibility-toggle" class="admin-action-button" type="button">LOADING...</button>
+          <button id="reset-scores-button" class="admin-action-button delete-action" type="button">RESET ALL SCORES</button>
+          <p id="leaderboard-control-status" class="form-status" role="status"></p>
+        </div>
         <div id="leaderboard-list" class="leaderboard-list"></div>
+      </section>
+      <section id="solves-view" class="admin-view hidden">
+        <div class="section-heading"><span>04</span><h2>SOLVE ANALYTICS</h2><span class="heading-rule"></span></div>
+        <div class="solves-filter-grid">
+          <label class="admin-field"><span>CATEGORY</span><select id="solves-category"><option value="">ALL CATEGORIES</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
+          <label class="admin-field"><span>DIFFICULTY</span><select id="solves-difficulty"><option value="">ALL DIFFICULTIES</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+        </div>
+        <div id="solves-chart-layout" class="solves-chart-layout">
+          <div id="solves-pie-chart" class="solves-pie-chart" data-label="0 SOLVES"></div>
+          <div id="solves-chart-legend" class="solves-chart-legend"></div>
+        </div>
       </section>
     </main>
     <footer><span>© 2026 PWNGENIUS//CTF</span><span class="footer-center">PRIVATE ADMIN AREA</span></footer>

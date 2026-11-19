@@ -105,6 +105,50 @@ async function loadLeaderboard() {
     : '<p class="category-empty">NO SCORES YET</p>';
 }
 
+async function loadLeaderboardVisibility() {
+  const result = await adminRequest('/api/admin/leaderboard-settings');
+  const toggle = document.querySelector('#leaderboard-visibility-toggle');
+  toggle.textContent = result.hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
+  toggle.dataset.hidden = String(result.hidden);
+}
+
+async function loadSolvesChart() {
+  const category = document.querySelector('#solves-category').value;
+  const difficulty = document.querySelector('#solves-difficulty').value;
+  const query = new URLSearchParams();
+  if (category) query.set('category', category);
+  if (difficulty) query.set('difficulty', difficulty);
+  const { data } = await adminRequest(`/api/admin/solves${query.size ? `?${query}` : ''}`);
+  renderSolvesChart(data);
+}
+
+function renderSolvesChart(data) {
+  const chart = document.querySelector('#solves-pie-chart');
+  const legend = document.querySelector('#solves-chart-legend');
+  const total = data.reduce((sum, item) => sum + item.count, 0);
+  if (!total) {
+    chart.style.background = 'conic-gradient(rgba(120, 134, 157, .12) 0 100%)';
+    chart.dataset.label = '0 SOLVES';
+    legend.innerHTML = '<p class="category-empty">NO SOLVES MATCH THIS FILTER</p>';
+    return;
+  }
+  const colors = ['#3d8bff', '#70c8ff', '#d7ed4b', '#ff765e', '#a78bfa', '#8cff66', '#f472b6', '#fb923c'];
+  let offset = 0;
+  const segments = [];
+  const legendItems = [];
+  data.forEach((item, index) => {
+    const percentage = item.count / total * 100;
+    const end = offset + percentage;
+    const color = colors[index % colors.length];
+    segments.push(`${color} ${offset}% ${end}%`);
+    legendItems.push(`<li><span class="category-dot" style="background:${color}"></span><span>${escapeHtml(item.label)}</span><strong>${item.count} · ${Math.round(percentage)}%</strong></li>`);
+    offset = end;
+  });
+  chart.style.background = `conic-gradient(${segments.join(', ')})`;
+  chart.dataset.label = `${total} SOLVE${total === 1 ? '' : 'S'}`;
+  legend.innerHTML = `<ul>${legendItems.join('')}</ul>`;
+}
+
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
   const container = document.querySelector('#admin-challenge-list');
@@ -387,8 +431,17 @@ document.querySelectorAll('.admin-nav-button').forEach((button) => {
     if (view === 'leaderboard') {
       try {
         await loadLeaderboard();
+        await loadLeaderboardVisibility();
       } catch (error) {
         document.querySelector('#leaderboard-list').textContent = error.message;
+      }
+    }
+    if (view === 'solves') {
+      try {
+        await loadSolvesChart();
+      } catch (error) {
+        document.querySelector('#solves-chart-legend').innerHTML =
+          `<p class="form-status error">${escapeHtml(error.message)}</p>`;
       }
     }
   });
@@ -398,6 +451,43 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.href = '/';
 });
+
+document.querySelector('#leaderboard-visibility-toggle').addEventListener('click', async (event) => {
+  const status = document.querySelector('#leaderboard-control-status');
+  const hidden = event.currentTarget.dataset.hidden !== 'true';
+  event.currentTarget.disabled = true;
+  try {
+    await adminRequest('/api/admin/leaderboard-settings', {
+      method: 'PATCH',
+      body: JSON.stringify({ hidden })
+    });
+    await loadLeaderboardVisibility();
+    status.textContent = hidden ? 'LEADERBOARD HIDDEN FROM USERS' : 'LEADERBOARD VISIBLE TO USERS';
+    status.className = 'form-status success';
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = 'form-status error';
+  } finally {
+    event.currentTarget.disabled = false;
+  }
+});
+
+document.querySelector('#reset-scores-button').addEventListener('click', async () => {
+  if (!window.confirm('Reset all correct solve scores? This cannot be undone.')) return;
+  const status = document.querySelector('#leaderboard-control-status');
+  try {
+    await adminRequest('/api/admin/scores', { method: 'DELETE' });
+    status.textContent = 'ALL SCORES RESET';
+    status.className = 'form-status success';
+    await loadLeaderboard();
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = 'form-status error';
+  }
+});
+
+document.querySelector('#solves-category').addEventListener('change', () => loadSolvesChart());
+document.querySelector('#solves-difficulty').addEventListener('change', () => loadSolvesChart());
 
 document.querySelector('#admin-login-form').addEventListener('submit', async (event) => {
   event.preventDefault();

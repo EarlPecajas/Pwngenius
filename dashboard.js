@@ -222,6 +222,10 @@ async function loadLeaderboard() {
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
+    if (result.hidden) {
+      container.innerHTML = '<p class="category-empty leaderboard-hidden-message">LEADERBOARD IS HIDDEN BY THE ADMIN</p>';
+      return;
+    }
     container.innerHTML = result.leaderboard.length
       ? result.leaderboard.map((player, index) => `
         <article class="public-leaderboard-row${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
