@@ -86,7 +86,27 @@ function openChallenge(challenge) {
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
   document.querySelector('#modal-description').textContent = challenge.description;
-  document.querySelector('#modal-hint').textContent = `HINT: ${challenge.hint}`;
+  const hintContainer = document.querySelector('#modal-hint');
+  let hints = [];
+  if (Array.isArray(challenge.hint)) hints = challenge.hint;
+  else if (typeof challenge.hint === 'string') {
+    try {
+      const parsed = JSON.parse(challenge.hint);
+      hints = Array.isArray(parsed) ? parsed : [challenge.hint];
+    } catch {
+      hints = challenge.hint.trim() ? [challenge.hint] : [];
+    }
+  }
+  hintContainer.innerHTML = hints.length
+    ? `<div class="challenge-hint-heading"><span>HINTS</span></div>${hints.map((hint, index) =>
+      `<div class="challenge-hint-row">
+        <button class="hint-toggle" type="button" aria-expanded="false" aria-label="Reveal hint ${index + 1}">
+          <span class="hint-eye" aria-hidden="true">◉</span>
+        </button>
+        <p class="challenge-hint hint-hidden">${escapeHtml(hint)}</p>
+      </div>`
+    ).join('')}`
+    : '';
   const filesContainer = document.querySelector('#modal-files');
   filesContainer.innerHTML = challenge.files?.length
     ? `<h3>Challenge Files</h3>${challenge.files.map((file) =>
@@ -235,6 +255,18 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     if (view === 'profile') await loadProfile();
     if (view === 'leaderboard') await loadLeaderboard();
   });
+});
+
+document.querySelector('#modal-hint').addEventListener('click', (event) => {
+  const toggle = event.target.closest('.hint-toggle');
+  if (!toggle) return;
+  const row = toggle.closest('.challenge-hint-row');
+  const hintText = row.querySelector('.challenge-hint');
+  const revealed = toggle.getAttribute('aria-expanded') === 'true';
+  toggle.setAttribute('aria-expanded', String(!revealed));
+  toggle.setAttribute('aria-label', revealed ? 'Hide hint' : 'Reveal hint');
+  hintText.classList.toggle('hint-hidden', revealed);
+  hintText.classList.toggle('hint-visible', !revealed);
 });
 
 document.querySelector('#close-challenge-modal').addEventListener('click', () => {

@@ -84,6 +84,21 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-panel p { color: #b7c1d2; font-size: 13px; line-height: 1.5; }
 .challenge-meta, .challenge-hint, .user-row small { color: var(--muted); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .06em; }
 .challenge-hint { border-left: 2px solid var(--coral); padding-left: 12px; font-size: 13px; line-height: 1.55; font-weight: 500; }
+.challenge-hints { display: grid; gap: 10px; margin: 18px 0; }
+.challenge-hint-heading { color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .12em; }
+.challenge-hint-row { display: grid; grid-template-columns: 44px 1fr; align-items: center; gap: 10px; }
+.challenge-hint-row .challenge-hint { margin: 0; min-height: 44px; display: flex; align-items: center; }
+.hint-toggle { width: 44px; height: 44px; border: 1px solid rgba(112, 200, 255, .55); border-radius: 5px; background: rgba(61, 139, 255, .08); color: #a9d7ff; font-size: 16px; }
+.hint-toggle:hover { border-color: #70c8ff; background: rgba(61, 139, 255, .18); }
+.hint-hidden { filter: blur(7px); user-select: none; opacity: .48; }
+.hint-visible { filter: none; user-select: text; opacity: 1; }
+.hint-editor { display: grid; gap: 8px; }
+.hint-row { display: grid; grid-template-columns: 1fr 44px; gap: 8px; }
+.hint-row input { width: 100%; }
+.hint-remove-button { border: 1px solid rgba(255, 95, 109, .55); background: rgba(255, 95, 109, .08); color: #ff8a96; font-size: 20px; }
+.hint-remove-button:hover { background: rgba(255, 95, 109, .18); border-color: var(--coral); }
+.hint-add-button { min-height: 44px; border: 1px solid rgba(61, 139, 255, .55); border-radius: 5px; background: rgba(61, 139, 255, .08); color: #a9d7ff; font: 600 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.hint-add-button:hover { border-color: #70c8ff; background: rgba(61, 139, 255, .18); }
 .challenge-panel .submission-form { margin-top: 25px; }
 .challenge-lock { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; background: rgba(13, 21, 36, .72); border: 1px solid var(--line); padding: 30px; }
 .challenge-lock-icon { color: var(--coral); font-size: 30px; }

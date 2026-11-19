@@ -19,6 +19,56 @@ function syncDifficultyPoints(form, difficulty, preferredPoints) {
   pointsSelect.value = options.includes(preferred) ? String(preferred) : String(options[0] || '');
 }
 
+function normalizeHintValues(hints) {
+  return hints.map((hint) => String(hint).trim()).filter(Boolean);
+}
+
+function addHintRow(container, value = '') {
+  const row = document.createElement('div');
+  row.className = 'hint-row';
+  const input = document.createElement('input');
+  input.name = 'hint';
+  input.placeholder = `Enter hint ${container.querySelectorAll('.hint-row').length + 1}`;
+  input.value = value;
+  input.required = container.querySelectorAll('.hint-row').length === 0;
+  const remove = document.createElement('button');
+  remove.type = 'button';
+  remove.className = 'hint-remove-button';
+  remove.textContent = '×';
+  remove.setAttribute('aria-label', 'Remove hint');
+  remove.addEventListener('click', () => {
+    row.remove();
+    const rows = [...container.querySelectorAll('.hint-row')];
+    rows.forEach((item, index) => {
+      item.querySelector('input').placeholder = `Enter hint ${index + 1}`;
+      item.querySelector('input').required = index === 0;
+    });
+  });
+  row.append(input, remove);
+  container.append(row);
+}
+
+function parseHints(value) {
+  if (Array.isArray(value)) return normalizeHintValues(value);
+  if (typeof value !== 'string') return [];
+  try {
+    const parsed = JSON.parse(value);
+    if (Array.isArray(parsed)) return normalizeHintValues(parsed);
+  } catch {}
+  const hint = value.trim();
+  return hint ? [hint] : [];
+}
+
+document.querySelector('#add-publish-hint').addEventListener('click', () => {
+  addHintRow(document.querySelector('#publish-hint-list'));
+});
+
+document.querySelector('#add-edit-hint').addEventListener('click', () => {
+  addHintRow(document.querySelector('#edit-hint-list'));
+});
+
+addHintRow(document.querySelector('#publish-hint-list'));
+
 async function readChallengeFiles(form) {
   const input = form.elements.challenge_files;
   if (!input || !input.files.length) return [];
@@ -93,7 +143,11 @@ function openChallengeEditor(challenge) {
   form.elements.category.value = challenge.category;
   form.elements.difficulty.value = challenge.difficulty;
   form.elements.description.value = challenge.description;
-  form.elements.hint.value = challenge.hint;
+  const editHintList = form.querySelector('#edit-hint-list');
+  editHintList.innerHTML = '';
+  const hints = parseHints(challenge.hint);
+  if (hints.length) hints.forEach((hint) => addHintRow(editHintList, hint));
+  else addHintRow(editHintList);
   form.elements.flag.value = '';
   syncDifficultyPoints(form, challenge.difficulty, challenge.points);
   form.elements.submission_limit.value = challenge.submissionLimit || '';
@@ -151,6 +205,9 @@ async function updateChallenge(event, form) {
   event.preventDefault();
   const statusElement = form.querySelector('.form-status');
   const values = Object.fromEntries(new FormData(form).entries());
+  values.hint = JSON.stringify(normalizeHintValues(
+    [...form.querySelectorAll('#edit-hint-list input[name="hint"]')].map((input) => input.value)
+  ));
   values.id = form.dataset.challengeId;
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
@@ -265,12 +322,18 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   event.preventDefault();
   const form = event.currentTarget;
   const values = Object.fromEntries(new FormData(form).entries());
+  values.hint = JSON.stringify(normalizeHintValues(
+    [...form.querySelectorAll('#publish-hint-list input[name="hint"]')].map((input) => input.value)
+  ));
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   try {
     values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });
     form.reset();
+    const publishHintList = form.querySelector('#publish-hint-list');
+    publishHintList.innerHTML = '';
+    addHintRow(publishHintList);
     syncDifficultyPoints(form, 'Easy', 20);
     form.elements.difficulty.value = '';
     form.elements.submission_limit.value = '';

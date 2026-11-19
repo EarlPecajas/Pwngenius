@@ -50,7 +50,10 @@
           <label>CATEGORY</label><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select>
           <label>DIFFICULTY</label><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select>
           <label>DESCRIPTION</label><textarea name="description" required></textarea>
-          <label>HINT</label><textarea name="hint" required></textarea>
+          <label>HINTS</label>
+          <div id="publish-hint-list" class="hint-editor">
+          </div>
+          <button id="add-publish-hint" class="hint-add-button" type="button">+ ADD ANOTHER HINT</button>
           <label>FLAG (PRIVATE)</label><input name="flag" required />
           <label>POINTS</label><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select>
           <label>SUBMISSION LIMIT</label><input name="submission_limit" type="number" min="1" placeholder="Unlimited" />
@@ -83,7 +86,10 @@
               <label>CATEGORY<select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
               <label>DIFFICULTY<select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
               <label>DESCRIPTION<textarea name="description" required></textarea></label>
-              <label>HINT<textarea name="hint" required></textarea></label>
+              <label>HINTS
+                <div id="edit-hint-list" class="hint-editor"></div>
+                <button id="add-edit-hint" class="hint-add-button" type="button">+ ADD ANOTHER HINT</button>
+              </label>
               <label>NEW FLAG<input name="flag" type="password" placeholder="Leave blank to keep current flag" /></label>
               <label>POINTS<select name="points" required></select></label>
               <label>SUBMISSION LIMIT<input name="submission_limit" type="number" min="1" placeholder="Unlimited" /></label>
