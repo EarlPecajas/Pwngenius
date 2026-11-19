@@ -327,6 +327,9 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .leaderboard-table .leaderboard-solved { font-size: 12px; }
 .admin-leaderboard-controls { width: min(1100px, 100%); margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
 .admin-leaderboard-controls .form-status { width: 100%; text-align: center; }
+.leaderboard-visibility-indicator { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 5px; padding: 0 14px; font: 600 10px 'DM Mono', monospace; letter-spacing: .06em; }
+.leaderboard-visibility-indicator.visible-state { border-color: rgba(140, 255, 102, .55); background: rgba(140, 255, 102, .08); color: #8cff66; }
+.leaderboard-visibility-indicator.hidden-state { border-color: rgba(255, 95, 109, .55); background: rgba(255, 95, 109, .08); color: #ff8a96; }
 .solves-filter-grid { width: min(760px, 100%); margin: 8px auto 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .solves-chart-layout { width: min(980px, 100%); margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; align-items: center; gap: 38px; }
 .solves-pie-chart { position: relative; width: 260px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(rgba(120, 134, 157, .12) 0 100%); box-shadow: 0 0 28px rgba(61, 139, 255, .12); }

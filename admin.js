@@ -108,8 +108,11 @@ async function loadLeaderboard() {
 async function loadLeaderboardVisibility() {
   const result = await adminRequest('/api/admin/leaderboard?action=settings');
   const toggle = document.querySelector('#leaderboard-visibility-toggle');
+  const indicator = document.querySelector('#leaderboard-visibility-indicator');
   toggle.textContent = result.hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
   toggle.dataset.hidden = String(result.hidden);
+  indicator.textContent = result.hidden ? '● HIDDEN FROM USERS' : '● VISIBLE TO USERS';
+  indicator.className = `leaderboard-visibility-indicator ${result.hidden ? 'hidden-state' : 'visible-state'}`;
 }
 
 async function loadSolvesChart() {
