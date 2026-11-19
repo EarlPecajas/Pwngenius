@@ -102,9 +102,14 @@ function openChallenge(challenge) {
       `<div class="challenge-hint-row">
         <p class="challenge-hint hint-hidden" data-hint="${escapeHtml(hint)}">••••••••••••••••••••••••••••••••</p>
         <button class="hint-toggle" type="button" aria-expanded="false" aria-label="Reveal hint ${index + 1}">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
+          <svg class="eye-open" viewBox="0 0 24 24" aria-hidden="true">
             <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path>
             <circle cx="12" cy="12" r="2.5"></circle>
+          </svg>
+          <svg class="eye-closed" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12s3.5-5 9-5 9 5 9 5-3.5 5-9 5-9-5-9-5Z"></path>
+            <circle cx="12" cy="12" r="2.5"></circle>
+            <path class="eye-slash" d="M4 20 20 4"></path>
           </svg>
         </button>
       </div>`

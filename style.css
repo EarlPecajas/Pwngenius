@@ -88,10 +88,13 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-hint-heading { color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .12em; }
 .challenge-hint-row { display: grid; grid-template-columns: 1fr 44px; align-items: center; gap: 10px; }
 .challenge-hint-row .challenge-hint { margin: 0; min-height: 44px; display: flex; align-items: center; }
-.hint-toggle { width: 44px; height: 44px; justify-self: end; border: 1px solid rgba(112, 200, 255, .55); border-radius: 5px; background: rgba(61, 139, 255, .08); color: #a9d7ff; display: grid; place-items: center; }
-.hint-toggle svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
-.hint-toggle:hover { border-color: #70c8ff; background: rgba(61, 139, 255, .18); color: #d7ecff; }
-.hint-toggle[aria-expanded="true"] { border-color: #70c8ff; background: rgba(61, 139, 255, .18); color: #d7ecff; }
+.hint-toggle { width: 44px; height: 44px; justify-self: end; border: 0; border-radius: 0; background: transparent; color: #a9d7ff; display: grid; place-items: center; }
+.hint-toggle svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.hint-toggle .eye-open { display: none; }
+.hint-toggle .eye-closed { display: block; }
+.hint-toggle[aria-expanded="true"] .eye-open { display: block; }
+.hint-toggle[aria-expanded="true"] .eye-closed { display: none; }
+.hint-toggle:hover { color: #d7ecff; }
 .hint-hidden { filter: none; user-select: none; opacity: .58; letter-spacing: .18em; color: #8fa3bd; }
 .hint-visible { filter: none; user-select: text; opacity: 1; letter-spacing: normal; color: #b7c1d2; }
 .hint-editor { display: grid; gap: 8px; }
