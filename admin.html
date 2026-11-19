@@ -46,18 +46,21 @@
         <p class="eyebrow"><span class="eyebrow-line"></span> CONTROL ROOM</p>
         <h1>Build the <em>arena.</em></h1>
         <form id="challenge-form" class="admin-form">
-          <label>CHALLENGE TITLE</label><input name="title" required />
-          <label>CATEGORY</label><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select>
-          <label>DIFFICULTY</label><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select>
-          <label>DESCRIPTION</label><textarea name="description" required></textarea>
-          <label>HINTS</label>
-          <div id="publish-hint-list" class="hint-editor">
+          <div class="admin-form-grid">
+            <label class="admin-field"><span>CHALLENGE TITLE</span><input name="title" required /></label>
+            <label class="admin-field"><span>CATEGORY</span><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
+            <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+            <label class="admin-field"><span>POINTS</span><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select></label>
+            <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
+            <div class="admin-field admin-field-full">
+              <span class="admin-field-label">HINTS</span>
+              <div id="publish-hint-list" class="hint-editor"></div>
+              <button id="add-publish-hint" class="hint-add-button" type="button">+ ADD ANOTHER HINT</button>
+            </div>
+            <label class="admin-field"><span>FLAG (PRIVATE)</span><input name="flag" required /></label>
+            <label class="admin-field"><span>SUBMISSION LIMIT</span><input name="submission_limit" type="number" min="1" placeholder="Unlimited" /></label>
+            <label class="admin-field admin-field-full"><span>CHALLENGE FILES</span><input name="challenge_files" type="file" multiple /></label>
           </div>
-          <button id="add-publish-hint" class="hint-add-button" type="button">+ ADD ANOTHER HINT</button>
-          <label>FLAG (PRIVATE)</label><input name="flag" required />
-          <label>POINTS</label><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select>
-          <label>SUBMISSION LIMIT</label><input name="submission_limit" type="number" min="1" placeholder="Unlimited" />
-          <label>CHALLENGE FILES</label><input name="challenge_files" type="file" multiple />
           <button class="submit-button" type="submit"><span>PUBLISH CHALLENGE</span><span>↗</span></button>
           <p id="challenge-status" class="form-status" role="status"></p>
         </form>

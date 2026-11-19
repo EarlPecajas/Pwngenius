@@ -104,6 +104,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .hint-remove-button:hover { background: rgba(255, 95, 109, .18); border-color: var(--coral); }
 .hint-add-button { min-height: 44px; border: 1px solid rgba(61, 139, 255, .55); border-radius: 5px; background: rgba(61, 139, 255, .08); color: #a9d7ff; font: 600 10px 'DM Mono', monospace; letter-spacing: .08em; }
 .hint-add-button:hover { border-color: #70c8ff; background: rgba(61, 139, 255, .18); }
+.admin-field input[type="file"] { min-height: 48px; padding: 8px; color: var(--muted); }
+.admin-field input[type="file"]::file-selector-button { height: 32px; margin-right: 12px; border: 1px solid rgba(61, 139, 255, .55); border-radius: 4px; background: rgba(61, 139, 255, .10); color: #a9d7ff; font: 9px 'DM Mono', monospace; }
 .challenge-panel .submission-form { margin-top: 25px; }
 .challenge-lock { min-height: 260px; display: grid; place-items: center; align-content: center; gap: 12px; text-align: center; background: rgba(13, 21, 36, .72); border: 1px solid var(--line); padding: 30px; }
 .challenge-lock-icon { color: var(--coral); font-size: 30px; }
@@ -268,7 +270,13 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .admin-challenges .section-heading .event-control .submit-button:disabled { opacity: .6; cursor: wait; }
 .admin-challenges .section-heading .event-control .form-status { position: absolute; top: calc(100% + 6px); right: 0; margin: 0; white-space: nowrap; }
 .admin-challenges #admin-challenge-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.admin-form { grid-template-columns: 1fr 2fr; align-items: center; max-width: 1100px; margin: 0 auto; }
+.admin-form { display: block; max-width: 1100px; margin: 0 auto; }
+.admin-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 18px; }
+.admin-field { display: grid; gap: 8px; margin: 0 !important; color: var(--muted); font: 10px 'DM Mono', monospace; letter-spacing: .08em; }
+.admin-field-full { grid-column: 1 / -1; }
+.admin-field-label { color: var(--muted); }
+.admin-field textarea { min-height: 110px; }
+.admin-field input, .admin-field select, .admin-field textarea { margin: 0; }
 .admin-form textarea { min-height: 110px; }
 .admin-form .submit-button, .admin-form .form-status { grid-column: 1 / -1; }
 .admin-form .submit-button { height: 58px; border: 1px solid rgba(112, 200, 255, .72); border-radius: 6px; background: rgba(61, 139, 255, .10); color: #a9d7ff; justify-content: center; gap: 12px; font-family: 'Space Grotesk', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: .12em; box-shadow: 0 10px 28px rgba(61, 139, 255, .10); }
@@ -321,6 +329,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .admin-challenges .section-heading .event-control { width: 100%; margin-left: 0; justify-content: space-between; }
   .admin-challenges .section-heading .event-control .form-status { position: static; }
   .admin-form { grid-template-columns: 1fr; }
+  .admin-form-grid { grid-template-columns: 1fr; }
+  .admin-field-full { grid-column: auto; }
   .admin-form .submit-button, .admin-form .form-status { grid-column: auto; }
   .admin-table-head { display: none; }
   .admin-table-row, .users-table .admin-table-row { grid-template-columns: 1fr; gap: 8px; padding: 18px; }
