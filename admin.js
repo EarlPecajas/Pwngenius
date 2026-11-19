@@ -458,14 +458,22 @@ document.querySelector('#logout-button').addEventListener('click', async () => {
 
 document.querySelector('#leaderboard-visibility-toggle').addEventListener('click', async (event) => {
   const status = document.querySelector('#leaderboard-control-status');
+  const toggle = event.currentTarget;
+  const indicator = document.querySelector('#leaderboard-visibility-indicator');
   const hidden = event.currentTarget.dataset.hidden !== 'true';
-  event.currentTarget.disabled = true;
+  toggle.disabled = true;
+  toggle.textContent = hidden ? 'HIDING...' : 'SHOWING...';
+  indicator.textContent = hidden ? '● UPDATING...' : '● UPDATING...';
+  indicator.className = 'leaderboard-visibility-indicator';
   try {
     await adminRequest('/api/admin/leaderboard?action=settings', {
       method: 'PATCH',
       body: JSON.stringify({ hidden })
     });
-    await loadLeaderboardVisibility();
+    toggle.dataset.hidden = String(hidden);
+    toggle.textContent = hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
+    indicator.textContent = hidden ? '● HIDDEN FROM USERS' : '● VISIBLE TO USERS';
+    indicator.className = `leaderboard-visibility-indicator ${hidden ? 'hidden-state' : 'visible-state'}`;
     status.textContent = hidden ? 'LEADERBOARD HIDDEN FROM USERS' : 'LEADERBOARD VISIBLE TO USERS';
     status.className = 'form-status success';
   } catch (error) {

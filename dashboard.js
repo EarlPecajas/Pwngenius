@@ -3,7 +3,6 @@ let currentSession;
 let allChallenges = [];
 let profileCache;
 let profileRequest;
-let leaderboardPollTimer;
 let challengePollTimer;
 
 function escapeHtml(value) {
@@ -245,16 +244,17 @@ function isCurrentPlayer(username, currentUsername) {
   return String(username).toLowerCase() === String(currentUsername).toLowerCase();
 }
 
+window.addEventListener('focus', () => {
+  const leaderboardVisible = !document.querySelector('#leaderboard-view').classList.contains('hidden');
+  if (leaderboardVisible) loadLeaderboard().catch((error) => console.error(error));
+});
+
 document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
   button.addEventListener('click', async () => {
     const view = button.dataset.view;
     if (challengePollTimer) {
       window.clearInterval(challengePollTimer);
       challengePollTimer = null;
-    }
-    if (leaderboardPollTimer) {
-      window.clearInterval(leaderboardPollTimer);
-      leaderboardPollTimer = null;
     }
     document.querySelectorAll('.dashboard-nav-button').forEach((item) =>
       item.classList.toggle('active', item === button)
@@ -272,9 +272,6 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     if (view === 'profile') await loadProfile();
     if (view === 'leaderboard') {
       await loadLeaderboard();
-      leaderboardPollTimer = window.setInterval(() => {
-        loadLeaderboard().catch((error) => console.error(error));
-      }, 3000);
     }
   });
 });
