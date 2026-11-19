@@ -100,10 +100,13 @@ function openChallenge(challenge) {
   hintContainer.innerHTML = hints.length
     ? `<div class="challenge-hint-heading"><span>HINTS</span></div>${hints.map((hint, index) =>
       `<div class="challenge-hint-row">
+        <p class="challenge-hint hint-hidden" data-hint="${escapeHtml(hint)}">••••••••••••••••••••••••••••••••</p>
         <button class="hint-toggle" type="button" aria-expanded="false" aria-label="Reveal hint ${index + 1}">
-          <span class="hint-eye" aria-hidden="true">◉</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path>
+            <circle cx="12" cy="12" r="2.5"></circle>
+          </svg>
         </button>
-        <p class="challenge-hint hint-hidden">${escapeHtml(hint)}</p>
       </div>`
     ).join('')}`
     : '';
@@ -264,7 +267,12 @@ document.querySelector('#modal-hint').addEventListener('click', (event) => {
   const hintText = row.querySelector('.challenge-hint');
   const revealed = toggle.getAttribute('aria-expanded') === 'true';
   toggle.setAttribute('aria-expanded', String(!revealed));
-  toggle.setAttribute('aria-label', revealed ? 'Hide hint' : 'Reveal hint');
+  toggle.setAttribute('aria-label', revealed ? 'Reveal hint' : 'Hide hint');
+  if (revealed) {
+    hintText.textContent = '••••••••••••••••••••••••••••••••';
+  } else {
+    hintText.textContent = hintText.dataset.hint;
+  }
   hintText.classList.toggle('hint-hidden', revealed);
   hintText.classList.toggle('hint-visible', !revealed);
 });
