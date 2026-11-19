@@ -344,6 +344,23 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
           </div>
         </section>
       `;
+    } else if (button.dataset.profile === 'mixu') {
+      modalContent.innerHTML = `
+        <div class="creator-bio">
+          <p>Hi! I am <strong>Jeehan Mikayla Barbero</strong>, a 4th Year BS Information Technology student majoring in Database Systems, an aspiring data analyst and technopreneur. I currently serve as the CEO of the Student Entrepreneurs Association and am a member of ARCANA Music Guild, Pinta Okir Visual Arts Guild, and Pwngenius.</p>
+          <p>I'm drawn to trying out new and different things. Basically, your jack of all trades and a master of none.</p>
+          <p>In cybersecurity, I'm most interested in learning more about Digital Forensics and Steganography, and I'm still finding a way to love OSINT.</p>
+          <blockquote>“A good craftsman never blames his tools.”</blockquote>
+        </div>
+        <section class="creator-certifications">
+          <h3>Certifications</h3>
+          <div class="certification-grid creator-certification-grid-three">
+            <img src="/CERTS%20LOGOS/WINOPS.png" alt="" />
+            <img src="/CERTS%20LOGOS/CCP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CAISP.png" alt="" />
+          </div>
+        </section>
+      `;
     } else {
       modalContent.innerHTML = '';
     }
