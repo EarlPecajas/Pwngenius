@@ -39,6 +39,19 @@ function renderChallenges() {
     if (!categories.has(category)) categories.set(category, []);
     categories.get(category).push(challenge);
   });
+  const difficultyRank = {
+    Easy: 1,
+    Medium: 2,
+    Hard: 3,
+    'Super Hard': 4
+  };
+  categories.forEach((challenges) => {
+    challenges.sort((left, right) =>
+      (difficultyRank[left.difficulty] || 99) - (difficultyRank[right.difficulty] || 99)
+      || (Number(left.points) || 0) - (Number(right.points) || 0)
+      || String(left.name).localeCompare(String(right.name))
+    );
+  });
   list.innerHTML = [...categories.entries()].map(([category, challenges]) => `
     <section class="challenge-category-section">
       <div class="challenge-category-heading">
