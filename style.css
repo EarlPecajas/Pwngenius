@@ -325,6 +325,11 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .leaderboard-table strong { font-size: 18px; }
 .leaderboard-table .leaderboard-score { font-size: 20px; }
 .leaderboard-table .leaderboard-solved { font-size: 12px; }
+.leaderboard-solves-toggle { min-width: 0; height: 34px; padding: 0 10px; font-size: 10px; }
+.leaderboard-solves-detail { grid-column: 1 / -1; display: grid; gap: 8px; padding: 0 18px 18px 116px; border-bottom: 1px solid rgba(163, 196, 255, .10); }
+.leaderboard-solves-detail div { display: flex; justify-content: space-between; gap: 16px; color: var(--text); font-size: 13px; }
+.leaderboard-solves-detail small { color: var(--muted); font: 11px 'DM Mono', monospace; }
+.leaderboard-solves-detail p { margin: 0; color: var(--muted); font: 11px 'DM Mono', monospace; }
 .admin-leaderboard-controls { width: min(1100px, 100%); margin: 0 auto 18px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
 .admin-leaderboard-controls .form-status { width: 100%; text-align: center; }
 .leaderboard-visibility-indicator { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 5px; padding: 0 14px; font: 600 10px 'DM Mono', monospace; letter-spacing: .06em; }
@@ -370,6 +375,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .admin-form .submit-button, .admin-form .form-status { grid-column: auto; }
   .admin-table-head { display: none; }
   .admin-table-row, .users-table .admin-table-row { grid-template-columns: 1fr; gap: 8px; padding: 18px; }
+  .leaderboard-solves-detail { padding: 0 18px 18px; }
   .user-actions { justify-content: center; flex-wrap: wrap; }
   .solves-filter-grid { grid-template-columns: 1fr; }
   .solves-chart-layout { grid-template-columns: 1fr; justify-items: center; }

@@ -19,7 +19,7 @@ module.exports = async function handler(request, response) {
     }
     const [profiles, submissions, challenges] = await Promise.all([
       supabaseRequest('profiles?select=id,username'),
-      supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
+      supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),
       supabaseRequest('challenges?select=id,points')
     ]);
     const currentProfile = profiles.find((profile) => profile.id === user.id);
@@ -31,6 +31,14 @@ module.exports = async function handler(request, response) {
       if (!solved.has(submission.user_id)) solved.set(submission.user_id, new Set());
       solved.get(submission.user_id).add(submission.challenge_id);
     });
+    const firstSolvedAt = new Map();
+    submissions.forEach((submission) => {
+      if (!submission.user_id || !submission.created_at) return;
+      const current = firstSolvedAt.get(submission.user_id);
+      if (!current || new Date(submission.created_at) < new Date(current)) {
+        firstSolvedAt.set(submission.user_id, submission.created_at);
+      }
+    });
 
     const leaderboard = profiles.map((profile) => {
       const solvedIds = solved.get(profile.id) || new Set();
@@ -39,9 +47,12 @@ module.exports = async function handler(request, response) {
       ), 0);
       return {
         username: profile.username,
-        score
+        score,
+        firstSolvedAt: firstSolvedAt.get(profile.id) || null
       };
     }).sort((left, right) => right.score - left.score
+      || (left.firstSolvedAt ? new Date(left.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
+        - (right.firstSolvedAt ? new Date(right.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
       || left.username.localeCompare(right.username));
 
     return response.status(200).json({

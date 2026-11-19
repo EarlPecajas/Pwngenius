@@ -98,11 +98,21 @@ async function loadLeaderboard() {
       <div class="admin-table-row leaderboard-row">
         <span class="leaderboard-rank">${String(index + 1).padStart(2, '0')}</span>
         <div><strong>${escapeHtml(player.fullName || 'Unknown player')}</strong><small>@${escapeHtml(player.username || 'unknown')}</small></div>
-        <span class="leaderboard-solved">${player.solvedCount} SOLVED</span>
+        <button class="admin-action-button leaderboard-solves-toggle" type="button" data-player-id="${escapeHtml(player.id)}">${player.solvedCount} SOLVED</button>
         <strong class="leaderboard-score">${player.score} PTS</strong>
+      </div>
+      <div id="leaderboard-solves-${escapeHtml(player.id)}" class="leaderboard-solves-detail hidden">
+        ${player.solvedChallenges.length
+          ? player.solvedChallenges.map((challenge) => `<div><span>${escapeHtml(challenge.name)}</span><small>${escapeHtml(challenge.category)} · ${challenge.points} PTS</small></div>`).join('')
+          : '<p>NO CHALLENGES SOLVED</p>'}
       </div>
     `).join('')}</div>`
     : '<p class="category-empty">NO SCORES YET</p>';
+  container.querySelectorAll('.leaderboard-solves-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      button.parentElement.nextElementSibling.classList.toggle('hidden');
+    });
+  });
 }
 
 async function loadLeaderboardVisibility() {

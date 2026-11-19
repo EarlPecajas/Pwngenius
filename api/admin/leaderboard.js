@@ -32,8 +32,8 @@ module.exports = async function handler(request, response) {
 
     if (action === 'solves' && request.method === 'GET') {
       const [submissions, challenges, profiles] = await Promise.all([
-        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
-        supabaseRequest('challenges?select=id,name,category,difficulty'),
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),
+        supabaseRequest('challenges?select=id,name,category,difficulty,points'),
         supabaseRequest('profiles?select=id,full_name,username')
       ]);
       const challengeMap = new Map(challenges.map((challenge) => [challenge.id, challenge]));
@@ -64,15 +64,22 @@ module.exports = async function handler(request, response) {
 
     const [profiles, submissions, challenges] = await Promise.all([
       supabaseRequest('profiles?select=id,full_name,username'),
-      supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
-      supabaseRequest('challenges?select=id,points')
+      supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),
+      supabaseRequest('challenges?select=id,name,category,points')
     ]);
     const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
     const scores = new Map();
+    const firstSolvedAt = new Map();
     submissions.forEach((submission) => {
       if (!submission.user_id) return;
       if (!scores.has(submission.user_id)) scores.set(submission.user_id, new Set());
       scores.get(submission.user_id).add(submission.challenge_id);
+      if (submission.created_at) {
+        const current = firstSolvedAt.get(submission.user_id);
+        if (!current || new Date(submission.created_at) < new Date(current)) {
+          firstSolvedAt.set(submission.user_id, submission.created_at);
+        }
+      }
     });
 
     const leaderboard = profiles.map((profile) => {
@@ -80,13 +87,23 @@ module.exports = async function handler(request, response) {
       const score = [...solved].reduce((total, challengeId) => (
         total + (points.get(challengeId) || 0)
       ), 0);
+      const solvedChallenges = [...solved]
+        .map((challengeId) => challenges.find((challenge) => challenge.id === challengeId))
+        .filter(Boolean)
+        .sort((left, right) => left.name.localeCompare(right.name));
       return {
+        id: profile.id,
         fullName: profile.full_name,
         username: profile.username,
         solvedCount: solved.size,
-        score
+        score,
+        firstSolvedAt: firstSolvedAt.get(profile.id) || null,
+        solvedChallenges
       };
-    }).sort((left, right) => right.score - left.score || right.solvedCount - left.solvedCount);
+    }).sort((left, right) => right.score - left.score
+      || (left.firstSolvedAt ? new Date(left.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
+        - (right.firstSolvedAt ? new Date(right.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
+      || left.username.localeCompare(right.username));
 
     return response.status(200).json({ leaderboard });
   } catch (error) {
