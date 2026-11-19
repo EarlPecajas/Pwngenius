@@ -19,7 +19,10 @@ module.exports = async function handler(request, response) {
         headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
         body: JSON.stringify({ key: 'leaderboard_hidden', value: String(hidden) })
       });
-      return response.status(200).json({ hidden });
+      const verified = await supabaseRequest(
+        'site_settings?key=eq.leaderboard_hidden&select=value&limit=1'
+      );
+      return response.status(200).json({ hidden: verified[0]?.value === 'true' });
     }
 
     if (action === 'reset' && request.method === 'DELETE') {

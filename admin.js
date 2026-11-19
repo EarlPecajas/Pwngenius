@@ -106,7 +106,7 @@ async function loadLeaderboard() {
 }
 
 async function loadLeaderboardVisibility() {
-  const result = await adminRequest('/api/admin/leaderboard?action=settings');
+  const result = await adminRequest('/api/admin/leaderboard?action=settings&nocache=' + Date.now());
   const toggle = document.querySelector('#leaderboard-visibility-toggle');
   const indicator = document.querySelector('#leaderboard-visibility-indicator');
   toggle.textContent = result.hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
@@ -466,15 +466,12 @@ document.querySelector('#leaderboard-visibility-toggle').addEventListener('click
   indicator.textContent = hidden ? '● UPDATING...' : '● UPDATING...';
   indicator.className = 'leaderboard-visibility-indicator';
   try {
-    await adminRequest('/api/admin/leaderboard?action=settings', {
+    const result = await adminRequest('/api/admin/leaderboard?action=settings&nocache=' + Date.now(), {
       method: 'PATCH',
       body: JSON.stringify({ hidden })
     });
-    toggle.dataset.hidden = String(hidden);
-    toggle.textContent = hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
-    indicator.textContent = hidden ? '● HIDDEN FROM USERS' : '● VISIBLE TO USERS';
-    indicator.className = `leaderboard-visibility-indicator ${hidden ? 'hidden-state' : 'visible-state'}`;
-    status.textContent = hidden ? 'LEADERBOARD HIDDEN FROM USERS' : 'LEADERBOARD VISIBLE TO USERS';
+    await loadLeaderboardVisibility();
+    status.textContent = result.hidden ? 'LEADERBOARD HIDDEN FROM USERS' : 'LEADERBOARD VISIBLE TO USERS';
     status.className = 'form-status success';
   } catch (error) {
     status.textContent = error.message;
