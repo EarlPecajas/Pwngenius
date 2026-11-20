@@ -178,8 +178,8 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .creator-image-placeholder { display: grid; place-items: center; color: var(--lime); font: 44px 'DM Mono', monospace; letter-spacing: .08em; background: radial-gradient(circle at 50% 35%, #1a3157 0, #101b30 35%, #070d18 78%); }
 .creator-card-content { height: 110px; padding: 18px 22px; display: flex; align-items: center; justify-content: center; text-align: center; }
 .creator-card h2 { width: 100%; min-height: 58px; margin: 0; display: grid; place-items: center; font-size: clamp(18px, 1.7vw, 23px); line-height: 1.2; text-wrap: balance; }
-.creator-about-button { width: 100%; height: 58px; margin-top: 12px; border: 1px solid rgba(61, 139, 255, .72); border-radius: 4px; background: rgba(61, 139, 255, .08); color: #70c8ff; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; font: 10px 'DM Mono', monospace; letter-spacing: .08em; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
-.creator-about-button span { color: var(--coral); font-size: 16px; }
+.creator-about-button { width: 100%; height: 58px; margin-top: 12px; border: 1px solid rgba(61, 139, 255, .72); border-radius: 4px; background: rgba(61, 139, 255, .08); color: #70c8ff; padding: 0 15px; display: flex; justify-content: space-between; align-items: center; font: 500 12px 'DM Mono', monospace; letter-spacing: .1em; transition: background .2s ease, border-color .2s ease, color .2s ease, transform .2s ease, box-shadow .2s ease; }
+.creator-about-button span { color: var(--coral); font-size: 18px; }
 .creator-about-button:hover { background: rgba(61, 139, 255, .18); border-color: #70c8ff; color: #b9dcff; box-shadow: inset 0 0 18px rgba(61, 139, 255, .12), 0 8px 22px rgba(61, 139, 255, .14); transform: translateY(-2px); }
 .creator-about-button:hover span { color: #70c8ff; }
 .creator-modal { position: fixed; inset: 0; z-index: 20; background: rgba(3, 7, 14, .82); display: grid; place-items: center; padding: 24px; }
