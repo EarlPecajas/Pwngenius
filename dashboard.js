@@ -71,6 +71,14 @@ function renderChallenges() {
         <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
+      <button class="challenge-solvers-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}" data-solve-count="${challenge.solveCount || 0}">
+        ${challenge.solveCount || 0} USER${challenge.solveCount === 1 ? '' : 'S'} SOLVED · VIEW
+      </button>
+      <div class="challenge-solvers hidden" data-solvers-id="${escapeHtml(challenge.id)}">
+        ${(challenge.solvers || []).length
+          ? (challenge.solvers || []).map((username) => `<span>@${escapeHtml(username)}</span>`).join('')
+          : '<span>NOBODY HAS SOLVED THIS YET</span>'}
+      </div>
     </article>
         `).join('')}
       </div>
@@ -80,6 +88,18 @@ function renderChallenges() {
     button.addEventListener('click', () => openChallenge(
       allChallenges.find((challenge) => challenge.id === button.dataset.challengeId)
     ));
+  });
+  list.querySelectorAll('.challenge-solvers-toggle').forEach((button) => {
+    button.addEventListener('click', () => {
+      const details = [...list.querySelectorAll('[data-solvers-id]')]
+        .find((element) => element.dataset.solversId === button.dataset.challengeId);
+      if (details) {
+        details.classList.toggle('hidden');
+        button.textContent = details.classList.contains('hidden')
+          ? `${button.dataset.solveCount || allChallenges.find((challenge) => challenge.id === button.dataset.challengeId)?.solveCount || 0} USERS SOLVED · VIEW`
+          : 'HIDE SOLVERS';
+      }
+    });
   });
 }
 

@@ -31,12 +31,13 @@ module.exports = async function handler(request, response) {
       if (!solved.has(submission.user_id)) solved.set(submission.user_id, new Set());
       solved.get(submission.user_id).add(submission.challenge_id);
     });
-    const firstSolvedAt = new Map();
+    const firstSolveByChallenge = new Map();
     submissions.forEach((submission) => {
       if (!submission.user_id || !submission.created_at) return;
-      const current = firstSolvedAt.get(submission.user_id);
+      const key = `${submission.user_id}:${submission.challenge_id}`;
+      const current = firstSolveByChallenge.get(key);
       if (!current || new Date(submission.created_at) < new Date(current)) {
-        firstSolvedAt.set(submission.user_id, submission.created_at);
+        firstSolveByChallenge.set(key, submission.created_at);
       }
     });
 
@@ -45,14 +46,19 @@ module.exports = async function handler(request, response) {
       const score = [...solvedIds].reduce((total, challengeId) => (
         total + (points.get(challengeId) || 0)
       ), 0);
+      const completionTimes = [...solvedIds]
+        .map((challengeId) => firstSolveByChallenge.get(`${profile.id}:${challengeId}`))
+        .filter(Boolean)
+        .map((timestamp) => new Date(timestamp).getTime());
+      const completionAt = completionTimes.length ? Math.max(...completionTimes) : null;
       return {
         username: profile.username,
         score,
-        firstSolvedAt: firstSolvedAt.get(profile.id) || null
+        completionAt: completionAt ? new Date(completionAt).toISOString() : null
       };
     }).sort((left, right) => right.score - left.score
-      || (left.firstSolvedAt ? new Date(left.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
-        - (right.firstSolvedAt ? new Date(right.firstSolvedAt).getTime() : Number.POSITIVE_INFINITY)
+      || (left.completionAt ? new Date(left.completionAt).getTime() : Number.POSITIVE_INFINITY)
+        - (right.completionAt ? new Date(right.completionAt).getTime() : Number.POSITIVE_INFINITY)
       || left.username.localeCompare(right.username));
 
     return response.status(200).json({

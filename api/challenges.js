@@ -136,10 +136,10 @@ module.exports = async function handler(request, response) {
   try {
     if (request.method === 'GET') {
       const user = await getAuthenticatedUser(request);
-      const profiles = await supabaseRequest(
+      const roleProfiles = await supabaseRequest(
         `profiles?id=eq.${encodeURIComponent(user.id)}&select=role&limit=1`
       );
-      const isAdmin = profiles[0]?.role === 'admin';
+      const isAdmin = roleProfiles[0]?.role === 'admin';
       const settings = await supabaseRequest(
         'site_settings?key=eq.challenges_locked&select=value&limit=1'
       );
@@ -147,18 +147,20 @@ module.exports = async function handler(request, response) {
         return response.status(200).json({ locked: true, challenges: [] });
       }
       const challenges = await supabaseRequest(
-        'challenges?select=id,name,category,difficulty,description,hint,author,points,created_at&order=created_at.desc'
+        'challenges?select=id,name,category,difficulty,description,hint,author,points,locked,created_at&order=created_at.desc'
       );
-      const [submissions, allCorrectSubmissions, limitSettings, fileSettings] = await Promise.all([
+      const [submissions, allCorrectSubmissions, limitSettings, fileSettings, profiles] = await Promise.all([
         supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`),
-        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),
         supabaseRequest('site_settings?key=like.challenge_submission_limit:*&select=key,value'),
-        supabaseRequest('site_settings?key=like.challenge_files:*&select=key,value')
+        supabaseRequest('site_settings?key=like.challenge_files:*&select=key,value'),
+        supabaseRequest('profiles?select=id,full_name,username')
       ]);
       const solvedIds = new Set(
         submissions.filter((submission) => submission.correct).map((submission) => submission.challenge_id)
       );
       const solveUsersByChallenge = new Map();
+      const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
       allCorrectSubmissions.forEach((submission) => {
         if (!submission.user_id) return;
         if (!solveUsersByChallenge.has(submission.challenge_id)) {
@@ -186,10 +188,14 @@ module.exports = async function handler(request, response) {
       }));
       return response.status(200).json({
         locked: !isAdmin && settings[0]?.value !== 'false',
-        challenges: challenges.map((challenge) => ({
+        challenges: (isAdmin ? challenges : challenges.filter((challenge) => challenge.locked !== true)).map((challenge) => ({
           ...challenge,
           solved: solvedIds.has(challenge.id),
           solveCount: solveUsersByChallenge.get(challenge.id)?.size || 0,
+          solvers: [...(solveUsersByChallenge.get(challenge.id) || [])].map((userId) => {
+            const profile = profileById.get(userId);
+            return profile?.full_name || profile?.username || 'Unknown user';
+          }).sort((left, right) => left.localeCompare(right)),
           submissionLimit: limitsByChallenge.get(challenge.id) || null,
           submissionCount: attemptCounts.get(challenge.id) || 0,
           files: filesByChallenge.get(challenge.id) || []
@@ -217,6 +223,7 @@ module.exports = async function handler(request, response) {
           author: body.author.trim(),
           flag_hash: hashFlag(body.flag.trim()),
           points,
+          locked: body.locked === true,
           submission_limit: body.submission_limit === null
             ? null
             : (Number.isInteger(body.submission_limit) && body.submission_limit >= 1 ? body.submission_limit : null)
@@ -260,6 +267,7 @@ module.exports = async function handler(request, response) {
         update.flag_hash = hashFlag(body.flag.trim());
       }
       if (Number.isInteger(body.points)) update.points = body.points;
+      if (typeof body.locked === 'boolean') update.locked = body.locked;
       if (body.submission_limit === null) {
         update.submission_limit = null;
       } else if (Number.isInteger(body.submission_limit) && body.submission_limit >= 1) {

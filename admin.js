@@ -200,21 +200,58 @@ function renderSolvesChart(data) {
 async function loadChallenges() {
   const { challenges } = await adminRequest('/api/challenges');
   const container = document.querySelector('#admin-challenge-list');
-  container.innerHTML = challenges.length ? challenges.map((challenge) => `
-    <button class="admin-challenge-card" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
-        <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
-        <strong>${escapeHtml(challenge.name)}</strong>
-        <span class="challenge-meta">${escapeHtml(challenge.author || 'Anonymous')}</span>
-        <span class="challenge-score">${challenge.points} PTS</span>
-        <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
-        ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
-        <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
-    </button>
-  `).join('') : '<p class="category-empty">NO CHALLENGES PUBLISHED</p>';
-  document.querySelectorAll('.admin-challenge-card').forEach((card) => {
-    card.addEventListener('click', () => openChallengeEditor(
-      challenges.find((challenge) => challenge.id === card.dataset.challengeId)
+  if (!challenges.length) {
+    container.innerHTML = '<p class="category-empty">NO CHALLENGES PUBLISHED</p>';
+    return;
+  }
+  const categories = new Map();
+  challenges.forEach((challenge) => {
+    const category = challenge.category || 'General';
+    if (!categories.has(category)) categories.set(category, []);
+    categories.get(category).push(challenge);
+  });
+  container.innerHTML = [...categories.entries()].map(([category, grouped]) => `
+    <section class="challenge-category-section admin-category-section">
+      <div class="challenge-category-heading"><h2>${escapeHtml(category)}</h2></div>
+      <div class="challenge-category-grid">
+        ${grouped.map((challenge) => `
+          <article class="admin-challenge-card" data-challenge-id="${escapeHtml(challenge.id)}">
+            <button class="admin-challenge-edit" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
+              <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
+              <strong>${escapeHtml(challenge.name)}</strong>
+              <span class="challenge-meta">${escapeHtml(challenge.author || 'Anonymous')}</span>
+              <span class="challenge-score">${challenge.points} PTS</span>
+              <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
+              ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
+              <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
+            </button>
+            <button class="admin-action-button admin-challenge-lock" type="button" data-challenge-id="${escapeHtml(challenge.id)}">${challenge.locked ? 'UNLOCK CHALLENGE' : 'LOCK CHALLENGE'}</button>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `).join('');
+  container.querySelectorAll('.admin-challenge-edit').forEach((button) => {
+    button.addEventListener('click', () => openChallengeEditor(
+      challenges.find((challenge) => challenge.id === button.dataset.challengeId)
     ));
+  });
+  container.querySelectorAll('.admin-challenge-lock').forEach((button) => {
+    button.addEventListener('click', async () => {
+      const challenge = challenges.find((item) => item.id === button.dataset.challengeId);
+      if (!challenge) return;
+      button.disabled = true;
+      try {
+        await adminRequest('/api/challenges', {
+          method: 'PATCH',
+          body: JSON.stringify({ id: challenge.id, title: challenge.name, category: challenge.category, difficulty: challenge.difficulty, description: challenge.description, hint: challenge.hint, author: challenge.author, points: challenge.points, submission_limit: challenge.submissionLimit, locked: !challenge.locked })
+        });
+        await loadChallenges();
+      } catch (error) {
+        window.alert(error.message);
+        button.disabled = false;
+      }
+    });
   });
 }
 
@@ -245,6 +282,7 @@ function openChallengeEditor(challenge) {
   form.elements.flag.value = '';
   syncDifficultyPoints(form, challenge.difficulty, challenge.points);
   form.elements.submission_limit.value = challenge.submissionLimit || '';
+  form.elements.locked.checked = challenge.locked === true;
   form.querySelector('.form-status').textContent = '';
   document.querySelector('#admin-edit-meta').textContent = `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
   document.querySelector('#admin-edit-title').textContent = challenge.name;
@@ -305,6 +343,7 @@ async function updateChallenge(event, form) {
   values.id = form.dataset.challengeId;
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
+  values.locked = form.elements.locked.checked;
   try {
     values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
@@ -421,6 +460,7 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   ));
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
+  values.locked = form.elements.locked.checked;
   try {
     values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });

@@ -25,12 +25,15 @@ module.exports = async function handler(request, response) {
 
     const [settings, challengeRows, previousCorrect, limitSettings] = await Promise.all([
       supabaseRequest('site_settings?key=eq.challenges_locked&select=value&limit=1'),
-      supabaseRequest(`challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash&limit=1`),
+      supabaseRequest(`challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash,locked&limit=1`),
       supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`),
       supabaseRequest(`site_settings?key=eq.${encodeURIComponent(`challenge_submission_limit:${challengeId}`)}&select=value&limit=1`)
     ]);
     if (settings[0]?.value !== 'false') {
       return response.status(423).json({ error: 'Challenges are locked' });
+    }
+    if (challengeRows[0]?.locked === true) {
+      return response.status(423).json({ error: 'This challenge is locked' });
     }
     if (previousCorrect.length) {
       return response.status(200).json({ correct: true, alreadySolved: true });
