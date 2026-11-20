@@ -64,6 +64,7 @@ function renderChallenges() {
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
         <span class="challenge-score">${challenge.points} PTS</span>
+        <span class="challenge-solve-count">${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}</span>
         <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} DOWNLOADABLE FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
         <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
@@ -85,6 +86,8 @@ function openChallenge(challenge) {
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-solve-count').textContent =
+    `${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}`;
   document.querySelector('#modal-description').textContent = challenge.description;
   const hintContainer = document.querySelector('#modal-hint');
   let hints = [];
@@ -416,7 +419,10 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
     const challenge = allChallenges.find((item) => item.id === form.dataset.challengeId);
     if (challenge) {
       challenge.submissionCount = (challenge.submissionCount || 0) + 1;
-      if (result.correct) challenge.solved = true;
+      if (result.correct && !challenge.solved && !result.alreadySolved) {
+        challenge.solved = true;
+        challenge.solveCount = (challenge.solveCount || 0) + 1;
+      }
       renderChallenges();
     }
     if (result.correct) {

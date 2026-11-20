@@ -95,6 +95,7 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .challenge-panel.solved .challenge-card-toggle { border: 1px solid #8cff66; background: rgba(99, 255, 80, .1); box-shadow: 0 0 18px rgba(99, 255, 80, .18); }
 .challenge-card-toggle strong { font-size: clamp(17px, 2vw, 22px); font-weight: 500; letter-spacing: -.03em; }
 .challenge-score { color: var(--lime); font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: .1em; }
+.challenge-solve-count { color: #70c8ff; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: .08em; }
 .challenge-solved { color: #8cff66; font: 10px 'DM Mono', monospace; letter-spacing: .1em; }
 .challenge-modal-card #modal-solved { color: #8cff66; font: 11px 'DM Mono', monospace; letter-spacing: .1em; }
 .challenge-open { color: var(--coral); font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: .08em; }
@@ -335,13 +336,31 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .leaderboard-visibility-indicator { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 5px; padding: 0 14px; font: 600 10px 'DM Mono', monospace; letter-spacing: .06em; }
 .leaderboard-visibility-indicator.visible-state { border-color: rgba(140, 255, 102, .55); background: rgba(140, 255, 102, .08); color: #8cff66; }
 .leaderboard-visibility-indicator.hidden-state { border-color: rgba(255, 95, 109, .55); background: rgba(255, 95, 109, .08); color: #ff8a96; }
-.solves-filter-grid { width: min(760px, 100%); margin: 8px auto 24px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.solves-chart-layout { width: min(980px, 100%); margin: 0 auto; display: grid; grid-template-columns: 260px 1fr; align-items: center; gap: 38px; }
-.solves-pie-chart { position: relative; width: 260px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(rgba(120, 134, 157, .12) 0 100%); box-shadow: 0 0 28px rgba(61, 139, 255, .12); }
-.solves-pie-chart::after { content: attr(data-label); position: absolute; inset: 42px; border-radius: 50%; display: grid; place-items: center; background: var(--card); color: var(--lime); font: 11px 'DM Mono', monospace; letter-spacing: .06em; text-align: center; }
+.solves-filter-grid { width: min(1100px, 100%); margin: 8px auto 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.solves-filter-grid .admin-field { font-size: 14px; }
+.solves-filter-grid select { min-height: 52px; background: #0d1524; color: #eef3ff; border: 1px solid #2d4b73; font-size: 17px; font-weight: 600; color-scheme: dark; }
+.solves-filter-grid select option { background: #0d1524; color: #eef3ff; }
+.solves-chart-layout { width: min(1100px, 100%); margin: 0 auto 34px; display: grid; grid-template-columns: 330px 1fr; align-items: center; gap: 44px; }
+.solves-pie-chart { position: relative; width: 330px; aspect-ratio: 1; border-radius: 50%; background: conic-gradient(rgba(120, 134, 157, .12) 0 100%); box-shadow: 0 0 28px rgba(61, 139, 255, .12); }
+.solves-pie-chart::after { content: attr(data-label); position: absolute; inset: 52px; border-radius: 50%; display: grid; place-items: center; background: var(--card); color: var(--lime); font: 16px 'DM Mono', monospace; letter-spacing: .06em; text-align: center; }
 .solves-chart-legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
-.solves-chart-legend li { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; font: 12px 'DM Mono', monospace; }
+.solves-chart-legend li { display: grid; grid-template-columns: 12px 1fr auto; align-items: center; gap: 12px; font: 15px 'DM Mono', monospace; }
 .solves-chart-legend li strong { color: var(--lime); }
+.submission-logs-card { width: min(1100px, 100%); margin: 24px auto 0; padding: 24px; background: rgba(7, 13, 24, .72); border: 1px solid rgba(61, 139, 255, .32); box-shadow: 0 16px 44px rgba(0, 0, 0, .18); }
+.submission-logs-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.submission-logs-heading h3 { margin: 0; font-size: 22px; letter-spacing: .04em; }
+.submission-logs-heading span { color: var(--lime); font: 13px 'DM Mono', monospace; }
+.submission-logs-table { border: 1px solid var(--line); }
+.submission-logs-header, .submission-log-row { display: grid; grid-template-columns: 1.1fr 1.1fr 1fr; gap: 18px; align-items: center; }
+.submission-logs-header { min-height: 52px; padding: 0 18px; border-bottom: 1px solid var(--line); color: #9fb2cf; background: rgba(61, 139, 255, .06); font: 600 13px 'DM Mono', monospace; letter-spacing: .08em; }
+.submission-log-row { min-height: 68px; padding: 12px 18px; border-bottom: 1px solid rgba(163, 196, 255, .10); font-size: 16px; }
+.submission-log-row:last-child { border-bottom: 0; }
+.submission-log-row strong { color: #eef3ff; }
+.submission-log-row span { color: #b9c9df; }
+.submission-log-row time { color: var(--lime); font: 14px 'DM Mono', monospace; }
+.submission-logs-list { max-height: 520px; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #1b2b46 var(--card); }
+.submission-logs-empty { min-height: 120px; margin: 0; display: grid; place-items: center; color: var(--muted); text-align: center; font: 14px 'DM Mono', monospace; }
+.submission-logs-empty.error { color: var(--coral); }
 .leaderboard-hidden-message { min-height: 220px; display: grid; place-items: center; text-align: center; font-size: 14px !important; }
 #leaderboard-view, #players-view { grid-column: 1 / -1; width: min(1100px, 100%); margin: 0 auto; }
 .user-actions { display: flex; justify-content: flex-end; gap: 14px; }
@@ -380,6 +399,12 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .solves-filter-grid { grid-template-columns: 1fr; }
   .solves-chart-layout { grid-template-columns: 1fr; justify-items: center; }
   .solves-pie-chart { width: min(260px, 80vw); }
+  .submission-logs-card { padding: 18px 12px; }
+  .submission-logs-heading { align-items: flex-start; }
+  .submission-logs-heading h3 { font-size: 18px; }
+  .submission-logs-header { display: none; }
+  .submission-log-row { grid-template-columns: 1fr; gap: 6px; min-height: 0; padding: 16px 12px; }
+  .submission-log-row time { margin-top: 4px; }
   .admin-challenge-row-actions { flex-direction: column; }
   .admin-action-button { width: 100%; }
   .challenge-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }

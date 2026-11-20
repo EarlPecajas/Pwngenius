@@ -30,6 +30,26 @@ module.exports = async function handler(request, response) {
       return response.status(200).json({ success: true });
     }
 
+    if (action === 'logs' && request.method === 'GET') {
+      const [submissions, challenges, profiles] = await Promise.all([
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at&order=created_at.desc'),
+        supabaseRequest('challenges?select=id,name'),
+        supabaseRequest('profiles?select=id,full_name,username')
+      ]);
+      const challengeMap = new Map(challenges.map((challenge) => [challenge.id, challenge]));
+      const profileMap = new Map(profiles.map((profile) => [profile.id, profile]));
+      const logs = submissions.map((submission) => {
+        const challenge = challengeMap.get(submission.challenge_id);
+        const profile = profileMap.get(submission.user_id);
+        return {
+          userName: profile?.full_name || profile?.username || 'Unknown user',
+          challengeName: challenge?.name || 'Deleted challenge',
+          submittedAt: submission.created_at || null
+        };
+      });
+      return response.status(200).json({ data: logs });
+    }
+
     if (action === 'solves' && request.method === 'GET') {
       const [submissions, challenges, profiles] = await Promise.all([
         supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),

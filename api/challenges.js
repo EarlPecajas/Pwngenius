@@ -148,14 +148,23 @@ module.exports = async function handler(request, response) {
       const challenges = await supabaseRequest(
         'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
       );
-      const [submissions, limitSettings, fileSettings] = await Promise.all([
+      const [submissions, allCorrectSubmissions, limitSettings, fileSettings] = await Promise.all([
         supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`),
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
         supabaseRequest('site_settings?key=like.challenge_submission_limit:*&select=key,value'),
         supabaseRequest('site_settings?key=like.challenge_files:*&select=key,value')
       ]);
       const solvedIds = new Set(
         submissions.filter((submission) => submission.correct).map((submission) => submission.challenge_id)
       );
+      const solveUsersByChallenge = new Map();
+      allCorrectSubmissions.forEach((submission) => {
+        if (!submission.user_id) return;
+        if (!solveUsersByChallenge.has(submission.challenge_id)) {
+          solveUsersByChallenge.set(submission.challenge_id, new Set());
+        }
+        solveUsersByChallenge.get(submission.challenge_id).add(submission.user_id);
+      });
       const attemptCounts = new Map();
       submissions.forEach((submission) => {
         attemptCounts.set(
@@ -179,6 +188,7 @@ module.exports = async function handler(request, response) {
         challenges: challenges.map((challenge) => ({
           ...challenge,
           solved: solvedIds.has(challenge.id),
+          solveCount: solveUsersByChallenge.get(challenge.id)?.size || 0,
           submissionLimit: limitsByChallenge.get(challenge.id) || null,
           submissionCount: attemptCounts.get(challenge.id) || 0,
           files: filesByChallenge.get(challenge.id) || []

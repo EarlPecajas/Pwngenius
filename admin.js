@@ -136,6 +136,39 @@ async function loadSolvesChart() {
   renderSolvesChart(data);
 }
 
+async function loadSubmissionLogs() {
+  const list = document.querySelector('#submission-logs-list');
+  const count = document.querySelector('#submission-logs-count');
+  try {
+    const { data } = await adminRequest('/api/admin/leaderboard?action=logs&nocache=' + Date.now());
+    count.textContent = `${data.length} ${data.length === 1 ? 'ENTRY' : 'ENTRIES'}`;
+    if (!data.length) {
+      list.innerHTML = '<p class="submission-logs-empty">NO CORRECT SUBMISSIONS HAVE BEEN RECORDED</p>';
+      return;
+    }
+    list.innerHTML = data.map((log) => {
+      const submittedAt = log.submittedAt
+        ? new Intl.DateTimeFormat(undefined, {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+          }).format(new Date(log.submittedAt))
+        : 'Unknown time';
+      return `<div class="submission-log-row">
+        <strong>${escapeHtml(log.userName)}</strong>
+        <span>${escapeHtml(log.challengeName)}</span>
+        <time>${escapeHtml(submittedAt)}</time>
+      </div>`;
+    }).join('');
+  } catch (error) {
+    count.textContent = '0 ENTRIES';
+    list.innerHTML = `<p class="submission-logs-empty error">${escapeHtml(error.message)}</p>`;
+  }
+}
+
 function renderSolvesChart(data) {
   const chart = document.querySelector('#solves-pie-chart');
   const legend = document.querySelector('#solves-chart-legend');
@@ -453,6 +486,7 @@ document.querySelectorAll('.admin-nav-button').forEach((button) => {
     if (view === 'solves') {
       try {
         await loadSolvesChart();
+        await loadSubmissionLogs();
       } catch (error) {
         document.querySelector('#solves-chart-legend').innerHTML =
           `<p class="form-status error">${escapeHtml(error.message)}</p>`;
@@ -499,6 +533,9 @@ document.querySelector('#reset-scores-button').addEventListener('click', async (
     status.textContent = 'ALL SCORES RESET';
     status.className = 'form-status success';
     await loadLeaderboard();
+    if (!document.querySelector('#solves-view').classList.contains('hidden')) {
+      await Promise.all([loadSolvesChart(), loadSubmissionLogs()]);
+    }
   } catch (error) {
     status.textContent = error.message;
     status.className = 'form-status error';
