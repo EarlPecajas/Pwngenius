@@ -364,6 +364,21 @@ document.querySelectorAll('.creator-about-button').forEach((button) => {
           </div>
         </section>
       `;
+    } else if (button.dataset.profile === 'tots') {
+      modalContent.innerHTML = `
+        <div class="creator-bio">
+          <p>Hi, I’m <strong>Russel Dave T. Toto</strong>, an IT graduate from MSU-GenSan with a background in networking and technical support. I have hands-on experience with network setups, server administration, and cloud hosting, and I currently work in technical support helping businesses keep their systems running smoothly.</p>
+          <p>I enjoy troubleshooting real-world tech problems and figuring out how different systems connect. Outside of work, I’m always looking to learn new things, explore more about networks, and keep building my skills in the IT field. Every challenge is just another problem waiting to be solved. Stay curious, keep learning, and never stop growing.</p>
+        </div>
+        <section class="creator-certifications">
+          <h3>Certifications</h3>
+          <div class="certification-grid creator-certification-grid-three">
+            <img src="/CERTS%20LOGOS/WINOPS.png" alt="" />
+            <img src="/CERTS%20LOGOS/CCP.png" alt="" />
+            <img src="/CERTS%20LOGOS/CAISP.png" alt="" />
+          </div>
+        </section>
+      `;
     } else {
       modalContent.innerHTML = '';
     }
