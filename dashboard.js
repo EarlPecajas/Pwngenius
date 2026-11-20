@@ -83,7 +83,23 @@ function renderChallenges() {
   });
 }
 
+function resetChallengeModal() {
+  const form = document.querySelector('#modal-submission-form');
+  const status = document.querySelector('#modal-status');
+  form.reset();
+  form.removeAttribute('data-challenge-id');
+  status.textContent = '';
+  status.className = 'form-status';
+}
+
+function closeChallengeModal() {
+  resetChallengeModal();
+  document.querySelector('#challenge-modal').classList.add('hidden');
+  document.body.classList.remove('modal-open');
+}
+
 function openChallenge(challenge) {
+  resetChallengeModal();
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
@@ -299,8 +315,11 @@ document.querySelector('#modal-hint').addEventListener('click', (event) => {
 });
 
 document.querySelector('#close-challenge-modal').addEventListener('click', () => {
-  document.querySelector('#challenge-modal').classList.add('hidden');
-  document.body.classList.remove('modal-open');
+  closeChallengeModal();
+});
+
+document.querySelector('#challenge-modal').addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) closeChallengeModal();
 });
 
 document.querySelectorAll('.creator-about-button').forEach((button) => {
@@ -402,6 +421,9 @@ document.querySelector('#creator-modal').addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !document.querySelector('#challenge-modal').classList.contains('hidden')) {
+    closeChallengeModal();
+  }
   if (event.key === 'Escape' && !document.querySelector('#creator-modal').classList.contains('hidden')) {
     document.querySelector('#creator-modal').classList.add('hidden');
     document.body.classList.remove('modal-open');
@@ -443,8 +465,7 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
       renderChallenges();
     }
     if (result.correct) {
-      document.querySelector('#challenge-modal').classList.add('hidden');
-      document.body.classList.remove('modal-open');
+      closeChallengeModal();
     } else if (challenge?.submissionLimit) {
       const limitReached = challenge.submissionCount >= challenge.submissionLimit;
       const limitStatus = document.querySelector('#modal-submission-limit');
