@@ -159,14 +159,18 @@ module.exports = async function handler(request, response) {
       const solvedIds = new Set(
         submissions.filter((submission) => submission.correct).map((submission) => submission.challenge_id)
       );
-      const solveUsersByChallenge = new Map();
+      const solversByChallenge = new Map();
       const profileById = new Map(profiles.map((profile) => [profile.id, profile]));
       allCorrectSubmissions.forEach((submission) => {
         if (!submission.user_id) return;
-        if (!solveUsersByChallenge.has(submission.challenge_id)) {
-          solveUsersByChallenge.set(submission.challenge_id, new Set());
+        if (!solversByChallenge.has(submission.challenge_id)) {
+          solversByChallenge.set(submission.challenge_id, new Map());
         }
-        solveUsersByChallenge.get(submission.challenge_id).add(submission.user_id);
+        const challengeSolvers = solversByChallenge.get(submission.challenge_id);
+        const current = challengeSolvers.get(submission.user_id);
+        if (!current || (submission.created_at && new Date(submission.created_at) < new Date(current))) {
+          challengeSolvers.set(submission.user_id, submission.created_at || null);
+        }
       });
       const attemptCounts = new Map();
       submissions.forEach((submission) => {
@@ -191,11 +195,18 @@ module.exports = async function handler(request, response) {
         challenges: (isAdmin ? challenges : challenges.filter((challenge) => challenge.locked !== true)).map((challenge) => ({
           ...challenge,
           solved: solvedIds.has(challenge.id),
-          solveCount: solveUsersByChallenge.get(challenge.id)?.size || 0,
-          solvers: [...(solveUsersByChallenge.get(challenge.id) || [])].map((userId) => {
+          solveCount: solversByChallenge.get(challenge.id)?.size || 0,
+          solvers: [...(solversByChallenge.get(challenge.id) || new Map()).entries()].map(([userId, solvedAt]) => {
             const profile = profileById.get(userId);
-            return profile?.full_name || profile?.username || 'Unknown user';
-          }).sort((left, right) => left.localeCompare(right)),
+            return {
+              username: profile?.username || 'Unknown user',
+              solvedAt
+            };
+          }).sort((left, right) =>
+            (left.solvedAt ? new Date(left.solvedAt).getTime() : Number.POSITIVE_INFINITY)
+              - (right.solvedAt ? new Date(right.solvedAt).getTime() : Number.POSITIVE_INFINITY)
+            || left.username.localeCompare(right.username)
+          ),
           submissionLimit: limitsByChallenge.get(challenge.id) || null,
           submissionCount: attemptCounts.get(challenge.id) || 0,
           files: filesByChallenge.get(challenge.id) || []

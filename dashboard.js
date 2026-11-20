@@ -71,14 +71,6 @@ function renderChallenges() {
         <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
-      <button class="challenge-solvers-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}" data-solve-count="${challenge.solveCount || 0}">
-        ${challenge.solveCount || 0} USER${challenge.solveCount === 1 ? '' : 'S'} SOLVED · VIEW
-      </button>
-      <div class="challenge-solvers hidden" data-solvers-id="${escapeHtml(challenge.id)}">
-        ${(challenge.solvers || []).length
-          ? (challenge.solvers || []).map((username) => `<span>@${escapeHtml(username)}</span>`).join('')
-          : '<span>NOBODY HAS SOLVED THIS YET</span>'}
-      </div>
     </article>
         `).join('')}
       </div>
@@ -88,18 +80,6 @@ function renderChallenges() {
     button.addEventListener('click', () => openChallenge(
       allChallenges.find((challenge) => challenge.id === button.dataset.challengeId)
     ));
-  });
-  list.querySelectorAll('.challenge-solvers-toggle').forEach((button) => {
-    button.addEventListener('click', () => {
-      const details = [...list.querySelectorAll('[data-solvers-id]')]
-        .find((element) => element.dataset.solversId === button.dataset.challengeId);
-      if (details) {
-        details.classList.toggle('hidden');
-        button.textContent = details.classList.contains('hidden')
-          ? `${button.dataset.solveCount || allChallenges.find((challenge) => challenge.id === button.dataset.challengeId)?.solveCount || 0} USERS SOLVED · VIEW`
-          : 'HIDE SOLVERS';
-      }
-    });
   });
 }
 
@@ -126,6 +106,9 @@ function openChallenge(challenge) {
   document.querySelector('#modal-author').textContent = challenge.author ? `BY ${challenge.author}` : '';
   document.querySelector('#modal-solve-count').textContent =
     `${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}`;
+  document.querySelector('#modal-view-solvers').dataset.challengeId = challenge.id;
+  document.querySelector('#modal-view-solvers').textContent =
+    `VIEW ${challenge.solveCount || 0} SOLVER${challenge.solveCount === 1 ? '' : 'S'}`;
   document.querySelector('#modal-description').textContent = challenge.description;
   const hintContainer = document.querySelector('#modal-hint');
   let hints = [];
@@ -342,6 +325,45 @@ document.querySelector('#challenge-modal').addEventListener('click', (event) => 
   if (event.target === event.currentTarget) closeChallengeModal();
 });
 
+function openChallengeSolvers(challenge) {
+  document.querySelector('#challenge-solvers-title').textContent =
+    `${challenge.name.toUpperCase()} — SOLVERS`;
+  const list = document.querySelector('#challenge-solvers-list');
+  const solvers = challenge.solvers || [];
+  list.innerHTML = solvers.length
+    ? solvers.map((solver) => `
+      <div class="challenge-solver-row">
+        <strong>@${escapeHtml(solver.username)}</strong>
+        <time>${solver.solvedAt
+          ? escapeHtml(new Date(solver.solvedAt).toLocaleString([], {
+              year: 'numeric', month: 'short', day: '2-digit',
+              hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }))
+          : 'Solve time unavailable'}</time>
+      </div>
+    `).join('')
+    : '<p class="category-empty">NOBODY HAS SOLVED THIS YET</p>';
+  document.querySelector('#challenge-solvers-modal').classList.remove('hidden');
+  document.body.classList.add('modal-open');
+}
+
+function closeChallengeSolversModal() {
+  document.querySelector('#challenge-solvers-modal').classList.add('hidden');
+  if (document.querySelector('#challenge-modal').classList.contains('hidden')) {
+    document.body.classList.remove('modal-open');
+  }
+}
+
+document.querySelector('#modal-view-solvers').addEventListener('click', (event) => {
+  const challenge = allChallenges.find((item) => item.id === event.currentTarget.dataset.challengeId);
+  if (challenge) openChallengeSolvers(challenge);
+});
+
+document.querySelector('#close-challenge-solvers-modal').addEventListener('click', closeChallengeSolversModal);
+document.querySelector('#challenge-solvers-modal').addEventListener('click', (event) => {
+  if (event.target === event.currentTarget) closeChallengeSolversModal();
+});
+
 document.querySelectorAll('.creator-about-button').forEach((button) => {
   button.addEventListener('click', () => {
     const modalContent = document.querySelector('.creator-modal-content');
@@ -441,6 +463,10 @@ document.querySelector('#creator-modal').addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !document.querySelector('#challenge-solvers-modal').classList.contains('hidden')) {
+    closeChallengeSolversModal();
+    return;
+  }
   if (event.key === 'Escape' && !document.querySelector('#challenge-modal').classList.contains('hidden')) {
     closeChallengeModal();
   }

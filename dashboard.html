@@ -133,6 +133,7 @@
         <p id="modal-points" class="challenge-score"></p>
         <p id="modal-author" class="challenge-meta"></p>
         <p id="modal-solve-count" class="challenge-solve-count"></p>
+        <button id="modal-view-solvers" class="challenge-solvers-button" type="button">VIEW SOLVERS</button>
         <p id="modal-solved" class="challenge-solved hidden">✓ SOLVED</p>
         <p id="modal-description"></p>
         <div id="modal-hint" class="challenge-hints"></div>
@@ -144,6 +145,14 @@
           <button class="submit-button" type="submit"><span>TRANSMIT FLAG</span><span>↗</span></button>
           <p id="modal-status" class="form-status" role="status"></p>
         </form>
+      </div>
+    </div>
+    <div id="challenge-solvers-modal" class="challenge-solvers-modal hidden" role="dialog" aria-modal="true" aria-labelledby="challenge-solvers-title">
+      <div class="challenge-solvers-modal-card">
+        <button id="close-challenge-solvers-modal" class="modal-close" type="button" aria-label="Close solvers">×</button>
+        <p class="challenge-meta">SOLUTION LOG</p>
+        <h2 id="challenge-solvers-title">SOLVERS</h2>
+        <div id="challenge-solvers-list" class="challenge-solvers-list"></div>
       </div>
     </div>
     <div id="creator-modal" class="creator-modal hidden" role="dialog" aria-modal="true" aria-label="Creator profile">
