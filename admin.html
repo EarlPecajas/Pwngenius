@@ -50,8 +50,9 @@
           <div class="admin-form-grid">
             <label class="admin-field"><span>CHALLENGE TITLE</span><input name="title" required /></label>
             <label class="admin-field"><span>CATEGORY</span><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-            <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+            <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
             <label class="admin-field"><span>POINTS</span><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select></label>
+            <label class="admin-field"><span>AUTHOR</span><input name="author" required /></label>
             <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
             <div class="admin-field admin-field-full">
               <span class="admin-field-label">HINTS</span>
@@ -88,8 +89,9 @@
             <form id="admin-edit-form" class="admin-challenge-row">
               <label class="admin-field"><span>TITLE</span><input name="title" required /></label>
               <label class="admin-field"><span>CATEGORY</span><select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-              <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+              <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
               <label class="admin-field"><span>POINTS</span><select name="points" required></select></label>
+              <label class="admin-field"><span>AUTHOR</span><input name="author" required /></label>
               <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
               <div class="admin-field admin-field-full">
                 <span class="admin-field-label">HINTS</span>
@@ -123,7 +125,7 @@
         <div class="section-heading"><span>04</span><h2>SOLVE ANALYTICS</h2><span class="heading-rule"></span></div>
         <div class="solves-filter-grid">
           <label class="admin-field"><span>CATEGORY</span><select id="solves-category"><option value="">ALL CATEGORIES</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-          <label class="admin-field"><span>DIFFICULTY</span><select id="solves-difficulty"><option value="">ALL DIFFICULTIES</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option></select></label>
+          <label class="admin-field"><span>DIFFICULTY</span><select id="solves-difficulty"><option value="">ALL DIFFICULTIES</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
         </div>
         <div id="solves-chart-layout" class="solves-chart-layout">
           <div id="solves-pie-chart" class="solves-pie-chart" data-label="0 SOLVES"></div>

@@ -5,7 +5,8 @@ const DIFFICULTY_POINTS = {
   Easy: [20, 30],
   Medium: [50, 70],
   Hard: [100],
-  'Super Hard': [200]
+  'Super Hard': [200],
+  Insane: [500]
 };
 
 function syncDifficultyPoints(form, difficulty, preferredPoints) {
@@ -203,6 +204,7 @@ async function loadChallenges() {
     <button class="admin-challenge-card" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
+        <span class="challenge-meta">${escapeHtml(challenge.author || 'Anonymous')}</span>
         <span class="challenge-score">${challenge.points} PTS</span>
         <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
@@ -233,6 +235,7 @@ function openChallengeEditor(challenge) {
   form.elements.title.value = challenge.name;
   form.elements.category.value = challenge.category;
   form.elements.difficulty.value = challenge.difficulty;
+  form.elements.author.value = challenge.author || 'Anonymous';
   form.elements.description.value = challenge.description;
   const editHintList = form.querySelector('#edit-hint-list');
   editHintList.innerHTML = '';

@@ -5,6 +5,7 @@ create table if not exists public.challenges (
   difficulty text not null default 'Beginner',
   description text not null default '',
   hint text not null default '',
+  author text not null default 'Anonymous',
   flag_hash text not null,
   points integer not null default 100,
   created_at timestamptz not null default now()
@@ -23,6 +24,7 @@ alter table public.challenges add column if not exists category text not null de
 alter table public.challenges add column if not exists difficulty text not null default 'Beginner';
 alter table public.challenges add column if not exists description text not null default '';
 alter table public.challenges add column if not exists hint text not null default '';
+alter table public.challenges add column if not exists author text not null default 'Anonymous';
 alter table public.challenges add column if not exists submission_limit integer;
 alter table public.challenges add column if not exists created_at timestamptz not null default now();
 alter table public.profiles add column if not exists email text not null default '';

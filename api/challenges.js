@@ -14,7 +14,8 @@ const DIFFICULTY_POINTS = {
   Easy: [20, 30],
   Medium: [50, 70],
   Hard: [100],
-  'Super Hard': [200]
+  'Super Hard': [200],
+  Insane: [500]
 };
 
 function validateDifficultyPoints(difficulty, points) {
@@ -146,7 +147,7 @@ module.exports = async function handler(request, response) {
         return response.status(200).json({ locked: true, challenges: [] });
       }
       const challenges = await supabaseRequest(
-        'challenges?select=id,name,category,difficulty,description,hint,points,created_at&order=created_at.desc'
+        'challenges?select=id,name,category,difficulty,description,hint,author,points,created_at&order=created_at.desc'
       );
       const [submissions, allCorrectSubmissions, limitSettings, fileSettings] = await Promise.all([
         supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&select=challenge_id,correct`),
@@ -199,7 +200,7 @@ module.exports = async function handler(request, response) {
     if (request.method === 'POST') {
       await requireAdmin(request);
       const body = request.body || {};
-      const required = ['title', 'category', 'difficulty', 'description', 'hint', 'flag'];
+      const required = ['title', 'category', 'difficulty', 'description', 'hint', 'flag', 'author'];
       if (required.some((field) => typeof body[field] !== 'string' || !body[field].trim())) {
         return response.status(400).json({ error: 'All challenge fields are required' });
       }
@@ -213,6 +214,7 @@ module.exports = async function handler(request, response) {
           difficulty: body.difficulty.trim(),
           description: body.description.trim(),
           hint: body.hint.trim(),
+          author: body.author.trim(),
           flag_hash: hashFlag(body.flag.trim()),
           points,
           submission_limit: body.submission_limit === null
@@ -239,7 +241,7 @@ module.exports = async function handler(request, response) {
       await requireAdmin(request);
       const body = request.body || {};
       const id = typeof body.id === 'string' ? body.id.trim() : '';
-      const fields = ['title', 'category', 'difficulty', 'description', 'hint'];
+      const fields = ['title', 'category', 'difficulty', 'description', 'hint', 'author'];
       if (!id || fields.some((field) => typeof body[field] !== 'string' || !body[field].trim())) {
         return response.status(400).json({ error: 'Challenge ID and all challenge fields are required' });
       }
@@ -249,7 +251,8 @@ module.exports = async function handler(request, response) {
         category: body.category.trim(),
         difficulty: body.difficulty.trim(),
         description: body.description.trim(),
-        hint: body.hint.trim()
+        hint: body.hint.trim(),
+        author: body.author.trim()
       };
       const points = Number.isInteger(body.points) ? body.points : null;
       if (points !== null) validateDifficultyPoints(body.difficulty.trim(), points);

@@ -43,7 +43,8 @@ function renderChallenges() {
     Easy: 1,
     Medium: 2,
     Hard: 3,
-    'Super Hard': 4
+    'Super Hard': 4,
+    Insane: 5
   };
   categories.forEach((challenges) => {
     challenges.sort((left, right) =>
@@ -86,6 +87,7 @@ function openChallenge(challenge) {
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
   document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-author').textContent = challenge.author ? `BY ${challenge.author}` : '';
   document.querySelector('#modal-solve-count').textContent =
     `${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}`;
   document.querySelector('#modal-description').textContent = challenge.description;
