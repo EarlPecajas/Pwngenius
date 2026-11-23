@@ -164,11 +164,26 @@ module.exports = async function handler(request, response) {
         `profiles?id=eq.${encodeURIComponent(user.id)}&select=role&limit=1`
       );
       const isAdmin = roleProfiles[0]?.role === 'admin';
-      const settings = await supabaseRequest(
-        'site_settings?key=eq.challenges_locked&select=value&limit=1'
+      const scheduleSettings = await supabaseRequest(
+        'site_settings?key=in.(challenges_locked,event_start,event_end)&select=key,value'
       );
-      if (!isAdmin && settings[0]?.value !== 'false') {
-        return response.status(200).json({ locked: true, challenges: [] });
+      const scheduleValues = Object.fromEntries(scheduleSettings.map((setting) => [setting.key, setting.value]));
+      const now = Date.now();
+      const startTime = scheduleValues.event_start ? new Date(scheduleValues.event_start).getTime() : null;
+      const endTime = scheduleValues.event_end ? new Date(scheduleValues.event_end).getTime() : null;
+      const hasValidSchedule = Number.isFinite(startTime) && Number.isFinite(endTime);
+      const scheduledLocked = hasValidSchedule && (now < startTime || now >= endTime);
+      const manuallyLocked = scheduleValues.challenges_locked !== 'false';
+      const effectiveLocked = hasValidSchedule ? (manuallyLocked || scheduledLocked) : manuallyLocked;
+      if (!isAdmin && effectiveLocked) {
+        return response.status(200).json({
+          locked: true,
+          challenges: [],
+          schedule: hasValidSchedule ? {
+            start: scheduleValues.event_start,
+            end: scheduleValues.event_end
+          } : null
+        });
       }
       const unlockGateId = await getUnlockGateId();
       const challenges = await supabaseRequest(
@@ -230,7 +245,11 @@ module.exports = async function handler(request, response) {
           ? challenges.filter((challenge) => challenge.locked !== true)
           : challenges.filter((challenge) => challenge.id === validUnlockGateId);
       return response.status(200).json({
-        locked: !isAdmin && settings[0]?.value !== 'false',
+        locked: !isAdmin && effectiveLocked,
+        schedule: hasValidSchedule ? {
+          start: scheduleValues.event_start,
+          end: scheduleValues.event_end
+        } : null,
         unlockGateId: validUnlockGateId,
         unlockGateSolved: isAdmin ? false : Boolean(gateSolvedForVisibility),
         challenges: visibleChallenges.map((challenge) => ({

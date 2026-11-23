@@ -137,10 +137,18 @@ async function loadLeaderboardVisibility() {
   const result = await adminRequest('/api/admin/leaderboard?action=settings&nocache=' + Date.now());
   const toggle = document.querySelector('#leaderboard-visibility-toggle');
   const indicator = document.querySelector('#leaderboard-visibility-indicator');
+  const publishToggle = document.querySelector('#leaderboard-publish-toggle');
+  const titleInput = document.querySelector('#leaderboard-publish-title');
   toggle.textContent = result.hidden ? 'SHOW LEADERBOARD' : 'HIDE LEADERBOARD';
   toggle.dataset.hidden = String(result.hidden);
   indicator.textContent = result.hidden ? '● HIDDEN FROM USERS' : '● VISIBLE TO USERS';
   indicator.className = `leaderboard-visibility-indicator ${result.hidden ? 'hidden-state' : 'visible-state'}`;
+  publishToggle.textContent = result.published ? 'UNPUBLISH LEADERBOARD' : 'PUBLISH LEADERBOARD';
+  publishToggle.dataset.published = String(result.published);
+  if (!titleInput.dataset.loaded) {
+    titleInput.value = result.title || '';
+    titleInput.dataset.loaded = 'true';
+  }
 }
 
 async function loadSolvesChart() {
@@ -317,11 +325,15 @@ function closeChallengeEditor() {
 async function loadEventState() {
   const result = await adminRequest('/api/admin/event');
   const toggle = document.querySelector('#event-toggle');
+  const startInput = document.querySelector('#event-start');
+  const endInput = document.querySelector('#event-end');
   document.querySelector('#event-state').textContent = result.locked
     ? 'LOCKED — PARTICIPANTS CANNOT VIEW CHALLENGES'
     : 'OPEN — PARTICIPANTS CAN VIEW CHALLENGES';
   toggle.textContent = result.locked ? 'UNLOCK CHALLENGES' : 'LOCK CHALLENGES';
   toggle.dataset.locked = String(result.locked);
+  if (!startInput.value && result.start) startInput.value = result.start.slice(0, 16);
+  if (!endInput.value && result.end) endInput.value = result.end.slice(0, 16);
 }
 
 function showAdminDashboard() {
@@ -519,6 +531,33 @@ document.querySelector('#admin-edit-form').elements.difficulty.addEventListener(
   syncDifficultyPoints(event.currentTarget.form, event.target.value);
 });
 
+document.querySelector('#event-schedule-save').addEventListener('click', async () => {
+  const status = document.querySelector('#event-status');
+  const startInput = document.querySelector('#event-start');
+  const endInput = document.querySelector('#event-end');
+  if (!startInput.value || !endInput.value) {
+    status.textContent = 'START AND END DATE/TIME ARE REQUIRED';
+    status.className = 'form-status error';
+    return;
+  }
+  try {
+    await adminRequest('/api/admin/event', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        locked: false,
+        start: new Date(startInput.value).toISOString(),
+        end: new Date(endInput.value).toISOString()
+      })
+    });
+    await loadEventState();
+    status.textContent = 'EVENT SCHEDULE SAVED';
+    status.className = 'form-status success';
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = 'form-status error';
+  }
+});
+
 document.querySelector('#event-toggle').addEventListener('click', async (event) => {
   const locked = event.currentTarget.dataset.locked !== 'true';
   const toggle = event.currentTarget;
@@ -574,6 +613,55 @@ document.querySelectorAll('.admin-nav-button').forEach((button) => {
 document.querySelector('#logout-button').addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
   window.location.href = '/';
+});
+
+document.querySelector('#leaderboard-publish-toggle').addEventListener('click', async (event) => {
+  const status = document.querySelector('#leaderboard-control-status');
+  const published = event.currentTarget.dataset.published !== 'true';
+  const title = document.querySelector('#leaderboard-publish-title').value.trim();
+  event.currentTarget.disabled = true;
+  try {
+    await adminRequest('/api/admin/leaderboard?action=save-copy', {
+      method: 'POST',
+      body: JSON.stringify({ title })
+    });
+    if (published) {
+      await adminRequest('/api/admin/leaderboard?action=publication', {
+        method: 'PATCH',
+        body: JSON.stringify({ published: true, title })
+      });
+      status.textContent = 'LEADERBOARD PUBLISHED';
+    } else {
+      await adminRequest('/api/admin/leaderboard?action=publication', {
+        method: 'PATCH',
+        body: JSON.stringify({ published: false, title })
+      });
+      status.textContent = 'LEADERBOARD UNPUBLISHED';
+    }
+    status.className = 'form-status success';
+    await loadLeaderboardVisibility();
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = 'form-status error';
+  } finally {
+    event.currentTarget.disabled = false;
+  }
+});
+
+document.querySelector('#save-leaderboard-button').addEventListener('click', async () => {
+  const status = document.querySelector('#leaderboard-control-status');
+  const title = document.querySelector('#leaderboard-publish-title').value.trim();
+  try {
+    const result = await adminRequest('/api/admin/leaderboard?action=save-copy', {
+      method: 'POST',
+      body: JSON.stringify({ title })
+    });
+    status.textContent = `LEADERBOARD COPY SAVED — ${result.leaderboard.length} PLAYERS`;
+    status.className = 'form-status success';
+  } catch (error) {
+    status.textContent = error.message;
+    status.className = 'form-status error';
+  }
 });
 
 document.querySelector('#leaderboard-visibility-toggle').addEventListener('click', async (event) => {

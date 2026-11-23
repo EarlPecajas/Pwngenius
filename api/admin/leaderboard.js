@@ -7,9 +7,14 @@ module.exports = async function handler(request, response) {
 
     if (action === 'settings' && request.method === 'GET') {
       const settings = await supabaseRequest(
-        'site_settings?key=eq.leaderboard_hidden&select=value&limit=1'
+        'site_settings?key=in.(leaderboard_hidden,leaderboard_published,leaderboard_publish_title)&select=key,value'
       );
-      return response.status(200).json({ hidden: settings[0]?.value === 'true' });
+      const values = Object.fromEntries(settings.map((setting) => [setting.key, setting.value]));
+      return response.status(200).json({
+        hidden: values.leaderboard_hidden === 'true',
+        published: values.leaderboard_published === 'true',
+        title: values.leaderboard_publish_title || ''
+      });
     }
 
     if (action === 'settings' && request.method === 'PATCH') {
@@ -23,6 +28,57 @@ module.exports = async function handler(request, response) {
         'site_settings?key=eq.leaderboard_hidden&select=value&limit=1'
       );
       return response.status(200).json({ hidden: verified[0]?.value === 'true' });
+    }
+
+    if (action === 'publication' && request.method === 'PATCH') {
+      const published = request.body?.published === true;
+      const title = typeof request.body?.title === 'string' ? request.body.title.trim() : '';
+      if (published && !title) {
+        return response.status(400).json({ error: 'A leaderboard title is required before publishing' });
+      }
+      await supabaseRequest('site_settings?on_conflict=key', {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify([
+          { key: 'leaderboard_published', value: String(published) },
+          { key: 'leaderboard_publish_title', value: title }
+        ])
+      });
+      return response.status(200).json({ published, title });
+    }
+
+    if (action === 'save-copy' && request.method === 'POST') {
+      const title = typeof request.body?.title === 'string' ? request.body.title.trim() : '';
+      const [profiles, submissions, challenges] = await Promise.all([
+        supabaseRequest('profiles?select=id,username'),
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
+        supabaseRequest('challenges?select=id,points')
+      ]);
+      const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
+      const solved = new Map();
+      submissions.forEach((submission) => {
+        if (!submission.user_id) return;
+        if (!solved.has(submission.user_id)) solved.set(submission.user_id, new Set());
+        solved.get(submission.user_id).add(submission.challenge_id);
+      });
+      const snapshot = profiles.map((profile) => {
+        const solvedIds = solved.get(profile.id) || new Set();
+        return {
+          username: profile.username || 'Unknown player',
+          score: [...solvedIds].reduce((total, challengeId) => total + (points.get(challengeId) || 0), 0),
+          solvedCount: solvedIds.size
+        };
+      }).sort((left, right) => right.score - left.score || left.username.localeCompare(right.username))
+        .map((player, index) => ({ ...player, position: index + 1 }));
+      await supabaseRequest('site_settings?on_conflict=key', {
+        method: 'POST',
+        headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+        body: JSON.stringify({
+          key: 'leaderboard_snapshot',
+          value: JSON.stringify({ title, createdAt: new Date().toISOString(), leaderboard: snapshot })
+        })
+      });
+      return response.status(200).json({ success: true, title, leaderboard: snapshot });
     }
 
     if (action === 'reset' && request.method === 'DELETE') {

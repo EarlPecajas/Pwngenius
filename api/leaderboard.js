@@ -8,14 +8,34 @@ module.exports = async function handler(request, response) {
   try {
     const user = await getAuthenticatedUser(request);
     const visibility = await supabaseRequest(
-      'site_settings?key=eq.leaderboard_hidden&select=value&limit=1'
+      'site_settings?key=in.(leaderboard_hidden,leaderboard_published,leaderboard_publish_title,leaderboard_snapshot)&select=key,value'
     );
-    if (visibility[0]?.value === 'true') {
+    const visibilityValues = Object.fromEntries(visibility.map((setting) => [setting.key, setting.value]));
+    if (visibilityValues.leaderboard_hidden === 'true') {
       return response.status(200).json({
         leaderboard: [],
         currentUsername: '',
         hidden: true
       });
+    }
+    if (visibilityValues.leaderboard_published === 'true') {
+      let snapshot = null;
+      try {
+        snapshot = visibilityValues.leaderboard_snapshot
+          ? JSON.parse(visibilityValues.leaderboard_snapshot)
+          : null;
+      } catch {}
+      if (snapshot?.leaderboard) {
+        const profiles = await supabaseRequest('profiles?select=id,username');
+        const currentProfile = profiles.find((profile) => profile.id === user.id);
+        return response.status(200).json({
+          leaderboard: snapshot.leaderboard,
+          currentUsername: currentProfile?.username || '',
+          hidden: false,
+          published: true,
+          title: visibilityValues.leaderboard_publish_title || snapshot.title || ''
+        });
+      }
     }
     const [profiles, submissions, challenges] = await Promise.all([
       supabaseRequest('profiles?select=id,username'),

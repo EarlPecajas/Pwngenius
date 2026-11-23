@@ -6,6 +6,46 @@ let profileRequest;
 let challengePollTimer;
 let challengePollBusy = false;
 let challengeContentSignature = '';
+let challengeCountdownTimer;
+
+function updateChallengeCountdown(schedule) {
+  const container = document.querySelector('#challenge-countdown');
+  const label = document.querySelector('#challenge-countdown-label');
+  const value = document.querySelector('#challenge-countdown-value');
+  if (!schedule?.start || !schedule?.end) {
+    container.classList.add('hidden');
+    if (challengeCountdownTimer) window.clearInterval(challengeCountdownTimer);
+    return;
+  }
+  container.classList.remove('hidden');
+  if (challengeCountdownTimer) window.clearInterval(challengeCountdownTimer);
+  const tick = () => {
+    const now = Date.now();
+    const start = new Date(schedule.start).getTime();
+    const end = new Date(schedule.end).getTime();
+    if (now >= end) {
+      container.classList.add('hidden');
+      if (challengeCountdownTimer) window.clearInterval(challengeCountdownTimer);
+      return;
+    }
+    const target = now < start ? start : end;
+    const remaining = Math.max(0, target - now);
+    const totalSeconds = Math.floor(remaining / 1000);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+    label.textContent = now < start
+      ? 'The challenge will start in'
+      : 'The challenge will end in';
+    value.textContent = [
+      String(hours).padStart(2, '0'),
+      String(minutes).padStart(2, '0'),
+      String(seconds).padStart(2, '0')
+    ].join(':');
+  };
+  tick();
+  challengeCountdownTimer = window.setInterval(tick, 1000);
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -29,6 +69,7 @@ async function loadChallenges() {
         );
     const nextSignature = JSON.stringify({
       locked: Boolean(result.locked),
+      schedule: result.schedule || null,
       challenges: nextChallenges
     });
     if (nextSignature === challengeContentSignature) return;
@@ -37,7 +78,12 @@ async function loadChallenges() {
     const list = document.querySelector('#challenge-list');
     if (result.locked) {
       allChallenges = [];
-      list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the admin unlocks the arena.</p></div>';
+      const end = result.schedule?.end ? new Date(result.schedule.end).getTime() : null;
+      const hasEnded = Number.isFinite(end) && Date.now() >= end;
+      list.innerHTML = hasEnded
+        ? '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE ENDED</h3><p>The challenge event is closed.</p></div>'
+        : '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the challenge event begins.</p></div>';
+      updateChallengeCountdown(result.schedule);
       return;
     }
     allChallenges = nextChallenges;
@@ -83,7 +129,7 @@ function renderChallenges() {
     <article class="challenge-panel${challenge.solved ? ' solved' : ''}${challenge.unlockGate ? ' unlock-gate-panel' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         ${challenge.unlockGate ? `
-          <span class="unlock-gate-message">Solve the challenge to unlock the challenges</span>
+          <span class="unlock-gate-message">Solve this to unlock the challenges</span>
         ` : `
           <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
           <strong>${escapeHtml(challenge.name)}</strong>
@@ -291,6 +337,34 @@ async function loadLeaderboard() {
     if (!response.ok) throw new Error(result.error);
     if (result.hidden) {
       container.innerHTML = '<p class="category-empty leaderboard-hidden-message">LEADERBOARD IS HIDDEN BY THE ADMIN</p>';
+      return;
+    }
+    if (result.published) {
+      const top = result.leaderboard.slice(0, 3);
+      const remaining = result.leaderboard.slice(3);
+      container.innerHTML = `
+        ${result.title ? `<h2 class="published-leaderboard-title">${escapeHtml(result.title)}</h2>` : ''}
+        <div class="leaderboard-podium">
+          ${top.map((player, index) => `
+            <article class="podium-place podium-place-${index + 1}${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
+              <span class="podium-medal">${['🥇', '🥈', '🥉'][index]}</span>
+              <strong>@${escapeHtml(player.username)}</strong>
+              <span>${player.score} PTS</span>
+            </article>
+          `).join('')}
+        </div>
+        ${remaining.length ? `
+          <div class="published-leaderboard-list">
+            ${remaining.map((player, index) => `
+              <article class="public-leaderboard-row${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
+                <span class="leaderboard-rank">${String(index + 4).padStart(2, '0')}</span>
+                <strong>@${escapeHtml(player.username)}</strong>
+                <strong class="leaderboard-score">${player.score} PTS</strong>
+              </article>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
       return;
     }
     container.innerHTML = result.leaderboard.length
