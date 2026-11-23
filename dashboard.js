@@ -4,6 +4,8 @@ let allChallenges = [];
 let profileCache;
 let profileRequest;
 let challengePollTimer;
+let challengePollBusy = false;
+let challengeContentSignature = '';
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, (character) => ({
@@ -12,21 +14,37 @@ function escapeHtml(value) {
 }
 
 async function loadChallenges() {
+  if (challengePollBusy) return;
+  challengePollBusy = true;
   const response = await fetch('/api/challenges', {
     headers: { Authorization: `Bearer ${currentSession.access_token}` }
   });
-  if (!response.ok) throw new Error('Unable to load challenges');
-  const result = await response.json();
-  const list = document.querySelector('#challenge-list');
-  if (result.locked) {
-    allChallenges = [];
-    list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the admin unlocks the arena.</p></div>';
-    return;
+  try {
+    if (!response.ok) throw new Error('Unable to load challenges');
+    const result = await response.json();
+    const nextChallenges = result.locked
+      ? []
+      : result.challenges.filter((challenge) =>
+          !(result.unlockGateSolved && challenge.id === result.unlockGateId)
+        );
+    const nextSignature = JSON.stringify({
+      locked: Boolean(result.locked),
+      challenges: nextChallenges
+    });
+    if (nextSignature === challengeContentSignature) return;
+
+    challengeContentSignature = nextSignature;
+    const list = document.querySelector('#challenge-list');
+    if (result.locked) {
+      allChallenges = [];
+      list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the admin unlocks the arena.</p></div>';
+      return;
+    }
+    allChallenges = nextChallenges;
+    renderChallenges();
+  } finally {
+    challengePollBusy = false;
   }
-  allChallenges = result.challenges.filter((challenge) =>
-    !(result.unlockGateSolved && challenge.id === result.unlockGateId)
-  );
-  renderChallenges();
 }
 
 function renderChallenges() {
@@ -315,7 +333,7 @@ document.querySelectorAll('.dashboard-nav-button').forEach((button) => {
     if (view === 'challenges') {
       await loadChallenges();
       challengePollTimer = window.setInterval(() => {
-        loadChallenges().catch((error) => console.error(error));
+        if (!document.hidden) loadChallenges().catch((error) => console.error(error));
       }, 5000);
     }
     if (view === 'profile') await loadProfile();
