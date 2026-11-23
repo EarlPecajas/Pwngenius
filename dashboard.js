@@ -102,6 +102,23 @@ function closeChallengeModal() {
   document.body.classList.remove('modal-open');
 }
 
+let challengeSolvedPopupTimer;
+
+function showChallengeSolved(challengeName) {
+  const popup = document.querySelector('#challenge-solved-popup');
+  document.querySelector('#challenge-solved-popup-name').textContent =
+    challengeName ? String(challengeName).toUpperCase() : '';
+  popup.classList.remove('show');
+  popup.setAttribute('aria-hidden', 'false');
+  void popup.offsetWidth;
+  popup.classList.add('show');
+  if (challengeSolvedPopupTimer) window.clearTimeout(challengeSolvedPopupTimer);
+  challengeSolvedPopupTimer = window.setTimeout(() => {
+    popup.classList.remove('show');
+    popup.setAttribute('aria-hidden', 'true');
+  }, 3600);
+}
+
 function openChallenge(challenge) {
   resetChallengeModal();
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
@@ -514,10 +531,11 @@ document.querySelector('#modal-submission-form').addEventListener('submit', asyn
         challenge.solved = true;
         challenge.solveCount = (challenge.solveCount || 0) + 1;
       }
-      renderChallenges();
     }
     if (result.correct) {
       closeChallengeModal();
+      if (!result.alreadySolved) showChallengeSolved(challenge?.name);
+      await loadChallenges();
     } else if (challenge?.submissionLimit) {
       const limitReached = challenge.submissionCount >= challenge.submissionLimit;
       const limitStatus = document.querySelector('#modal-submission-limit');

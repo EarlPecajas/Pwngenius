@@ -1,7 +1,50 @@
 * { box-sizing: border-box; }
 :root { --ink: #101715; --paper: #f0eee7; --muted: #8b918a; --line: rgba(240, 238, 231, .16); --lime: #d7ed4b; --coral: #ff765e; --card: #19221f; }
 html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--ink); color: var(--paper); font-family: 'Space Grotesk', sans-serif; }
+body {
+  position: relative;
+  margin: 0;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(61, 139, 255, .12), transparent 28%),
+    radial-gradient(circle at 82% 68%, rgba(112, 200, 255, .08), transparent 25%),
+    var(--ink);
+  color: var(--paper);
+  font-family: 'Space Grotesk', sans-serif;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(112, 200, 255, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(112, 200, 255, .045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, .85), rgba(0, 0, 0, .35));
+  animation: cyber-grid-drift 18s linear infinite;
+}
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: -18%;
+  height: 18%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, rgba(112, 200, 255, .055), transparent);
+  animation: cyber-scan 9s linear infinite;
+}
+@keyframes cyber-grid-drift {
+  from { background-position: 0 0; }
+  to { background-position: 48px 48px; }
+}
+@keyframes cyber-scan {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(700%); }
+}
 body.modal-open { overflow: hidden; }
 button, input { font: inherit; }
 button { cursor: pointer; }
@@ -143,6 +186,75 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
   .unlock-gate-panel .challenge-card-toggle {
     animation: none;
   }
+  body::before,
+  body::after,
+  .challenge-solved-popup-icon {
+    animation: none;
+  }
+}
+.challenge-solved-popup {
+  position: fixed;
+  left: 50%;
+  top: 32px;
+  z-index: 100;
+  min-width: min(390px, calc(100vw - 36px));
+  min-height: 78px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(140, 255, 102, .68);
+  background:
+    linear-gradient(135deg, rgba(140, 255, 102, .13), transparent 52%),
+    rgba(7, 13, 24, .96);
+  box-shadow: 0 18px 52px rgba(0, 0, 0, .48), 0 0 28px rgba(140, 255, 102, .12);
+  opacity: 0;
+  visibility: hidden;
+  transform: translate(-50%, -28px) scale(.96);
+  pointer-events: none;
+  transition: opacity .28s ease, transform .38s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .38s;
+}
+.challenge-solved-popup.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0) scale(1);
+  transition-delay: 0s;
+}
+.challenge-solved-popup-icon {
+  width: 46px;
+  height: 46px;
+  flex: 0 0 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #8cff66;
+  border-radius: 50%;
+  color: #8cff66;
+  font: 24px 'DM Mono', monospace;
+  box-shadow: inset 0 0 18px rgba(140, 255, 102, .12), 0 0 18px rgba(140, 255, 102, .12);
+  animation: solved-icon-pulse 1.4s ease-in-out infinite;
+}
+.challenge-solved-popup div {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.challenge-solved-popup strong {
+  color: #a5ff82;
+  font-size: 18px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.challenge-solved-popup div span {
+  color: #b7c1d2;
+  font: 10px 'DM Mono', monospace;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes solved-icon-pulse {
+  0%, 100% { box-shadow: inset 0 0 18px rgba(140, 255, 102, .12), 0 0 12px rgba(140, 255, 102, .10); }
+  50% { box-shadow: inset 0 0 24px rgba(140, 255, 102, .22), 0 0 24px rgba(140, 255, 102, .28); }
 }
 #challenges-view { min-height: calc(100vh - 260px); padding-bottom: 70px; }
 .challenge-lock { grid-column: 1 / -1; justify-self: center; max-width: 620px; padding: 70px 24px; text-align: center; }
