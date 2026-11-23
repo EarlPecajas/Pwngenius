@@ -222,7 +222,11 @@ module.exports = async function handler(request, response) {
       const gateSolvedForVisibility = validUnlockGateId && gateSolved;
       const visibleChallenges = isAdmin
         ? challenges
-        : !validUnlockGateId || gateSolvedForVisibility
+        : gateSolvedForVisibility
+          ? challenges.filter((challenge) =>
+              challenge.locked !== true && challenge.id !== validUnlockGateId
+            )
+        : !validUnlockGateId
           ? challenges.filter((challenge) => challenge.locked !== true)
           : challenges.filter((challenge) => challenge.id === validUnlockGateId);
       return response.status(200).json({

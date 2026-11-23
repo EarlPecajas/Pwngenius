@@ -23,7 +23,9 @@ async function loadChallenges() {
     list.innerHTML = '<div class="challenge-lock"><span class="challenge-lock-icon">◈</span><h3>CHALLENGES HAVE NOT STARTED</h3><p>Please wait while the admin unlocks the arena.</p></div>';
     return;
   }
-  allChallenges = result.challenges;
+  allChallenges = result.challenges.filter((challenge) =>
+    !(result.unlockGateSolved && challenge.id === result.unlockGateId)
+  );
   renderChallenges();
 }
 
