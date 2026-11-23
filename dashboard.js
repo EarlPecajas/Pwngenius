@@ -54,21 +54,25 @@ function renderChallenges() {
     );
   });
   list.innerHTML = [...categories.entries()].map(([category, challenges]) => `
-    <section class="challenge-category-section">
+    <section class="challenge-category-section${challenges.every((challenge) => challenge.unlockGate) ? ' unlock-gate-section' : ''}">
       <div class="challenge-category-heading">
         <h2>${escapeHtml(category)}</h2>
       </div>
-      <div class="challenge-category-grid">
+      <div class="challenge-category-grid${challenges.every((challenge) => challenge.unlockGate) ? ' unlock-gate-grid' : ''}">
         ${challenges.map((challenge) => `
-    <article class="challenge-panel${challenge.solved ? ' solved' : ''}">
+    <article class="challenge-panel${challenge.solved ? ' solved' : ''}${challenge.unlockGate ? ' unlock-gate-panel' : ''}">
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
-        <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
-        <strong>${escapeHtml(challenge.name)}</strong>
-        ${challenge.unlockGate ? '<span class="challenge-score">UNLOCK CHALLENGE</span>' : `<span class="challenge-score">${challenge.points} PTS</span>`}
-        <span class="challenge-solve-count">${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}</span>
-        <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
-        ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} DOWNLOADABLE FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
-        <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
+        ${challenge.unlockGate ? `
+          <span class="unlock-gate-message">Solve the challenge to unlock the challenges</span>
+        ` : `
+          <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
+          <strong>${escapeHtml(challenge.name)}</strong>
+          <span class="challenge-score">${challenge.points} PTS</span>
+          <span class="challenge-solve-count">${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}</span>
+          <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
+          ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} DOWNLOADABLE FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
+          <span class="challenge-solved${challenge.solved ? '' : ' hidden'}">✓ SOLVED</span>
+        `}
         <span class="challenge-open">VIEW CHALLENGE <span>↗</span></span>
       </button>
     </article>
