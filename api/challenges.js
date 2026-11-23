@@ -27,6 +27,30 @@ function validateDifficultyPoints(difficulty, points) {
   }
 }
 
+const UNLOCK_GATE_SETTING = 'challenge_unlock_gate_id';
+
+async function getUnlockGateId() {
+  const settings = await supabaseRequest(
+    `site_settings?key=eq.${UNLOCK_GATE_SETTING}&select=value&limit=1`
+  );
+  return settings[0]?.value || null;
+}
+
+async function setUnlockGateId(challengeId) {
+  if (!challengeId) {
+    await supabaseRequest(
+      `site_settings?key=eq.${UNLOCK_GATE_SETTING}`,
+      { method: 'DELETE' }
+    );
+    return;
+  }
+  await supabaseRequest('site_settings?on_conflict=key', {
+    method: 'POST',
+    headers: { Prefer: 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ key: UNLOCK_GATE_SETTING, value: challengeId })
+  });
+}
+
 function submissionLimitKey(challengeId) {
   return `challenge_submission_limit:${challengeId}`;
 }
@@ -146,6 +170,7 @@ module.exports = async function handler(request, response) {
       if (!isAdmin && settings[0]?.value !== 'false') {
         return response.status(200).json({ locked: true, challenges: [] });
       }
+      const unlockGateId = await getUnlockGateId();
       const challenges = await supabaseRequest(
         'challenges?select=id,name,category,difficulty,description,hint,author,points,locked,created_at&order=created_at.desc'
       );
@@ -190,10 +215,23 @@ module.exports = async function handler(request, response) {
           return [setting.key.slice('challenge_files:'.length), []];
         }
       }));
+      const gateSolved = unlockGateId && solvedIds.has(unlockGateId);
+      const validUnlockGateId = unlockGateId && challenges.some((challenge) => challenge.id === unlockGateId)
+        ? unlockGateId
+        : null;
+      const gateSolvedForVisibility = validUnlockGateId && gateSolved;
+      const visibleChallenges = isAdmin
+        ? challenges
+        : !validUnlockGateId || gateSolvedForVisibility
+          ? challenges.filter((challenge) => challenge.locked !== true)
+          : challenges.filter((challenge) => challenge.id === validUnlockGateId);
       return response.status(200).json({
         locked: !isAdmin && settings[0]?.value !== 'false',
-        challenges: (isAdmin ? challenges : challenges.filter((challenge) => challenge.locked !== true)).map((challenge) => ({
+        unlockGateId: validUnlockGateId,
+        unlockGateSolved: isAdmin ? false : Boolean(gateSolvedForVisibility),
+        challenges: visibleChallenges.map((challenge) => ({
           ...challenge,
+          unlockGate: challenge.id === validUnlockGateId,
           solved: solvedIds.has(challenge.id),
           solveCount: solversByChallenge.get(challenge.id)?.size || 0,
           solvers: [...(solversByChallenge.get(challenge.id) || new Map()).entries()].map(([userId, solvedAt]) => {
@@ -217,18 +255,21 @@ module.exports = async function handler(request, response) {
     if (request.method === 'POST') {
       await requireAdmin(request);
       const body = request.body || {};
-      const required = ['title', 'category', 'difficulty', 'description', 'hint', 'flag', 'author'];
+      const unlockGate = body.unlock_gate === true;
+      const required = unlockGate
+        ? ['title', 'description', 'hint', 'flag', 'author']
+        : ['title', 'category', 'difficulty', 'description', 'hint', 'flag', 'author'];
       if (required.some((field) => typeof body[field] !== 'string' || !body[field].trim())) {
         return response.status(400).json({ error: 'All challenge fields are required' });
       }
       const id = body.title.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-      const points = Number.isInteger(body.points) ? body.points : 100;
-      validateDifficultyPoints(body.difficulty.trim(), points);
+      const points = unlockGate ? 0 : (Number.isInteger(body.points) ? body.points : 100);
+      if (!unlockGate) validateDifficultyPoints(body.difficulty.trim(), points);
       const challengeData = {
           id,
           name: body.title.trim(),
-          category: body.category.trim(),
-          difficulty: body.difficulty.trim(),
+          category: unlockGate ? 'Unknown' : body.category.trim(),
+          difficulty: unlockGate ? 'Unknown' : body.difficulty.trim(),
           description: body.description.trim(),
           hint: body.hint.trim(),
           author: body.author.trim(),
@@ -250,6 +291,7 @@ module.exports = async function handler(request, response) {
         id,
         normalizeSubmissionLimit(body.submission_limit)
       );
+      if (unlockGate) await setUnlockGateId(id);
       const uploadedFiles = await uploadChallengeFiles(id, body.challenge_files);
       await setChallengeFiles(id, uploadedFiles);
       return response.status(201).json({ challenge: created?.[0] || null });
@@ -266,19 +308,20 @@ module.exports = async function handler(request, response) {
 
       const update = {
         name: body.title.trim(),
-        category: body.category.trim(),
-        difficulty: body.difficulty.trim(),
+        category: body.unlock_gate === true ? 'Unknown' : body.category.trim(),
+        difficulty: body.unlock_gate === true ? 'Unknown' : body.difficulty.trim(),
         description: body.description.trim(),
         hint: body.hint.trim(),
         author: body.author.trim()
       };
-      const points = Number.isInteger(body.points) ? body.points : null;
-      if (points !== null) validateDifficultyPoints(body.difficulty.trim(), points);
+      const points = body.unlock_gate === true ? 0 : (Number.isInteger(body.points) ? body.points : null);
+      if (body.unlock_gate !== true && points !== null) validateDifficultyPoints(body.difficulty.trim(), points);
       if (typeof body.flag === 'string' && body.flag.trim()) {
         update.flag_hash = hashFlag(body.flag.trim());
       }
       if (Number.isInteger(body.points)) update.points = body.points;
       if (typeof body.locked === 'boolean') update.locked = body.locked;
+      if (body.unlock_gate === true) update.points = 0;
       if (body.submission_limit === null) {
         update.submission_limit = null;
       } else if (Number.isInteger(body.submission_limit) && body.submission_limit >= 1) {
@@ -295,6 +338,12 @@ module.exports = async function handler(request, response) {
         id,
         normalizeSubmissionLimit(body.submission_limit)
       );
+      if (body.unlock_gate === true) {
+        await setUnlockGateId(id);
+      } else {
+        const currentGateId = await getUnlockGateId();
+        if (currentGateId === id) await setUnlockGateId(null);
+      }
       if (Array.isArray(body.challenge_files) && body.challenge_files.length) {
         const uploadedFiles = await uploadChallengeFiles(id, body.challenge_files);
         const existingFiles = await getChallengeFiles(id);
@@ -315,6 +364,8 @@ module.exports = async function handler(request, response) {
         `site_settings?key=eq.${encodeURIComponent(challengeFilesKey(id))}`,
         { method: 'DELETE' }
       );
+      const currentGateId = await getUnlockGateId();
+      if (currentGateId === id) await setUnlockGateId(null);
       await supabaseRequest(`submissions?challenge_id=eq.${encodeURIComponent(id)}`, {
         method: 'DELETE'
       });

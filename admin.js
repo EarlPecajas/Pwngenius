@@ -60,6 +60,23 @@ function parseHints(value) {
   return hint ? [hint] : [];
 }
 
+function syncUnlockGateFields(form, isGate) {
+  const prefix = form.id === 'challenge-form' ? 'publish' : 'edit';
+  const categoryField = document.querySelector(`#${prefix}-category-field`);
+  const difficultyField = document.querySelector(`#${prefix}-difficulty-field`);
+  const pointsField = document.querySelector(`#${prefix}-points-field`);
+  [categoryField, difficultyField, pointsField].forEach((field) => {
+    if (field) field.classList.toggle('hidden', isGate);
+  });
+  if (form.elements.category) form.elements.category.required = !isGate;
+  if (form.elements.difficulty) form.elements.difficulty.required = !isGate;
+  if (form.elements.points) form.elements.points.required = !isGate;
+  if (isGate) {
+    if (form.elements.category) form.elements.category.value = 'Unknown';
+    if (form.elements.difficulty) form.elements.difficulty.value = 'Unknown';
+  }
+}
+
 document.querySelector('#add-publish-hint').addEventListener('click', () => {
   addHintRow(document.querySelector('#publish-hint-list'));
 });
@@ -220,7 +237,7 @@ async function loadChallenges() {
               <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
               <strong>${escapeHtml(challenge.name)}</strong>
               <span class="challenge-meta">${escapeHtml(challenge.author || 'Anonymous')}</span>
-              <span class="challenge-score">${challenge.points} PTS</span>
+              ${challenge.unlockGate ? '<span class="challenge-score">UNLOCK CHALLENGE</span>' : `<span class="challenge-score">${challenge.points} PTS</span>`}
               <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
               ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
               <span class="admin-challenge-card-hint">CLICK TO EDIT</span>
@@ -244,7 +261,7 @@ async function loadChallenges() {
       try {
         await adminRequest('/api/challenges', {
           method: 'PATCH',
-          body: JSON.stringify({ id: challenge.id, title: challenge.name, category: challenge.category, difficulty: challenge.difficulty, description: challenge.description, hint: challenge.hint, author: challenge.author, points: challenge.points, submission_limit: challenge.submissionLimit, locked: !challenge.locked })
+          body: JSON.stringify({ id: challenge.id, title: challenge.name, category: challenge.category, difficulty: challenge.difficulty, description: challenge.description, hint: challenge.hint, author: challenge.author, points: challenge.points, submission_limit: challenge.submissionLimit, locked: !challenge.locked, unlock_gate: challenge.unlockGate === true })
         });
         await loadChallenges();
       } catch (error) {
@@ -283,8 +300,12 @@ function openChallengeEditor(challenge) {
   syncDifficultyPoints(form, challenge.difficulty, challenge.points);
   form.elements.submission_limit.value = challenge.submissionLimit || '';
   form.elements.locked.checked = challenge.locked === true;
+  form.elements.unlock_gate.checked = challenge.unlockGate === true;
+  syncUnlockGateFields(form, challenge.unlockGate === true);
   form.querySelector('.form-status').textContent = '';
-  document.querySelector('#admin-edit-meta').textContent = `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
+  document.querySelector('#admin-edit-meta').textContent = challenge.unlockGate
+    ? 'UNKNOWN / UNKNOWN · UNLOCK CHALLENGE'
+    : `${challenge.category} / ${challenge.difficulty} · ${challenge.points} PTS`;
   document.querySelector('#admin-edit-title').textContent = challenge.name;
   modal.classList.remove('hidden');
 }
@@ -344,6 +365,7 @@ async function updateChallenge(event, form) {
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   values.locked = form.elements.locked.checked;
+  values.unlock_gate = form.elements.unlock_gate.checked;
   try {
     values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'PATCH', body: JSON.stringify(values) });
@@ -461,6 +483,7 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
   values.points = Number(values.points);
   values.submission_limit = values.submission_limit ? Number(values.submission_limit) : null;
   values.locked = form.elements.locked.checked;
+  values.unlock_gate = form.elements.unlock_gate.checked;
   try {
     values.challenge_files = await readChallengeFiles(form);
     await adminRequest('/api/challenges', { method: 'POST', body: JSON.stringify(values) });
@@ -470,6 +493,8 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
     addHintRow(publishHintList);
     syncDifficultyPoints(form, 'Easy', 20);
     form.elements.difficulty.value = '';
+    form.elements.unlock_gate.checked = false;
+    syncUnlockGateFields(form, false);
     form.elements.submission_limit.value = '';
     status('CHALLENGE PUBLISHED', 'success');
     await loadChallenges();
@@ -480,6 +505,14 @@ document.querySelector('#challenge-form').addEventListener('submit', async (even
 
 document.querySelector('#challenge-form').elements.difficulty.addEventListener('change', (event) => {
   syncDifficultyPoints(event.currentTarget.form, event.target.value);
+});
+
+document.querySelector('#challenge-form').elements.unlock_gate.addEventListener('change', (event) => {
+  syncUnlockGateFields(event.currentTarget.form, event.currentTarget.checked);
+});
+
+document.querySelector('#admin-edit-form').elements.unlock_gate.addEventListener('change', (event) => {
+  syncUnlockGateFields(event.currentTarget.form, event.currentTarget.checked);
 });
 
 document.querySelector('#admin-edit-form').elements.difficulty.addEventListener('change', (event) => {

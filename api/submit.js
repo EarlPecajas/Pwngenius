@@ -23,8 +23,9 @@ module.exports = async function handler(request, response) {
     const flag = typeof request.body?.flag === 'string' ? request.body.flag.trim() : '';
     if (!challengeId || !flag) return response.status(400).json({ correct: false });
 
-    const [settings, challengeRows, previousCorrect, limitSettings] = await Promise.all([
+    const [settings, gateSettings, challengeRows, previousCorrect, limitSettings] = await Promise.all([
       supabaseRequest('site_settings?key=eq.challenges_locked&select=value&limit=1'),
+      supabaseRequest('site_settings?key=eq.challenge_unlock_gate_id&select=value&limit=1'),
       supabaseRequest(`challenges?id=eq.${encodeURIComponent(challengeId)}&select=id,flag_hash,locked&limit=1`),
       supabaseRequest(`submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(challengeId)}&correct=eq.true&select=id&limit=1`),
       supabaseRequest(`site_settings?key=eq.${encodeURIComponent(`challenge_submission_limit:${challengeId}`)}&select=value&limit=1`)
@@ -34,6 +35,15 @@ module.exports = async function handler(request, response) {
     }
     if (challengeRows[0]?.locked === true) {
       return response.status(423).json({ error: 'This challenge is locked' });
+    }
+    const unlockGateId = gateSettings[0]?.value || null;
+    if (unlockGateId && challengeId !== unlockGateId) {
+      const gateSolved = await supabaseRequest(
+        `submissions?user_id=eq.${encodeURIComponent(user.id)}&challenge_id=eq.${encodeURIComponent(unlockGateId)}&correct=eq.true&select=id&limit=1`
+      );
+      if (!gateSolved.length) {
+        return response.status(423).json({ error: 'Solve the unlocking challenge first' });
+      }
     }
     if (previousCorrect.length) {
       return response.status(200).json({ correct: true, alreadySolved: true });

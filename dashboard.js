@@ -64,7 +64,7 @@ function renderChallenges() {
       <button class="challenge-card-toggle" type="button" data-challenge-id="${escapeHtml(challenge.id)}">
         <span class="challenge-meta">${escapeHtml(challenge.category)} / ${escapeHtml(challenge.difficulty)}</span>
         <strong>${escapeHtml(challenge.name)}</strong>
-        <span class="challenge-score">${challenge.points} PTS</span>
+        ${challenge.unlockGate ? '<span class="challenge-score">UNLOCK CHALLENGE</span>' : `<span class="challenge-score">${challenge.points} PTS</span>`}
         <span class="challenge-solve-count">${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}</span>
         <span class="challenge-meta">${challenge.submissionLimit ? `${challenge.submissionCount || 0}/${challenge.submissionLimit} SUBMISSIONS` : 'UNLIMITED SUBMISSIONS'}</span>
         ${challenge.files?.length ? `<span class="challenge-meta">${challenge.files.length} DOWNLOADABLE FILE${challenge.files.length === 1 ? '' : 'S'}</span>` : ''}
@@ -102,7 +102,9 @@ function openChallenge(challenge) {
   resetChallengeModal();
   document.querySelector('#modal-meta').textContent = `${challenge.category} / ${challenge.difficulty}`;
   document.querySelector('#modal-title').textContent = challenge.name;
-  document.querySelector('#modal-points').textContent = `${challenge.points} PTS`;
+  document.querySelector('#modal-points').textContent = challenge.unlockGate
+    ? 'UNLOCK CHALLENGE'
+    : `${challenge.points} PTS`;
   document.querySelector('#modal-author').textContent = challenge.author ? `BY ${challenge.author}` : '';
   document.querySelector('#modal-solve-count').textContent =
     `${challenge.solveCount || 0} SOLVE${challenge.solveCount === 1 ? '' : 'S'}`;

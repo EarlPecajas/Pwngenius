@@ -49,10 +49,11 @@
         <form id="challenge-form" class="admin-form">
           <div class="admin-form-grid">
             <label class="admin-field"><span>CHALLENGE TITLE</span><input name="title" required /></label>
-            <label class="admin-field"><span>CATEGORY</span><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-            <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
-            <label class="admin-field"><span>POINTS</span><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select></label>
+            <label class="admin-field" id="publish-category-field"><span>CATEGORY</span><select name="category" required><option value="" disabled selected>Select category</option><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
+            <label class="admin-field" id="publish-difficulty-field"><span>DIFFICULTY</span><select name="difficulty" required><option value="" disabled selected>Select difficulty</option><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
+            <label class="admin-field" id="publish-points-field"><span>POINTS</span><select name="points" required><option value="20">20 POINTS</option><option value="30">30 POINTS</option></select></label>
             <label class="admin-field"><span>AUTHOR</span><input name="author" required /></label>
+            <label class="admin-field admin-field-full"><span>UNLOCK OPTION</span><label class="lock-choice"><input name="unlock_gate" type="checkbox" /> UNLOCKING CHALLENGE — SOLVE THIS FIRST TO ACCESS ALL CHALLENGES</label></label>
             <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
             <div class="admin-field admin-field-full">
               <span class="admin-field-label">HINTS</span>
@@ -89,10 +90,11 @@
             <h2 id="admin-edit-title">EDIT CHALLENGE</h2>
             <form id="admin-edit-form" class="admin-challenge-row">
               <label class="admin-field"><span>TITLE</span><input name="title" required /></label>
-              <label class="admin-field"><span>CATEGORY</span><select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option></select></label>
-              <label class="admin-field"><span>DIFFICULTY</span><select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option></select></label>
-              <label class="admin-field"><span>POINTS</span><select name="points" required></select></label>
+              <label class="admin-field" id="edit-category-field"><span>CATEGORY</span><select name="category" required><option>Forensics</option><option>OSINT</option><option>Cryptography</option><option>Steganography</option><option>Web Exploitation</option><option>Miscellaneous</option><option>Unknown</option></select></label>
+              <label class="admin-field" id="edit-difficulty-field"><span>DIFFICULTY</span><select name="difficulty" required><option>Easy</option><option>Medium</option><option>Hard</option><option>Super Hard</option><option>Insane</option><option>Unknown</option></select></label>
+              <label class="admin-field" id="edit-points-field"><span>POINTS</span><select name="points" required></select></label>
               <label class="admin-field"><span>AUTHOR</span><input name="author" required /></label>
+              <label class="admin-field admin-field-full"><span>UNLOCK OPTION</span><label class="lock-choice"><input name="unlock_gate" type="checkbox" /> UNLOCKING CHALLENGE — SOLVE THIS FIRST TO ACCESS ALL CHALLENGES</label></label>
               <label class="admin-field admin-field-full"><span>DESCRIPTION</span><textarea name="description" required></textarea></label>
               <div class="admin-field admin-field-full">
                 <span class="admin-field-label">HINTS</span>
