@@ -342,12 +342,17 @@ async function loadLeaderboard() {
     if (result.published) {
       const top = result.leaderboard.slice(0, 3);
       const remaining = result.leaderboard.slice(3);
+      const podiumPlayers = [
+        top[1] ? { ...top[1], place: 2 } : null,
+        top[0] ? { ...top[0], place: 1 } : null,
+        top[2] ? { ...top[2], place: 3 } : null
+      ].filter(Boolean);
       container.innerHTML = `
         ${result.title ? `<h2 class="published-leaderboard-title">${escapeHtml(result.title)}</h2>` : ''}
         <div class="leaderboard-podium">
-          ${top.map((player, index) => `
-            <article class="podium-place podium-place-${index + 1}${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
-              <span class="podium-medal">${['🥇', '🥈', '🥉'][index]}</span>
+          ${podiumPlayers.map((player) => `
+            <article class="podium-place podium-place-${player.place}${isCurrentPlayer(player.username, result.currentUsername) ? ' current-player' : ''}">
+              <span class="podium-medal">${player.place === 1 ? '🥇' : player.place === 2 ? '🥈' : '🥉'}</span>
               <strong>@${escapeHtml(player.username)}</strong>
               <span>${player.score} PTS</span>
             </article>

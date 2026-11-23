@@ -497,8 +497,32 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .podium-place strong { font-size: clamp(15px, 2vw, 22px); }
 .podium-place > span:last-child { color: var(--lime); font: 12px 'DM Mono', monospace; }
 .published-leaderboard-list { display: grid; gap: 8px; }
-.event-schedule-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; width: 100%; }
-.leaderboard-publish-title { min-width: min(420px, 100%); }
+.event-schedule-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  width: 100%;
+  flex: 1 1 100%;
+  margin-top: 8px;
+}
+.event-schedule-grid input {
+  width: 100%;
+  min-height: 58px;
+  font-size: 16px;
+  padding: 14px 16px;
+}
+.leaderboard-publish-title {
+  width: 100%;
+  flex: 1 1 100%;
+  max-width: none;
+  margin-bottom: 8px;
+}
+.leaderboard-publish-title input {
+  width: 100%;
+  min-height: 58px;
+  font-size: 16px;
+  padding: 14px 16px;
+}
 @media (max-width: 620px) {
   .leaderboard-podium { grid-template-columns: 1fr; align-items: stretch; }
   .podium-place,
@@ -538,9 +562,6 @@ footer { min-height: 64px; display: flex; align-items: center; justify-content: 
 .certification-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: center; gap: 24px; }
 .certification-grid img { display: block; width: 100%; max-width: 220px; height: 140px; margin: auto; object-fit: contain; padding: 0; background: transparent; border: 0; }
 .public-leaderboard-row { display: grid; grid-template-columns: 55px 1fr auto; align-items: center; gap: 18px; background: #070d18; border: 1px solid var(--line); padding: 20px 22px; transition: .2s ease; }
-.public-leaderboard-row:nth-child(1) { border-left: 3px solid #d7ed4b; }
-.public-leaderboard-row:nth-child(2) { border-left: 3px solid #70c8ff; }
-.public-leaderboard-row:nth-child(3) { border-left: 3px solid #ff765e; }
 .public-leaderboard-row:hover { transform: translateX(4px); border-color: rgba(61, 139, 255, .55); background: #101e35; }
 .public-leaderboard-row.current-player { border: 1px solid var(--lime); background: linear-gradient(90deg, rgba(215, 237, 75, .16), #101e35); box-shadow: 0 0 18px rgba(215, 237, 75, .09); }
 .public-leaderboard-row strong { display: flex; align-items: center; gap: 10px; }

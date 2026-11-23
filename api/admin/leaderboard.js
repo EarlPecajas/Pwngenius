@@ -51,24 +51,41 @@ module.exports = async function handler(request, response) {
       const title = typeof request.body?.title === 'string' ? request.body.title.trim() : '';
       const [profiles, submissions, challenges] = await Promise.all([
         supabaseRequest('profiles?select=id,username'),
-        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id'),
+        supabaseRequest('submissions?correct=eq.true&select=user_id,challenge_id,created_at'),
         supabaseRequest('challenges?select=id,points')
       ]);
       const points = new Map(challenges.map((challenge) => [challenge.id, challenge.points]));
       const solved = new Map();
+      const firstSolveByChallenge = new Map();
       submissions.forEach((submission) => {
         if (!submission.user_id) return;
         if (!solved.has(submission.user_id)) solved.set(submission.user_id, new Set());
         solved.get(submission.user_id).add(submission.challenge_id);
+        if (submission.created_at) {
+          const key = `${submission.user_id}:${submission.challenge_id}`;
+          const current = firstSolveByChallenge.get(key);
+          if (!current || new Date(submission.created_at) < new Date(current)) {
+            firstSolveByChallenge.set(key, submission.created_at);
+          }
+        }
       });
       const snapshot = profiles.map((profile) => {
         const solvedIds = solved.get(profile.id) || new Set();
+        const completionTimes = [...solvedIds]
+          .map((challengeId) => firstSolveByChallenge.get(`${profile.id}:${challengeId}`))
+          .filter(Boolean)
+          .map((timestamp) => new Date(timestamp).getTime());
+        const completionAt = completionTimes.length ? Math.max(...completionTimes) : null;
         return {
           username: profile.username || 'Unknown player',
           score: [...solvedIds].reduce((total, challengeId) => total + (points.get(challengeId) || 0), 0),
-          solvedCount: solvedIds.size
+          solvedCount: solvedIds.size,
+          completionAt: completionAt ? new Date(completionAt).toISOString() : null
         };
-      }).sort((left, right) => right.score - left.score || left.username.localeCompare(right.username))
+      }).sort((left, right) => right.score - left.score
+        || (left.completionAt ? new Date(left.completionAt).getTime() : Number.POSITIVE_INFINITY)
+          - (right.completionAt ? new Date(right.completionAt).getTime() : Number.POSITIVE_INFINITY)
+        || left.username.localeCompare(right.username))
         .map((player, index) => ({ ...player, position: index + 1 }));
       await supabaseRequest('site_settings?on_conflict=key', {
         method: 'POST',
